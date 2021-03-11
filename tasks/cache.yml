@@ -1,0 +1,5 @@
+- name: Create cache directory
+  file:
+    path: /var/cache/ansible
+    state: directory
+    recurse: yes

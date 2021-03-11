@@ -1,0 +1,5 @@
+---
+roles:
+  - name: gantsign.visual-studio-code
+collections:
+  - name: community.general

@@ -1,0 +1,14 @@
+- name: Install psutil module
+  pip:
+    name: psutil
+
+- name: Copy wallpaper file
+  copy: src=files/wallpaper.jpg dest=/home/{{ user }}/.wallpaper.jpg owner={{ user }} group={{ user }} mode=600
+
+- name: Set GNOME Wallpaper
+  become_user: "{{ user }}"
+  dconf: key="/org/gnome/desktop/background/picture-uri" value="'file:///home/{{ user }}/.wallpaper.jpg'"
+
+- name: Set Pop Dark theme
+  become_user: "{{ user }}"
+  dconf: key="/org/gnome/desktop/interface/gtk-theme" value="'Pop-dark'"

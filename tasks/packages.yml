@@ -1,0 +1,125 @@
+- name: Install apt packages
+  apt:
+    pkg:
+      - alacritty
+      - ansible
+      - ansible-lint
+      - apt-transport-https
+      - aria2
+      - autoconf
+      - automake
+      - build-essential
+      - ca-certificates
+      - calibre
+      - clang-format
+      - cmake
+      - composer
+      - cowsay
+      - curl
+      - exfat-utils
+      - fail2ban
+      - fastboot
+      - git
+      - gnome-boxes
+      - golang
+      - gulp
+      - gzip
+      - htop
+      - httpie
+      - imagemagick
+      - inkscape
+      - iperf
+      - julia
+      - language-pack-es
+      - latexmk
+      - libharfbuzz-bin
+      - libreadline-dev
+      - libsqlite3-dev
+      - libssl-dev
+      - libxml2-dev
+      - libxslt1-dev
+      - libyaml-dev
+      - linux-cloud-tools-generic
+      - linux-tools-common
+      - linux-tools-generic
+      - llvm
+      - lolcat
+      - magic-wormhole
+      - masscan
+      - mesa-common-dev
+      - meson
+      - micro
+      - minicom
+      - mlocate
+      - mosh
+      - musixmatch
+      - ncdu
+      - neofetch
+      - network-manager-openvpn
+      - nmap
+      - nodejs
+      - npm
+      - nvtop
+      - openvpn
+      - pavucontrol
+      - preload
+      - protobuf-compiler
+      - python3-colorama
+      - python3-pip
+      - rstudio
+      - snapd
+      - software-properties-common
+      - spotify-client
+      - sqlite3
+      - texlive-full
+      - transmission
+      - ubuntu-make
+      - ufw
+      - unrar
+      - vim
+      - whois
+      - zlib1g-dev
+
+
+- name: Install normal snap packages
+  community.general.snap:
+    name:
+      - foliate
+      - hugo
+      - todoist
+      - ipfs-desktop
+      - musixmatch
+
+- name: Install classic snap packages
+  community.general.snap:
+    name:
+      - flutter
+      - shotcut
+    classic: yes
+
+- name: Install edge snap packages
+  community.general.snap:
+    name:
+      - 1password
+    channel: latest/edge
+
+- name: Install flatpak packages
+  community.general.flatpak: name={{item}}
+  with_items:
+    - com.axosoft.GitKraken
+    - com.github.xournalpp.xournalpp
+    - com.stremio.Stremio
+    - org.telegram.desktop
+    - org.zotero.Zotero
+    - md.obsidian.Obsidian
+
+- name: Install Python modules
+  pip:
+    name:
+      - numpy
+      - pandas
+      - ray[all]
+      - black
+      - flake8
+      - seaborn
+      - plotly

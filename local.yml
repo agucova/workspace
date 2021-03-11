@@ -1,0 +1,21 @@
+- hosts: localhost
+  become: true
+  vars:
+    user: agucova
+    github_user: agucova
+    repo_name: workspace
+    cache_dir: /var/cache/ansible
+  pre_tasks:
+    - name: update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      changed_when: false
+    - include: tasks/cache.yml
+    - include: tasks/users.yml
+    - include: tasks/packages.yml
+    - include: tasks/cron.yml
+    - include: tasks/gnome.yml
+    - include: tasks/zoom.yml
+  roles:
+    - role: gantsign.visual-studio-code
