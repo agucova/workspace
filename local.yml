@@ -5,6 +5,12 @@
     github_user: agucova
     repo_name: workspace
     cache_dir: /var/cache/ansible
+  vars_prompt:
+    - name: wolfram_email
+      prompt: "What is your Wolfram Account email?"
+      private: no
+    - name: mathematica_lic_key
+      prompt: "What is your Mathematica License Key? (no dash)"
   pre_tasks:
     - name: update apt cache
       apt:
@@ -13,9 +19,12 @@
       changed_when: false
     - include: tasks/cache.yml
     - include: tasks/users.yml
+    - include: tasks/directories.yml
     - include: tasks/packages.yml
     - include: tasks/cron.yml
     - include: tasks/gnome.yml
     - include: tasks/zoom.yml
+    - include: tasks/firefox-dev.yml
+    - include: tasks/mathematica.yml
   roles:
     - role: gantsign.visual-studio-code

@@ -1,0 +1,15 @@
+- name: Create ~/repos/
+  file:
+    path: /home/{{ user }}/repos
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0775
+
+- name: Create ~/.bin/
+  file:
+    path: /home/{{ user }}/.bin
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0775

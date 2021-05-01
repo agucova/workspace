@@ -1,0 +1,7 @@
+# Key fingerprint: 3960 60CA DD8A 7522 0BFC B369 B903 BF18 61A7 C71D
+- name: Download Mathematica
+  get_url: url=https://user.wolfram.com/portal/mySiteUserProduct.html?licnumber={{ mathematica_lic_key }}&email={{ wolfram_email }}&lpid=4895256#
+           dest={{cache_dir}}/mathematica.sh
+- name: Install Mathematica
+  become: yes
+  script: "{{cache_dir}}/mathematica.sh -y"

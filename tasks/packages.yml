@@ -78,6 +78,7 @@
       - unrar
       - vim
       - whois
+      - xz-utils
       - zlib1g-dev
 
 
