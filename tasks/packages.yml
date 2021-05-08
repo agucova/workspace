@@ -1,3 +1,23 @@
+- name: Add ulauncher repo
+  ansible.builtin.apt_repository:
+    repo: ppa:agornostal/ulauncher
+    state: present
+
+- name: Add fish repo
+  ansible.builtin.apt_repository:
+    repo: ppa:fish-shell/release-3
+    state: present
+
+- name: Add fish repo
+  ansible.builtin.apt_repository:
+    repo: ppa:nilarimogard/webupd8
+    state: present
+
+- name: Add insync repo 
+  ansible.builtin.apt_repository:
+    repo: http://apt.insync.io/ubuntu groovy non-free contrib
+    state: present
+
 - name: Install apt packages
   apt:
     pkg:
@@ -80,6 +100,8 @@
       - whois
       - xz-utils
       - zlib1g-dev
+      - ulauncher
+      - insync
 
 
 - name: Install normal snap packages
@@ -113,7 +135,7 @@
     - org.telegram.desktop
     - org.zotero.Zotero
     - md.obsidian.Obsidian
-
+    - org.jamovi.jamovi
 - name: Install Python modules
   pip:
     name:

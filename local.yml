@@ -20,11 +20,25 @@
     - include: tasks/cache.yml
     - include: tasks/users.yml
     - include: tasks/directories.yml
-    - include: tasks/packages.yml
     - include: tasks/cron.yml
     - include: tasks/gnome.yml
     - include: tasks/zoom.yml
     - include: tasks/firefox-dev.yml
-    - include: tasks/mathematica.yml
   roles:
+    - role: markosamuli.linuxbrew
+      linuxbrew_use_installer: true
+    - role: markosamuli.pyenv
+      pyenv_python_versions:
+        - "3.10-dev"
+        - "3.9.2"
+        - "3.8.9"
+        - "3.7.9"
+      pyenv_global: "3.9.2 system"
+      pyenv_homebrew_on_linux: true
     - role: gantsign.visual-studio-code
+    - role: crivetimihai.virtualization.kvm
+    - role: crivetimihai.virtualization.podman
+    - role: crivetimihai.virtualization.docker
+  tasks:
+    - include: tasks/packages.yml
+    - include: tasks/mathematica.yml

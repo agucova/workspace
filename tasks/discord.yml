@@ -1,0 +1,9 @@
+# Key fingerprint: 3960 60CA DD8A 7522 0BFC B369 B903 BF18 61A7 C71D
+- name: Download Discord
+  get_url: url=https://discordapp.com/api/download?platform=linux&format=deb
+           dest={{cache_dir}}/discord.deb
+
+- name: Install Discord
+  become: true
+  apt: deb={{cache_dir}}/discord.deb
+       state=present
