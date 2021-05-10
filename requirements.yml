@@ -1,8 +1,9 @@
 ---
 roles:
   - name: gantsign.visual-studio-code
-  - name: markosamuli.linuxbrew
-  - name: markosamuli.pyenv
+  - name: jan_matthis.julia
+  - name: agucova.asdf
+    src: git+https://github.com/agucova/ansible-asdf.git
 collections:
   - name: community.general
   - name: crivetimihai.virtualization

@@ -1,0 +1,10 @@
+- name: Install chezmoi
+  community.general.snap:
+    name:
+      - chezmoi
+    classic: yes
+
+- name: Install and apply dotfiles
+  command:
+    cmd: chezmoi init git@github.com:{{ user }}/dotfiles.git && chezmoi apply
+    creates: "/home/{{ user }}/.local/share/chezmoi"

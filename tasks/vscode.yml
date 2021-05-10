@@ -1,9 +1,0 @@
-# Key fingerprint: 3960 60CA DD8A 7522 0BFC B369 B903 BF18 61A7 C71D
-- name: Download VSCode
-  get_url: url=https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
-           dest={{cache_dir}}/vscode.deb
-
-- name: Install VSCode
-  become: true
-  apt: deb={{cache_dir}}/vscode.deb
-       state=present

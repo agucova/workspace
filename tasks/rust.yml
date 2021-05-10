@@ -1,0 +1,8 @@
+- name: Install Rust
+  shell:
+    cmd: >
+      curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    creates: "/home/{{ user }}/.cargo/bin/rustup"
+    warn: false
+  become: true
+  become_user: "{{ user }}"

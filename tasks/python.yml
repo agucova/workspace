@@ -1,0 +1,37 @@
+- name: Install pyenv versions
+  command:
+    cmd: "/home/linuxbrew/.linuxbrew/bin/pyenv install -s {{ item }}"
+    creates: "/home/{{ user }}/.pyenv/versions/{{ item }}/"
+  with_items:
+    - "{{ python_latest_version }}"
+    - 3.8.10
+    - 3.7.10
+  become: true
+  become_user: "{{ user }}"
+
+- name: Check global python version
+  command:
+    cmd: "cat /home/{{ user }}/.pyenv/version"
+  become: true
+  become_user: "{{ user }}"
+  register: python_global_version
+  changed_when: false
+
+- name: "Set Python version {{ python_latest_version }} as global"
+  command:
+    cmd: "/home/linuxbrew/.linuxbrew/bin/pyenv global {{ python_latest_version }}"
+  become: true
+  become_user: "{{ user }}"
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin/pyenv:{{ ansible_env.PATH }}"
+  when: python_global_version.stdout != python_latest_version
+
+- name: Download Poetry
+  get_url: url=https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py dest={{ cache_dir }}/get-poetry.py
+
+- name: Install Poetry
+  command:
+    cmd: "/home/agucova/.pyenv/shims/python3 {{ cache_dir }}/poetry.py -y"
+    creates: "/home/{{ user }}/.poetry/bin/poetry"
+  become_user: "{{ user }}"
+  become: true

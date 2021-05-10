@@ -1,6 +1,55 @@
-- name: Add the flathub flatpak repository remote to the user installation
-  community.general.flatpak_remote:
-    name: flathub
-    state: present
-    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
-    method: user
+- name: Check for Firefox Developer Edition
+  stat:
+    path: /opt/firefox-dev/firefox
+  register: firefox_install
+  changed_when: False
+
+- block:
+    - name: Create /opt/firefox-dev/
+      become: true
+      file:
+        path: /opt/firefox-dev/
+        state: directory
+        mode: 0755
+        owner: '{{ user }}'
+        group: '{{ user }}'
+
+    - name: Install Firefox Develloper Edition
+      unarchive:
+        src: https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=fr
+        dest: /opt/firefox-dev
+        remote_src: yes
+  when: not firefox_install.stat.exists
+
+- name: Install .desktop for Firefox Developer Edition
+  copy:
+    dest: ~/.local/share/applications/firefox-dev.desktop
+    content: |
+      [Desktop Entry]
+      Version=1.0
+      Type=Application
+      Name=Firefox Developer Edition
+      GenericName=Web Browser
+      Icon=/opt/firefox-dev/firefox/browser/chrome/icons/default/default128.png
+      Exec=/opt/firefox-dev/firefox/firefox %u
+      X-MultipleArgs=false
+      Comment=Firefox Aurora with Developer tools
+      Terminal=false
+      Categories=GNOME;GTK;Network;WebBrowser;Development;IDE;
+      MimeType=text/html;text/xml;application/xhtml+xml;application/xml;application/rss+xml;application/rdf+xml;image/gif;image/jpeg;image/png;x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/ftp;x-scheme-handler/chrome;video/webm;application/x-xpinstall;
+      StartupNotify=true
+      Actions=ProfileManager;new-window;new-private-window;
+      Keywords=Internet;WWW;Browser;Web;Explorer
+      Keywords[fr]=Internet;WWW;Browser;Web;Explorer;Fureteur;Surfer;Navigateur
+      StartupWMClass=Firefox Developer Edition
+      [Desktop Action ProfileManager]
+      Name=Profile Manager
+      Exec=/opt/firefox-dev/firefox/firefox -P
+      [Desktop Action new-window]
+      Name=Open a New Window
+      Exec=/opt/firefox-dev/firefox/firefox -new-window
+      [Desktop Action new-private-window]
+      Name=Open a New Private Window
+      Exec=/opt/firefox-dev/firefox/firefox -private-window
+  notify:
+    - Update desktop files

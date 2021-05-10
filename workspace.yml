@@ -1,0 +1,75 @@
+- hosts: localhost
+  become: true
+
+  vars:
+    user: agucova
+    github_user: agucova
+    repo_name: workspace
+    cache_dir: /var/cache/ansible
+    python_latest_version: 3.9.5
+    wolfram_email: agucova@uc.cl
+
+  vars_prompt:
+    - name: mathematica_lic_key
+      prompt: "What is your Mathematica License Key? (no dash, skipped if empty)"
+
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      changed_when: false
+    - include: tasks/cache.yml
+    - include: tasks/directories.yml
+    - include: tasks/dotfiles.yml
+    - include: tasks/gnome.yml
+    - include: tasks/zoom.yml
+    - include: tasks/firefox-dev.yml
+
+  roles:
+    # - role: markosamuli.pyenv
+    #   pyenv_python_versions:
+    #     - "3.10-dev"
+    #     - "3.9.2"
+    #     - "3.8.9"
+    #     - "3.7.9"
+    #   pyenv_global: "3.9.2 system"
+    #   pyenv_homebrew_on_linux: true
+
+    - role: gantsign.visual-studio-code
+      julia_symlink_dir: /usr/local
+      julia_dir: /opt/julia
+
+    - role: jan_matthis.julia
+
+    # - role: agucova.asdf
+    #   asdf_plugins:
+    #     - name: aws-nuke
+    #     - name: awscli
+    #     - name: bat
+    #     - name: deno
+    #     - name: flutter
+    #     - name: go
+    #     - name: julia
+    #     - name: nodejs
+    #     - name: pulumi
+    #     - name: terraform
+    #     - name: zig
+
+    - role: crivetimihai.virtualization.kvm
+    - role: crivetimihai.virtualization.podman
+    - role: crivetimihai.virtualization.docker
+
+  tasks:
+    - include: tasks/packages.yml
+    - include: tasks/mathematica.yml
+    - include: tasks/discord.yml
+    - include: tasks/python.yml
+    - include: tasks/rust.yml
+
+  handlers:
+  - name: Update desktop files
+    command: update-desktop-database ~/.local/share/applications -v
+
+  - name: Reload font cache
+    file: src=/home/linuxbrew/.linuxbrew/share/fonts dest=/home/{{ user }}/.local/share/fonts state=link

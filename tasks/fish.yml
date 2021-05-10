@@ -1,0 +1,2 @@
+- name: Set Fish as default for {{ user }}
+  user: name={{ user }} shell=/usr/bin/fish state=present

@@ -1,6 +1,6 @@
 - name: Create ~/repos/
   file:
-    path: /home/{{ user }}/repos
+    path: "/home/{{ user }}/repos"
     state: directory
     owner: "{{ user }}"
     group: "{{ user }}"
@@ -8,7 +8,7 @@
 
 - name: Create ~/.bin/
   file:
-    path: /home/{{ user }}/.bin
+    path: "/home/{{ user }}/.bin"
     state: directory
     owner: "{{ user }}"
     group: "{{ user }}"

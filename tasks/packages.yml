@@ -8,29 +8,48 @@
     repo: ppa:fish-shell/release-3
     state: present
 
-- name: Add fish repo
+- name: Add webup8d repo
   ansible.builtin.apt_repository:
     repo: ppa:nilarimogard/webupd8
     state: present
 
-- name: Add insync repo 
+- name: Add apt-fast repo
   ansible.builtin.apt_repository:
-    repo: http://apt.insync.io/ubuntu groovy non-free contrib
+    repo: ppa:apt-fast/stable
     state: present
+
+- name: Add insync repo
+  ansible.builtin.apt_repository:
+    repo: "deb http://apt.insync.io/ubuntu groovy non-free contrib"
+    state: present
+
+- name: Add spotify repo
+  ansible.builtin.apt_repository:
+    repo: 'deb http://repository.spotify.com stable non-free'
+    state: present
+
+- name: Update apt-cache
+  apt:
+    update_cache: yes
+  changed_when: false
 
 - name: Install apt packages
   apt:
+    state: present
     pkg:
       - alacritty
       - ansible
       - ansible-lint
+      - apt-fast
       - apt-transport-https
+      - aptitude
       - aria2
       - autoconf
       - automake
       - build-essential
       - ca-certificates
       - calibre
+      - celluloid
       - clang-format
       - cmake
       - composer
@@ -39,6 +58,9 @@
       - exfat-utils
       - fail2ban
       - fastboot
+      - fish
+      - flameshot
+      - fonts-roboto
       - git
       - gnome-boxes
       - golang
@@ -48,22 +70,35 @@
       - httpie
       - imagemagick
       - inkscape
+      - insync
       - iperf
       - julia
       - language-pack-es
       - latexmk
+      - libbz2-dev
+      - libcurl4-openssl-dev
+      - libexpat-dev
+      - libffi-dev
       - libharfbuzz-bin
+      - liblzma-dev
+      - libncurses-dev
+      - libncursesw5
+      - libreadline-dev
       - libreadline-dev
       - libsqlite3-dev
       - libssl-dev
+      - libssl-dev
       - libxml2-dev
+      - libxmlsec1-dev
       - libxslt1-dev
       - libyaml-dev
       - linux-cloud-tools-generic
       - linux-tools-common
       - linux-tools-generic
       - llvm
+      - llvm
       - lolcat
+      - m4
       - magic-wormhole
       - masscan
       - mesa-common-dev
@@ -81,28 +116,32 @@
       - npm
       - nvtop
       - openvpn
+      - pandoc
       - pavucontrol
       - preload
       - protobuf-compiler
       - python3-colorama
       - python3-pip
       - rstudio
+      - ruby
+      - shellcheck
       - snapd
       - software-properties-common
       - spotify-client
       - sqlite3
+      - texinfo
       - texlive-full
+      - tk-dev
       - transmission
       - ubuntu-make
       - ufw
+      - ulauncher
       - unrar
-      - vim
       - whois
       - xz-utils
+      - xz-utils
       - zlib1g-dev
-      - ulauncher
-      - insync
-
+      - zlib1g-dev
 
 - name: Install normal snap packages
   community.general.snap:
@@ -118,6 +157,7 @@
     name:
       - flutter
       - shotcut
+      - chezmoi
     classic: yes
 
 - name: Install edge snap packages
@@ -127,7 +167,7 @@
     channel: latest/edge
 
 - name: Install flatpak packages
-  community.general.flatpak: name={{item}}
+  community.general.flatpak: name={{ item }}
   with_items:
     - com.axosoft.GitKraken
     - com.github.xournalpp.xournalpp
@@ -136,13 +176,72 @@
     - org.zotero.Zotero
     - md.obsidian.Obsidian
     - org.jamovi.jamovi
-- name: Install Python modules
-  pip:
-    name:
-      - numpy
-      - pandas
-      - ray[all]
-      - black
-      - flake8
-      - seaborn
-      - plotly
+  become: true
+  become_user: "{{ user }}"
+
+- name: Install Julia packages
+  command:
+    cmd: >
+      julia -e 'using Pkg; Pkg.add("{{ item }}")'
+    creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
+  with_items:
+    - Plots
+    - DifferentialEquations
+    - Revise
+    - OhMyREPL
+    - Literate
+    - Pluto
+    - PyCall
+  become: true
+  become_user: "{{ user }}"
+
+- name: Install homebrew
+  shell:
+    cmd: >
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    creates: /home/linuxbrew/.linuxbrew/bin/brew
+  become: true
+  become_user: "{{ user }}"
+
+- name: Upgrade brew packages
+  community.general.homebrew:
+    update_homebrew: yes
+    upgrade_all: yes
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
+  become: true
+  become_user: "{{ user }}"
+
+- name: Tap cask-fonts/ for brewing
+  community.general.homebrew_tap:
+    name: linuxbrew/fonts
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
+  become: true
+  become_user: "{{ user }}"
+
+- name: Install brew packages
+  community.general.homebrew: name={{ item }}
+    state=latest
+  with_items:
+    - pulumi
+    - navi
+    - lsd
+    - fzf
+    - pyenv
+    - fd
+    - hyperfine
+    - bat
+    - font-fira-code-nerd-font
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
+  become: true
+  become_user: "{{ user }}"
+  notify:
+    - Reload font cache
+
+- name: Symlink for brewed fonts
+  file: src=/home/linuxbrew/.linuxbrew/share/fonts dest=/home/{{ user }}/.local/share/fonts/brew state=link
