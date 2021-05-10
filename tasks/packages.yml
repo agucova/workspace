@@ -28,9 +28,10 @@
     repo: 'deb http://repository.spotify.com stable non-free'
     state: present
 
-- name: Update apt-cache
+- name: Update apt cache
   apt:
     update_cache: yes
+    cache_valid_time: 3600
   changed_when: false
 
 - name: Install apt packages

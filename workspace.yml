@@ -14,11 +14,6 @@
       prompt: "What is your Mathematica License Key? (no dash, skipped if empty)"
 
   pre_tasks:
-    - name: Update apt cache
-      apt:
-        update_cache: yes
-        cache_valid_time: 3600
-      changed_when: false
     - include: tasks/cache.yml
     - include: tasks/directories.yml
     - include: tasks/dotfiles.yml
@@ -27,35 +22,10 @@
     - include: tasks/firefox-dev.yml
 
   roles:
-    # - role: markosamuli.pyenv
-    #   pyenv_python_versions:
-    #     - "3.10-dev"
-    #     - "3.9.2"
-    #     - "3.8.9"
-    #     - "3.7.9"
-    #   pyenv_global: "3.9.2 system"
-    #   pyenv_homebrew_on_linux: true
-
     - role: gantsign.visual-studio-code
+    - role: jan_matthis.julia
       julia_symlink_dir: /usr/local
       julia_dir: /opt/julia
-
-    - role: jan_matthis.julia
-
-    # - role: agucova.asdf
-    #   asdf_plugins:
-    #     - name: aws-nuke
-    #     - name: awscli
-    #     - name: bat
-    #     - name: deno
-    #     - name: flutter
-    #     - name: go
-    #     - name: julia
-    #     - name: nodejs
-    #     - name: pulumi
-    #     - name: terraform
-    #     - name: zig
-
     - role: crivetimihai.virtualization.kvm
     - role: crivetimihai.virtualization.podman
     - role: crivetimihai.virtualization.docker
