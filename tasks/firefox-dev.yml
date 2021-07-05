@@ -16,14 +16,14 @@
 
     - name: Install Firefox Develloper Edition
       unarchive:
-        src: https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=fr
+        src: https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64
         dest: /opt/firefox-dev
         remote_src: yes
   when: not firefox_install.stat.exists
 
 - name: Install .desktop for Firefox Developer Edition
   copy:
-    dest: ~/.local/share/applications/firefox-dev.desktop
+    dest: /home/{{ user }}/.local/share/applications/firefox-dev.desktop
     content: |
       [Desktop Entry]
       Version=1.0

@@ -16,8 +16,6 @@
   pre_tasks:
     - include: tasks/cache.yml
     - include: tasks/directories.yml
-    - include: tasks/dotfiles.yml
-    - include: tasks/gnome.yml
     - include: tasks/zoom.yml
     - include: tasks/firefox-dev.yml
 
@@ -28,10 +26,12 @@
       julia_dir: /opt/julia
     - role: crivetimihai.virtualization.kvm
     - role: crivetimihai.virtualization.podman
-    - role: crivetimihai.virtualization.docker
+#    - role: crivetimihai.virtualization.docker
 
   tasks:
     - include: tasks/packages.yml
+    - include: tasks/gnome.yml
+    - include: tasks/dotfiles.yml
     - include: tasks/mathematica.yml
     - include: tasks/discord.yml
     - include: tasks/python.yml
@@ -39,7 +39,7 @@
 
   handlers:
   - name: Update desktop files
-    command: update-desktop-database ~/.local/share/applications -v
+    command: update-desktop-database /home/{{ user }}/.local/share/applications -v
 
   - name: Reload font cache
     file: src=/home/linuxbrew/.linuxbrew/share/fonts dest=/home/{{ user }}/.local/share/fonts state=link
