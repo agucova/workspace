@@ -119,10 +119,10 @@
       - pandoc
       - pavucontrol
       - preload
+      - prettyping
       - protobuf-compiler
       - python3-colorama
       - python3-pip
-#      - rstudio
       - ruby
       - shellcheck
       - snapd
@@ -133,7 +133,7 @@
       - texlive-full
       - tk-dev
       - transmission
-      - ubuntu-make
+      - tree
       - ufw
       - ulauncher
       - unrar
@@ -142,6 +142,7 @@
       - xz-utils
       - zlib1g-dev
       - zlib1g-dev
+#      - rstudio
 
 - name: Install normal snap packages
   community.general.snap:
@@ -160,11 +161,17 @@
       - chezmoi
     classic: yes
 
-- name: Install edge snap packages
-  community.general.snap:
-    name:
-      - 1password
-    channel: latest/edge
+# - name: Install edge snap packages
+  # community.general.snap:
+    # name:
+      # -
+    # channel: latest/edge
+
+- name: Add the flathub flatpak repo
+  community.general.flatpak_remote:
+    name: flathub
+    state: present
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
 
 - name: Install flatpak packages
   community.general.flatpak: name={{ item }}
@@ -178,22 +185,22 @@
     - org.jamovi.jamovi
   become: true
   become_user: "{{ user }}"
-
-- name: Install Julia packages
-  command:
-    cmd: >
-      julia -e 'using Pkg; Pkg.add("{{ item }}")'
-    creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
-  with_items:
-    - Plots
-    - DifferentialEquations
-    - Revise
-    - OhMyREPL
-    - Literate
-    - Pluto
-    - PyCall
-  become: true
-  become_user: "{{ user }}"
+# 
+# - name: Install Julia packages
+  # command:
+    # cmd: >
+      # julia -e 'using Pkg; Pkg.add("{{ item }}")'
+    # creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
+  # with_items:
+    # - Plots
+    # - DifferentialEquations
+    # - Revise
+    # - OhMyREPL
+    # - Literate
+    # - Pluto
+    # - PyCall
+  # become: true
+  # become_user: "{{ user }}"
 
 - name: Install homebrew
   shell:
@@ -235,6 +242,7 @@
     - hyperfine
     - bat
     - font-fira-code-nerd-font
+    - thefuck
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
     LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
@@ -242,6 +250,11 @@
   become_user: "{{ user }}"
   notify:
     - Reload font cache
+
+- name: Create font directory
+  file:
+    path: /home/{{ user }}/.local/share/fonts/
+    state: directory
 
 - name: Symlink for brewed fonts
   file: src=/home/linuxbrew/.linuxbrew/share/fonts dest=/home/{{ user }}/.local/share/fonts/brew state=link

@@ -4,18 +4,18 @@
     creates: "/home/{{ user }}/.pyenv/versions/{{ item }}/"
   with_items:
     - "{{ python_latest_version }}"
-    - 3.8.10
-    - 3.7.10
+    - 3.8.11
   become: true
   become_user: "{{ user }}"
 
 - name: Check global python version
-  command:
-    cmd: "cat /home/{{ user }}/.pyenv/version"
+  shell: "cat /home/{{ user }}/.pyenv/version | echo ''"
   become: true
   become_user: "{{ user }}"
   register: python_global_version
   changed_when: false
+        
+
 
 - name: "Set Python version {{ python_latest_version }} as global"
   command:
@@ -31,7 +31,8 @@
 
 - name: Install Poetry
   command:
-    cmd: "/home/agucova/.pyenv/shims/python3 {{ cache_dir }}/poetry.py -y"
+    cmd: "/usr/bin/python3 {{ cache_dir }}/get-poetry.py -y"
     creates: "/home/{{ user }}/.poetry/bin/poetry"
   become_user: "{{ user }}"
   become: true
+
