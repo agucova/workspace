@@ -61,11 +61,14 @@
       - fastboot
       - fish
       - flameshot
+      - libnotify-bin
       - fonts-roboto
       - git
       - gnome-boxes
       - golang
+      - at
       - gulp
+      - unattended-upgrades
       - gzip
       - htop
       - httpie
@@ -74,6 +77,7 @@
       - insync
       - iperf
       - julia
+      - v4l-utils
       - language-pack-es
       - latexmk
       - libbz2-dev
