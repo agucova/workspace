@@ -9,9 +9,9 @@
     python_latest_version: 3.9.6
     wolfram_email: agucova@uc.cl
 
-  vars_prompt:
-    - name: mathematica_lic_key
-      prompt: "What is your Mathematica License Key? (no dash, skipped if empty)"
+  # vars_prompt:
+  #   - name: mathematica_lic_key
+  #     prompt: "What is your Mathematica License Key? (no dash, skipped if empty)"
 
   pre_tasks:
     - include: tasks/cache.yml
@@ -32,7 +32,7 @@
     - include: tasks/packages.yml
     - include: tasks/gnome.yml
     # - include: tasks/dotfiles.yml
-    - include: tasks/mathematica.yml
+    # - include: tasks/mathematica.yml
     - include: tasks/discord.yml
     - include: tasks/python.yml
     - include: tasks/rust.yml

@@ -1,10 +1,10 @@
 - name: Download Mathematica
-  get_url: url=https://user.wolfram.com/portal/mySiteUserProduct.html?licnumber={{ mathematica_lic_key }}&email={{ wolfram_email }}&lpid=4895256#
+  get_url: url=https://user.wolfram.com/portal/mySiteUserProduct.html?licnumber={{ mathematica_lic_key }}&email={{ wolfram_email }}&lpid=LATEST#
            dest={{ cache_dir }}/mathematica.sh
-  when: mathematica_lic_key | bool
-
+  when: (mathematica_lic_key)
+  
 - name: Install Mathematica
   command:
     cmd: "{{ cache_dir }}/mathematica.sh -y"
     creates: /usr/local/bin/mathematica
-  when: mathematica_lic_key | bool
+  when: (mathematica_lic_key)

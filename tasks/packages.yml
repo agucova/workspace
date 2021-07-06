@@ -45,6 +45,7 @@
       - apt-transport-https
       - aptitude
       - aria2
+      - at
       - autoconf
       - automake
       - build-essential
@@ -61,14 +62,11 @@
       - fastboot
       - fish
       - flameshot
-      - libnotify-bin
       - fonts-roboto
       - git
       - gnome-boxes
       - golang
-      - at
       - gulp
-      - unattended-upgrades
       - gzip
       - htop
       - httpie
@@ -77,7 +75,6 @@
       - insync
       - iperf
       - julia
-      - v4l-utils
       - language-pack-es
       - latexmk
       - libbz2-dev
@@ -88,6 +85,7 @@
       - liblzma-dev
       - libncurses-dev
       - libncursesw5
+      - libnotify-bin
       - libreadline-dev
       - libreadline-dev
       - libsqlite3-dev
@@ -140,7 +138,9 @@
       - tree
       - ufw
       - ulauncher
+      - unattended-upgrades
       - unrar
+      - v4l-utils
       - whois
       - xz-utils
       - xz-utils
