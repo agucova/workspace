@@ -18,21 +18,26 @@
     repo: ppa:apt-fast/stable
     state: present
 
+- name: Add insync key
+  ansible.builtin.apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: ACCAF35C
+    state: present
+
 - name: Add insync repo
   ansible.builtin.apt_repository:
-    repo: "deb http://apt.insync.io/ubuntu groovy non-free contrib"
+    repo: "deb http://apt.insync.io/ubuntu {{ ansible_distribution_release }} non-free contrib"
+    state: present
+
+- name: Add spotify key
+  ansible.builtin.apt_key:
+    url: https://download.spotify.com/debian/pubkey_0D811D58.gpg
     state: present
 
 - name: Add spotify repo
   ansible.builtin.apt_repository:
     repo: 'deb http://repository.spotify.com stable non-free'
     state: present
-
-#- name: Update apt cache
-#  apt:
-#    update_cache: yes
-#    cache_valid_time: 3600
-#  changed_when: false
 
 - name: Install apt packages
   apt:
@@ -146,7 +151,6 @@
       - xz-utils
       - zlib1g-dev
       - zlib1g-dev
-#      - rstudio
 
 - name: Install normal snap packages
   community.general.snap:
@@ -156,6 +160,7 @@
       - todoist
       - ipfs-desktop
       - musixmatch
+      - zulip
 
 - name: Install classic snap packages
   community.general.snap:
@@ -247,6 +252,8 @@
     - bat
     - font-fira-code-nerd-font
     - thefuck
+    - glow
+    - nnn
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
     LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"

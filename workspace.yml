@@ -42,4 +42,4 @@
     command: update-desktop-database /home/{{ user }}/.local/share/applications -v
 
   - name: Reload font cache
-    file: src=/home/linuxbrew/.linuxbrew/share/fonts dest=/home/{{ user }}/.local/share/fonts state=link
+    file: src=/home/linuxbrew/.linuxbrew/share/fonts/ dest=/home/{{ user }}/.local/share/fonts/brew state=link
