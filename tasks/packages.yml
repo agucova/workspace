@@ -36,7 +36,7 @@
 
 - name: Add spotify repo
   ansible.builtin.apt_repository:
-    repo: 'deb http://repository.spotify.com stable non-free'
+    repo: "deb http://repository.spotify.com stable non-free"
     state: present
 
 - name: Install apt packages
@@ -67,6 +67,7 @@
       - fastboot
       - fish
       - flameshot
+      - fonts-inter
       - fonts-roboto
       - git
       - gnome-boxes
@@ -171,10 +172,10 @@
     classic: yes
 
 # - name: Install edge snap packages
-  # community.general.snap:
-    # name:
-      # -
-    # channel: latest/edge
+# community.general.snap:
+# name:
+# -
+# channel: latest/edge
 
 - name: Add the flathub flatpak repo
   community.general.flatpak_remote:
@@ -194,22 +195,22 @@
     - org.jamovi.jamovi
   become: true
   become_user: "{{ user }}"
-# 
+#
 # - name: Install Julia packages
-  # command:
-    # cmd: >
-      # julia -e 'using Pkg; Pkg.add("{{ item }}")'
-    # creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
-  # with_items:
-    # - Plots
-    # - DifferentialEquations
-    # - Revise
-    # - OhMyREPL
-    # - Literate
-    # - Pluto
-    # - PyCall
-  # become: true
-  # become_user: "{{ user }}"
+# command:
+# cmd: >
+# julia -e 'using Pkg; Pkg.add("{{ item }}")'
+# creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
+# with_items:
+# - Plots
+# - DifferentialEquations
+# - Revise
+# - OhMyREPL
+# - Literate
+# - Pluto
+# - PyCall
+# become: true
+# become_user: "{{ user }}"
 
 - name: Install homebrew
   shell:
