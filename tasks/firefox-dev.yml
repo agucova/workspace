@@ -10,15 +10,25 @@
       file:
         path: /opt/firefox-dev/
         state: directory
-        mode: 0755
-        owner: '{{ user }}'
-        group: '{{ user }}'
+        mode: 0750
+        owner: "{{ user }}"
+        group: "{{ user }}"
 
-    - name: Install Firefox Develloper Edition
+    - name: Install Firefox Developer Edition
       unarchive:
         src: https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64
         dest: /opt/firefox-dev
         remote_src: yes
+
+    - name: Set file permissions recursively for Firefox
+      file:
+        path: /opt/firefox-dev/
+        owner: "{{ user }}"
+        group: "{{ user }}"
+        recurse: yes
+        state: directory
+        mode: 0750
+
   when: not firefox_install.stat.exists
 
 - name: Install .desktop for Firefox Developer Edition

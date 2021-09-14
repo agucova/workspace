@@ -72,7 +72,6 @@
       - git
       - gnome-boxes
       - golang
-      - gulp
       - gzip
       - htop
       - httpie
@@ -120,8 +119,6 @@
       - neofetch
       - network-manager-openvpn
       - nmap
-      - nodejs
-      - npm
       - nvtop
       - openvpn
       - pandoc
@@ -255,18 +252,27 @@
     - thefuck
     - glow
     - nnn
+    - svn
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
     LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
   become: true
   become_user: "{{ user }}"
-  notify:
-    - Reload font cache
+
+- name: Install Merriweather font
+  community.general.homebrew: name={{ item }}
+    state=head
+  with_items:
+    - linuxbrew/fonts/font-merriweather
+  environment:
+    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
+  become: true
+  become_user: "{{ user }}"
 
 - name: Create font directory
   file:
     path: /home/{{ user }}/.local/share/fonts/
     state: directory
-
-- name: Symlink for brewed fonts
-  file: src=/home/linuxbrew/.linuxbrew/share/fonts dest=/home/{{ user }}/.local/share/fonts/brew state=link
+  notify:
+    - Reload font cache
