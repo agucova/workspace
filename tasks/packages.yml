@@ -159,6 +159,7 @@
       - ipfs-desktop
       - musixmatch
       - zulip
+      - exercism
 
 - name: Install classic snap packages
   community.general.snap:
