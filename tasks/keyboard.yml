@@ -1,0 +1,54 @@
+- name: Check if keyboard layout is already configured
+  ansible.builtin.dconf:
+    key: /org/gnome/desktop/input-sources/sources
+    state: read
+  register: keyboard_layouts
+  become: true
+  become_user: "{{ user }}"
+
+- name: Configure keyboard layout through GNOME
+  ansible.builtin.dconf:
+    key: /org/gnome/desktop/input-sources/sources
+    value: "[('xkb', 'us+altgr-intl')]"
+    state: present
+  when: keyboard_layouts.value.find("('xkb', 'us+altgr-intl')") == -1
+  become: true
+  become_user: "{{ user }}"
+
+- name: Disable overlay key
+  ansible.builtin.dconf:
+    key: /org/gnome/mutter/overlay-key
+    value: "''"
+    state: present
+  become: true
+  become_user: "{{ user }}"
+
+- name: Clone Kinto
+  ansible.builtin.git:
+    repo: "https://github.com/rbreaves/kinto.git"
+    dest: /home/{{user}}/repos/kinto
+    clone: yes
+  become: true
+  become_user: "{{ user }}"
+  register: kinto_git
+
+- name: Check if Kinto is already installed (systemd)
+  ansible.builtin.systemd_service:
+    name: xkeysnail
+  register: xkeysnail_systemd
+  changed_when: false
+  ignore_errors: true
+
+- name: Warn user that a GUI will pop up (Kinto)
+  ansible.builtin.debug:
+    msg: "Sudo may be required, and a GUI will pop up. Follow the instructions."
+  when: (xkeysnail_systemd is failed) or (xkeysnail_systemd.status.ActiveState != "active")
+- name: Install Kinto
+  ansible.builtin.command: /usr/bin/python3 setup.py
+  become: true
+  become_user: "{{ user }}"
+  args:
+    chdir: /home/{{user}}/repos/kinto
+  environment:
+    XDG_SESSION_TYPE: x11
+  when: (xkeysnail_systemd is failed) or (xkeysnail_systemd.status.ActiveState != "active")

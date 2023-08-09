@@ -1,0 +1,21 @@
+- name: Install CUDA and cuDNN packages
+  apt:
+    name:
+    - nvidia-cuda-toolkit
+    - nvidia-container-toolkit
+    - nvidia-docker2
+    - tensorman
+  register: cuda_packages
+
+- name: Enable cgroup v1
+  ansible.builtin.command: |
+    kernelstub --add-options "systemd.unified_cgroup_hierarchy=0"
+  become: true
+  notify:
+  - Mark reboot required
+  when: cuda_packages.changed
+
+- name: Configure nvidia-ctk runtime
+  ansible.builtin.command: |
+    nvidia-ctk runtime configure --runtime=docker
+  when: cuda_packages.changed

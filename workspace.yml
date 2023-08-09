@@ -6,12 +6,15 @@
     github_user: agucova
     repo_name: workspace
     cache_dir: /var/cache/ansible
-    python_latest_version: 3.9.6
+    python_versions:
+      - 3.11.4 # The first is the default
+      - 3.10.12
+      - 3.9.17
     wolfram_email: agucova@uc.cl
 
-  # vars_prompt:
-  #   - name: mathematica_lic_key
-  #     prompt: "What is your Mathematica License Key? (no dash, skipped if empty)"
+  vars_prompt:
+    - name: mathematica_lic_key
+      prompt: "What is your Mathematica License Key? (no dash, skipped if empty)"
 
   pre_tasks:
     - include: tasks/cache.yml
@@ -19,27 +22,25 @@
     - include: tasks/zoom.yml
     - include: tasks/firefox-dev.yml
 
-  # roles:
-  #    - role: gantsign.visual-studio-code
-  #    - role: jan_matthis.julia
-  #      julia_symlink_dir: /usr/local
-  #      julia_dir: /opt/julia
-  #    - role: crivetimihai.virtualization.kvm
-  #    - role: crivetimihai.virtualization.podman
-  #    - role: crivetimihai.virtualization.docker
-
   tasks:
     - include: tasks/packages.yml
     - include: tasks/gnome.yml
     # - include: tasks/dotfiles.yml
-    # - include: tasks/mathematica.yml
+    - include: tasks/mathematica.yml
     - include: tasks/discord.yml
     - include: tasks/python.yml
     - include: tasks/rust.yml
+    - include: tasks/docker.yml
+    - include: tasks/cuda.yml
+    - include: tasks/keyboard.yml
+    - include: tasks/fish.yml
 
   handlers:
     - name: Update desktop files
-      command: update-desktop-database /home/{{ user }}/.local/share/applications -v
+      ansible.builtin.command: update-desktop-database /home/{{ user }}/.local/share/applications -v
 
     - name: Reload font cache
       file: src=/home/linuxbrew/.linuxbrew/share/fonts/ dest=/home/{{ user }}/.local/share/fonts/brew state=link
+
+    - name: Mark reboot required
+      ansible.builtin.command: touch /var/run/reboot-required

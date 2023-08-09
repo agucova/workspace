@@ -1,47 +1,67 @@
-- name: Add ulauncher repo
-  ansible.builtin.apt_repository:
-    repo: ppa:agornostal/ulauncher
-    state: present
+- name: Add repositories
+  block:
+    # We use add-apt-repository instead of apt-key and apt_repository
+    # because apt_repository doesn't support the new signed-by option
+    # instead relying on the deprecated keyring
+    - name: Add ulauncher repo
+      ansible.builtin.command:
+        cmd: add-apt-repository -y ppa:agornostal/ulauncher
+        creates: /etc/apt/sources.list.d/agornostal-ubuntu-ulauncher-{{ ansible_distribution_release }}.list
 
-- name: Add fish repo
-  ansible.builtin.apt_repository:
-    repo: ppa:fish-shell/release-3
-    state: present
+    - name: Add fish repo
+      ansible.builtin.command:
+        cmd: add-apt-repository -y ppa:fish-shell/release-3
+        creates: /etc/apt/sources.list.d/fish-shell-ubuntu-release-3-{{ ansible_distribution_release }}.list
 
-- name: Add webup8d repo
-  ansible.builtin.apt_repository:
-    repo: ppa:nilarimogard/webupd8
-    state: present
+    - name: Add apt-fast repo
+      ansible.builtin.command:
+        cmd: add-apt-repository -y ppa:apt-fast/stable
+        creates: /etc/apt/sources.list.d/apt-fast-ubuntu-stable-{{ ansible_distribution_release }}.list
 
-- name: Add apt-fast repo
-  ansible.builtin.apt_repository:
-    repo: ppa:apt-fast/stable
-    state: present
+    - name: Add solaar repo
+      ansible.builtin.command:
+        cmd: add-apt-repository -y ppa:solaar-unifying/ppa
+        creates: /etc/apt/sources.list.d/solaar-unifying-ubuntu-ppa-{{ ansible_distribution_release }}.list
 
-- name: Add insync key
-  ansible.builtin.apt_key:
-    keyserver: keyserver.ubuntu.com
-    id: ACCAF35C
-    state: present
+    - name: Add cryptomator repo
+      ansible.builtin.command:
+        cmd: add-apt-repository -y ppa:sebastian-stenzel/cryptomator
+        creates: /etc/apt/sources.list.d/sebastian-stenzel-ubuntu-cryptomator-{{ ansible_distribution_release }}.list
 
-- name: Add insync repo
-  ansible.builtin.apt_repository:
-    repo: "deb http://apt.insync.io/ubuntu {{ ansible_distribution_release }} non-free contrib"
-    state: present
+    - name: Add insync key
+      ansible.builtin.command: |
+        gpg --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C || true
+        gpg --export ACCAF35C > /etc/apt/keyrings/insync.gpg
+      args:
+        creates: /etc/apt/keyrings/insync.gpg
 
-- name: Add spotify key
-  ansible.builtin.apt_key:
-    url: https://download.spotify.com/debian/pubkey_0D811D58.gpg
-    state: present
+    - name: Add insync repo
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/insync.gpg] http://apt.insync.io/ubuntu {{ ansible_distribution_release }} non-free contrib"
+        state: present
 
-- name: Add spotify repo
-  ansible.builtin.apt_repository:
-    repo: "deb http://repository.spotify.com stable non-free"
-    state: present
+    - name: Add spotify repo
+      block:
+        - name: Download spotify key
+          ansible.builtin.shell: curl -fsSL https://download.spotify.com/debian/pubkey_7A3A762FAFD4A51F.gpg | gpg --dearmor -o /etc/apt/keyrings/spotify.gpg
+          args:
+            creates: /etc/apt/keyrings/spotify.gpg
+
+        - name: Add spotify repo
+          ansible.builtin.apt_repository:
+            repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/spotify.gpg] http://repository.spotify.com stable non-free"
+            state: present
+
+    - name: Add the flathub flatpak repo
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
 
 - name: Install apt packages
   apt:
     state: present
+    update_cache: yes
     pkg:
       - alacritty
       - ansible
@@ -50,10 +70,10 @@
       - apt-transport-https
       - aptitude
       - aria2
-      - at
       - autoconf
       - automake
       - build-essential
+      - bind9-dnsutils
       - ca-certificates
       - calibre
       - celluloid
@@ -62,8 +82,6 @@
       - composer
       - cowsay
       - curl
-      - exfat-utils
-      - fail2ban
       - fastboot
       - fish
       - flameshot
@@ -79,7 +97,6 @@
       - inkscape
       - insync
       - iperf
-      - julia
       - language-pack-es
       - latexmk
       - libbz2-dev
@@ -100,20 +117,13 @@
       - libxmlsec1-dev
       - libxslt1-dev
       - libyaml-dev
-      - linux-cloud-tools-generic
-      - linux-tools-common
-      - linux-tools-generic
-      - llvm
       - llvm
       - lolcat
-      - m4
       - magic-wormhole
       - masscan
       - mesa-common-dev
       - meson
       - micro
-      - minicom
-      - mlocate
       - mosh
       - ncdu
       - neofetch
@@ -122,12 +132,9 @@
       - nvtop
       - openvpn
       - pandoc
-      - pavucontrol
       - preload
       - prettyping
-      - protobuf-compiler
       - python3-colorama
-      - python3-pip
       - ruby
       - shellcheck
       - snapd
@@ -141,45 +148,50 @@
       - tree
       - ufw
       - ulauncher
-      - unattended-upgrades
       - unrar
-      - v4l-utils
       - whois
       - xz-utils
-      - xz-utils
       - zlib1g-dev
-      - zlib1g-dev
+      - solaar
+      - gnome-sushi
+      - cryptomator
+      - timeshift
+      - steam
+      - lutris
+      - python3-pip
+      # For Kinto
+      - python3-gi
+      - gnome-tweaks
+      - gnome-shell-extensions
+      - gnome-shell-extension-appindicator
+      - gir1.2-appindicator3-0.1
 
-- name: Install normal snap packages
-  community.general.snap:
-    name:
-      - foliate
-      - hugo
-      - todoist
-      - ipfs-desktop
-      - musixmatch
-      - zulip
-      - exercism
+- name: Install snap packages
+  block:
+  - name: Install normal snap packages
+    community.general.snap:
+      name:
+        - foliate
+        - hugo
+        - todoist
+        - ipfs-desktop
+        - musixmatch
+        - zulip
+        - exercism
 
-- name: Install classic snap packages
-  community.general.snap:
-    name:
-      - flutter
-      - shotcut
-      - chezmoi
-    classic: yes
+  - name: Install classic snap packages
+    community.general.snap:
+      name:
+        - flutter
+        - shotcut
+        - chezmoi
+      classic: yes
 
-# - name: Install edge snap packages
-# community.general.snap:
-# name:
-# -
-# channel: latest/edge
-
-- name: Add the flathub flatpak repo
-  community.general.flatpak_remote:
-    name: flathub
-    state: present
-    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    # - name: Install edge snap packages
+    # community.general.snap:
+    # name:
+    # -
+    # channel: latest/edge
 
 - name: Install flatpak packages
   community.general.flatpak: name={{ item }}
@@ -193,25 +205,34 @@
     - org.jamovi.jamovi
   become: true
   become_user: "{{ user }}"
-#
-# - name: Install Julia packages
-# command:
-# cmd: >
-# julia -e 'using Pkg; Pkg.add("{{ item }}")'
-# creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
-# with_items:
-# - Plots
-# - DifferentialEquations
-# - Revise
-# - OhMyREPL
-# - Literate
-# - Pluto
-# - PyCall
-# become: true
-# become_user: "{{ user }}"
+
+- name: Install Julia and its packages
+  block:
+    - name: Install Julia
+      ansible.builtin.shell: |
+        curl -fsSL https://install.julialang.org | sh -s -- --yes
+      become: true
+      become_user: "{{ user }}"
+      args:
+        creates: "/home/{{ user }}/.juliaup/bin/julia"
+
+    - name: Install Julia packages
+      ansible.builtin.command:
+        cmd: /home/{{ user }}/.juliaup/bin/julia -e 'using Pkg; Pkg.add("{{ item }}")'
+        creates: "/home/{{ user }}/.julia/packages/{{ item }}/"
+      with_items:
+      - Plots
+      - DifferentialEquations
+      - Revise
+      - OhMyREPL
+      - Literate
+      - Pluto
+      - PyCall
+      become: true
+      become_user: "{{ user }}"
 
 - name: Install homebrew
-  shell:
+  ansible.builtin.shell:
     cmd: >
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     creates: /home/linuxbrew/.linuxbrew/bin/brew
@@ -239,7 +260,7 @@
 
 - name: Install brew packages
   community.general.homebrew: name={{ item }}
-    state=latest
+    state=present
   with_items:
     - pulumi
     - navi
@@ -254,26 +275,11 @@
     - glow
     - nnn
     - svn
+    - gh
+    - starship
+    - btop
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
     LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
   become: true
   become_user: "{{ user }}"
-
-- name: Install Merriweather font
-  community.general.homebrew: name={{ item }}
-    state=head
-  with_items:
-    - linuxbrew/fonts/font-merriweather
-  environment:
-    PATH: "/home/linuxbrew/.linuxbrew/bin:{{ ansible_env.PATH }}"
-    LD_LIBRARY_PATH: "/home/linuxbrew/.linuxbrew/lib"
-  become: true
-  become_user: "{{ user }}"
-
-- name: Create font directory
-  file:
-    path: /home/{{ user }}/.local/share/fonts/
-    state: directory
-  notify:
-    - Reload font cache

@@ -5,6 +5,6 @@
     classic: yes
 
 - name: Install and apply dotfiles
-  shell:
+  ansible.builtin.shell:
     cmd: chezmoi init git@github.com:{{ user }}/dotfiles.git && chezmoi apply
     creates: "/home/{{ user }}/.local/share/chezmoi"

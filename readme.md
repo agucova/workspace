@@ -6,8 +6,12 @@ The [Ansible](https://github.com/ansible/ansible) playbook that powers my [Pop_O
 
 - [NextDNS](https://nextdns.io/)
 - [ULauncher](https://ulauncher.io/) extensions
-- Grub configuration and theming
 - GNOME extensions
+
+## Wish list
+
+- [ ] Add Aerial screensaver
+- [ ] Add [uxPlay](https://github.com/FDH2/UxPlay)
 
 ## To-do
 

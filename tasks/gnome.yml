@@ -10,7 +10,7 @@
   become_user: "{{ user }}"
   dconf: key="/org/gnome/desktop/background/picture-uri" value="'file:///home/{{ user }}/.wallpaper.jpg'"
 
-- name: Set Pop Dark theme
+- name: Set GNOME Wallpaper (dark)
   become: true
   become_user: "{{ user }}"
-  dconf: key="/org/gnome/desktop/interface/gtk-theme" value="'Pop-dark'"
+  dconf: key="/org/gnome/desktop/background/picture-uri-dark" value="'file:///home/{{ user }}/.wallpaper.jpg'"

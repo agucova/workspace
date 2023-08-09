@@ -1,2 +1,4 @@
 - name: Set Fish as default for {{ user }}
-  user: name={{ user }} shell=/usr/bin/fish state=present
+  ansible.builtin.user:
+    name: "{{ user }}"
+    shell: /usr/bin/fish

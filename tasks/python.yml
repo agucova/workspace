@@ -1,38 +1,69 @@
 - name: Install pyenv versions
-  command:
+  ansible.builtin.command:
     cmd: "/home/linuxbrew/.linuxbrew/bin/pyenv install -s {{ item }}"
     creates: "/home/{{ user }}/.pyenv/versions/{{ item }}/"
-  with_items:
-    - "{{ python_latest_version }}"
-    - 3.8.11
+  with_items: "{{ python_versions }}"
   become: true
   become_user: "{{ user }}"
 
 - name: Check global python version
-  shell: "cat /home/{{ user }}/.pyenv/version | echo ''"
+  ansible.builtin.shell: "cat /home/{{ user }}/.pyenv/version | echo ''"
   become: true
   become_user: "{{ user }}"
   register: python_global_version
   changed_when: false
-        
 
-
-- name: "Set Python version {{ python_latest_version }} as global"
-  command:
-    cmd: "/home/linuxbrew/.linuxbrew/bin/pyenv global {{ python_latest_version }}"
+- name: "Set Python version {{ python_versions[0] }} as global"
+  ansible.builtin.command:
+    cmd: "/home/linuxbrew/.linuxbrew/bin/pyenv global {{ python_versions[0] }}"
   become: true
   become_user: "{{ user }}"
   environment:
     PATH: "/home/linuxbrew/.linuxbrew/bin/pyenv:{{ ansible_env.PATH }}"
-  when: python_global_version.stdout != python_latest_version
+  when: python_global_version.stdout != python_versions[0]
 
-- name: Download Poetry
-  get_url: url=https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py dest={{ cache_dir }}/get-poetry.py
+- name: Install basic python packages
+  ansible.builtin.pip:
+    name:
+      - pip
+      - pipx
+      - ruff
+      - black
+      - flake8
+      - tox
+      - pytest
+      - pytest-cov
+      - pytest-xdist
+      - fastapi[all]
+      - uvicorn
+      - jupyterlab
+      - numpy
+      - pandas
+      - matplotlib
+      - seaborn
+      - scipy
+      - scikit-learn
+      - sympy
+      - rich
+    state: latest
+    executable: "/home/{{ user }}/.pyenv/versions/{{ item }}/bin/pip"
+  become: true
+  become_user: "{{ user }}"
+  with_items: "{{ python_versions }}"
+
 
 - name: Install Poetry
-  command:
-    cmd: "/usr/bin/python3 {{ cache_dir }}/get-poetry.py -y"
-    creates: "/home/{{ user }}/.poetry/bin/poetry"
+  ansible.builtin.shell: |
+    curl -sSL https://install.python-poetry.org | /home/{{ user }}/.pyenv/versions/{{ python_versions[0] }}/bin/python - --yes --force
+  args:
+    creates: "/home/{{ user }}/.local/bin/poetry"
+  become_user: "{{ user }}"
+  become: true
+
+- name: Install Poetry fish completions
+  ansible.builtin.shell: /home/{{ user }}/.local/bin/poetry completions fish > ~/.config/fish/completions/poetry.fish
+  args:
+    creates: "/home/{{ user }}/.config/fish/completions/poetry.fish"
   become_user: "{{ user }}"
   become: true
 
