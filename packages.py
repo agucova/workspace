@@ -259,9 +259,15 @@ def setup_repositories_and_install_packages() -> None:
         server.shell(
             name="Increase open files limit",
             commands=[
-                "ulimit -n 4096",
-                "echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf",
-                "sudo sysctl -p",
+                "grep -q 'fs.inotify.max_user_watches=524288' /etc/sysctl.conf || echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf"
+                "sysctl -p",
+            ],
+            _sudo=True,
+        )
+        server.shell(
+            name="Increase open files limit for user",
+            commands=[
+                "ulimit -n 65536",
             ],
         )
         brew.packages(
