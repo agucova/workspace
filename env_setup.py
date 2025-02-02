@@ -1,7 +1,7 @@
 from pyinfra.api.deploy import deploy
-from pyinfra.operations import brew, files, server
+from pyinfra.operations import files, server
 
-from config import BREW_PATH, HOME, USER
+from config import HOME, USER
 
 
 @deploy("Setup Base Directories")
@@ -30,14 +30,6 @@ def setup_directories() -> None:
 
 @deploy("Setup Python Environment")
 def setup_python_env() -> None:
-    # Install uv using brew
-    brew.packages(
-        name="Install uv via brew",
-        packages=["uv"],
-        update=True,
-        _env={"PATH": f"{BREW_PATH}:$PATH"},
-    )
-
     # Install Python and tools
     server.shell(
         name="Setup Python environment",
