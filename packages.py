@@ -89,7 +89,7 @@ def setup_repositories_and_install_packages() -> None:
         server.shell(
             name="Add Insync GPG key",
             commands=[
-                "gpg --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C",
+                "gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys ACCAF35C",
                 "gpg --export ACCAF35C > /etc/apt/keyrings/insync.gpg",
             ],
             _sudo=True,
