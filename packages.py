@@ -149,14 +149,12 @@ def setup_repositories_and_install_packages() -> None:
             "libharfbuzz-bin",
             "liblzma-dev",
             "libncurses-dev",
-            "libncursesw5",
             "libnotify-bin",
             "libreadline-dev",
             "libsqlite3-dev",
             "libssl-dev",
             "libxml2-dev",
             "libxmlsec1-dev",
-            "libxslt1-dev",
             "libyaml-dev",
             "llvm",
             "lolcat",
@@ -202,7 +200,6 @@ def setup_repositories_and_install_packages() -> None:
             "gnome-tweaks",
             "gnome-shell-extensions",
             "gnome-shell-extension-appindicator",
-            "gir1.2-appindicator3-0.1",
             "podman",
         ]
         apt.packages(
