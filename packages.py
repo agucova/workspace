@@ -304,7 +304,7 @@ def setup_repositories_and_install_packages() -> None:
         )
 
     # Check if brew is installed
-    if not host.get_fact(Directory, BREW_PATH):
+    if not host.get_fact(Directory, str(BREW_PATH)):
         server.shell(
             name="Install brew",
             commands=[
