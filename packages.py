@@ -89,8 +89,7 @@ def setup_repositories_and_install_packages() -> None:
         server.shell(
             name="Import Insync key",
             commands=[
-                "gpg --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C || true",
-                "gpg --export ACCAF35C > /etc/apt/keyrings/insync.gpg",
+                "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C"
             ],
             _sudo=True,
         )
