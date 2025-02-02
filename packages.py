@@ -94,7 +94,7 @@ def setup_repositories_and_install_packages() -> None:
             ],
             _sudo=True,
         )
-        codename = host.get_fact(LsbRelease).codename
+        codename = host.get_fact(LsbRelease)["codename"]
         apt.repo(
             name="Add Insync repository",
             src=(
@@ -312,7 +312,7 @@ def install_docker() -> None:
             ],
             _sudo=True,
         )
-        codename = host.get_fact(LsbRelease).codename
+        codename = host.get_fact(LsbRelease)["codename"]
         apt.repo(
             name="Add Docker repository",
             src=(
