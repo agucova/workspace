@@ -257,14 +257,12 @@ def setup_repositories_and_install_packages() -> None:
             name="Tap linuxbrew/fonts",
             src="linuxbrew/fonts",
             _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
-            _sudo=True,
         )
         brew.packages(
             name="Install base Brew packages (dev tools)",
             packages=base_brew_packages,
             update=True,
             _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
-            _sudo=True,
         )
 
     def macos_setup() -> None:
