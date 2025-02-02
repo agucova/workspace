@@ -17,12 +17,7 @@ from pathlib import Path
 from pyinfra.api.deploy import deploy
 from pyinfra.context import host
 from pyinfra.facts.server import LsbRelease
-from pyinfra.operations import (
-    apt,
-    brew,
-    flatpak,
-    server,
-)
+from pyinfra.operations import apt, brew, flatpak, server, snap
 
 from config import BREW_PATH, HOME, USER, is_linux, is_macos, settings
 
@@ -179,6 +174,7 @@ def setup_repositories_and_install_packages() -> None:
             "shellcheck",
             "software-properties-common",
             "sqlite3",
+            "snapd",
             "texinfo",
             "texlive-full",
             "tk-dev",
@@ -210,6 +206,13 @@ def setup_repositories_and_install_packages() -> None:
             _sudo=True,
         )
 
+        # Zoom
+        apt.deb(
+            name="Install Zoom",
+            src="https://zoom.us/client/latest/zoom_amd64.deb",
+            _sudo=True,
+        )
+
         # -------------------------
         # Flatpak Remote and Apps
         # -------------------------
@@ -223,18 +226,27 @@ def setup_repositories_and_install_packages() -> None:
         flatpak_apps = [
             "com.axosoft.GitKraken",
             "com.stremio.Stremio",
-            "org.telegram.desktop",
             "org.zotero.Zotero",
             "md.obsidian.Obsidian",
             "org.jamovi.jamovi",
-            "com.spotify.Client",
-            "com.discordapp.Discord",
-            "us.zoom.Zoom",
-            "com.todoist.Todoist",
             "org.zulip.Zulip",
         ]
         flatpak.packages(
             name="Install Flatpak packages", packages=flatpak_apps, _sudo=True
+        )
+
+        # Snaps
+        snaps = [
+            "discord",
+            "spotify",
+            "telegram-desktop",
+            "signal-desktop",
+            "slack",
+        ]
+
+        snap.package(
+            name="Install Snap packages",
+            packages=snaps,
         )
 
         # -------------------------
