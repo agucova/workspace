@@ -255,6 +255,15 @@ def setup_repositories_and_install_packages() -> None:
             src="linuxbrew/fonts",
             _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
         )
+        # Increase the number of open files (since 1024 is the default and that trips brew)
+        server.shell(
+            name="Increase open files limit",
+            commands=[
+                "ulimit -n 4096",
+                "echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf",
+                "sudo sysctl -p",
+            ],
+        )
         brew.packages(
             name="Install base Brew packages (dev tools)",
             packages=base_brew_packages,
