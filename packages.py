@@ -59,7 +59,6 @@ def setup_repositories_and_install_packages() -> None:
         "shellcheck",
         "sqlite",
         "tree",
-        "unrar",
         "ripgrep",
         "git-delta",
         "jq",
