@@ -248,7 +248,7 @@ def setup_repositories_and_install_packages() -> None:
         ]
 
         for snap_i in snaps:
-            snap.package(name=f"Install {snap_i}", package=snap_i, _sudo=True)
+            snap.package(name=f"Install {snap_i}", packages=snap_i, _sudo=True)
 
         # -------------------------
         # Development Tools via Brew (Linuxbrew)
