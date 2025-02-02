@@ -51,7 +51,6 @@ def setup_repositories_and_install_packages() -> None:
         "automake",
         "cmake",
         "cowsay",
-        "fastboot",
         "golang",
         "fish",
         "gzip",
