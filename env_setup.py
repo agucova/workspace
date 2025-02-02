@@ -35,7 +35,8 @@ def setup_python_env() -> None:
         name="Setup Python environment",
         commands=[
             "uv python install 3.13 --default --preview",
-            "uv tool install ruff pyright",
+            "uv tool install ruff",
+            "uv tool install pyright",
             "uv tool update-shell",
         ],
     )
