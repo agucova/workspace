@@ -16,6 +16,7 @@ from pathlib import Path
 
 from pyinfra.api.deploy import deploy
 from pyinfra.context import host
+from pyinfra.facts.server import LsbRelease
 from pyinfra.operations import (
     apt,
     brew,
@@ -93,11 +94,12 @@ def setup_repositories_and_install_packages() -> None:
             ],
             _sudo=True,
         )
+        codename = host.get_fact(LsbRelease).codename
         apt.repo(
             name="Add Insync repository",
             src=(
                 "deb [arch=amd64 signed-by=/etc/apt/keyrings/insync.gpg] "
-                "http://apt.insync.io/ubuntu $(lsb_release -sc) non-free contrib"
+                f"http://apt.insync.io/ubuntu {codename} non-free contrib"
             ),
             _sudo=True,
         )
@@ -310,11 +312,12 @@ def install_docker() -> None:
             ],
             _sudo=True,
         )
+        codename = host.get_fact(LsbRelease).codename
         apt.repo(
             name="Add Docker repository",
             src=(
                 "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] "
-                "https://download.docker.com/linux/ubuntu $(lsb_release -sc) stable"
+                f"https://download.docker.com/linux/ubuntu {codename} stable"
             ),
             _sudo=True,
         )
