@@ -64,7 +64,6 @@ def setup_repositories_and_install_packages() -> None:
         "jq",
         "colima",
         "podman",
-        "1password-cli",
     ]
 
     def linux_system_setup() -> None:
@@ -262,6 +261,7 @@ def setup_repositories_and_install_packages() -> None:
             update=True,
             _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
         )
+        #
 
     def macos_setup() -> None:
         # Tap Homebrew repositories
@@ -543,7 +543,7 @@ def install_1password() -> None:
         # Install 1password
         apt.packages(
             name="Install 1Password",
-            packages=["1password"],
+            packages=["1password", "1password-cli"],
             update=True,
             cache_time=3600,
             _sudo=True,
@@ -552,7 +552,7 @@ def install_1password() -> None:
     elif is_macos():
         brew.casks(
             name="Install 1Password",
-            casks=["1password"],
+            casks=["1password", "1password-cli"],
             upgrade=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
