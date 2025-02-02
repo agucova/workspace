@@ -18,6 +18,7 @@ from pyinfra.api.deploy import deploy
 from pyinfra.context import host
 from pyinfra.facts.server import LsbRelease
 from pyinfra.operations import apt, brew, flatpak, server, snap
+from pyinfra.operations.files import directory
 
 from config import BREW_PATH, HOME, USER, is_linux, is_macos, settings
 
@@ -64,6 +65,7 @@ def setup_repositories_and_install_packages() -> None:
         "jq",
         "colima",
         "podman",
+        "1password-cli",
     ]
 
     def linux_system_setup() -> None:
@@ -479,4 +481,71 @@ def install_kinto() -> None:
             name="Install Kinto",
             commands=[f"cd {kinto_dir} && python3 setup.py"],
             _sudo=True,
+        )
+
+
+@deploy("Install 1password")
+def install_1password() -> None:
+    if is_linux():
+        # Get key from https://downloads.1password.com/linux/keys/1password.asc
+        server.shell(
+            name="Add 1Password GPG key",
+            commands=[
+                "curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor > /usr/share/keyrings/1password-archive-keyring.gpg"
+            ],
+            _sudo=True,
+        )
+        # Add 1Password repository
+        # deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main
+        apt.repo(
+            name="Add 1Password repository",
+            src=(
+                "deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] "
+                "https://downloads.1password.com/linux/debian/amd64 stable main"
+            ),
+            _sudo=True,
+        )
+        # Add debsig-verify policy
+        debsig_dir = directory(
+            name="Create debsig policy directory",
+            path="/etc/debsig/policies/AC2D62742012EA22/",
+            mode="0755",
+        )
+        if debsig_dir.changed:
+            server.shell(
+                name="Add 1Password debsig policy",
+                commands=[
+                    "curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol"
+                ],
+                _sudo=True,
+            )
+
+        keyrings_dir = directory(
+            name="Create keyrings directory",
+            path="/usr/share/debsig/keyrings/AC2D62742012EA22",
+            mode="0755",
+        )
+        if keyrings_dir.changed:
+            server.shell(
+                name="Add 1Password debsig keyring",
+                commands=[
+                    "curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg"
+                ],
+                _sudo=True,
+            )
+        # Install 1password
+        apt.packages(
+            name="Install 1Password",
+            packages=["1password"],
+            update=True,
+            cache_time=3600,
+            _sudo=True,
+        )
+
+    elif is_macos():
+        brew.casks(
+            name="Install 1Password",
+            casks=["1password"],
+            upgrade=True,
+            _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
