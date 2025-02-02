@@ -222,7 +222,6 @@ def setup_repositories_and_install_packages() -> None:
         )
         flatpak_apps = [
             "com.axosoft.GitKraken",
-            "com.github.xournalpp.xournalpp",
             "com.stremio.Stremio",
             "org.telegram.desktop",
             "org.zotero.Zotero",
@@ -231,12 +230,8 @@ def setup_repositories_and_install_packages() -> None:
             "com.spotify.Client",
             "com.discordapp.Discord",
             "us.zoom.Zoom",
-            "org.hugo.Hugo",
             "com.todoist.Todoist",
-            "org.ipfs.ipfs-desktop",
-            "com.musixmatch.Musixmatch",
             "org.zulip.Zulip",
-            "io.exercism.Exercism",
         ]
         flatpak.packages(
             name="Install Flatpak packages", packages=flatpak_apps, _sudo=True
