@@ -43,7 +43,7 @@ def setup_repositories_and_install_packages() -> None:
         "btop",
         "pandoc",
         "chezmoi",
-        "bun",
+        "oven-sh/bun/bun",
         "ansible",
         "ansible-lint",
         "aria2",
