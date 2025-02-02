@@ -310,6 +310,7 @@ def setup_repositories_and_install_packages() -> None:
             commands=[
                 "NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash"
             ],
+            _sudo=True,
         )
 
     if is_linux():
