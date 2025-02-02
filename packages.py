@@ -12,6 +12,7 @@ Most development tools are installed via Homebrew (Linuxbrew on Linux) using a c
 Other operations (e.g. adding apt repositories, flatpak installs) are handled separately.
 """
 
+import itertools
 from pathlib import Path
 
 from pyinfra.api.deploy import deploy
@@ -255,28 +256,14 @@ def setup_repositories_and_install_packages() -> None:
             src="linuxbrew/fonts",
             _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
         )
-        # Increase the number of open files (since 1024 is the default and that trips brew)
-        server.shell(
-            name="Increase open files limit",
-            commands=[
-                "grep -q 'fs.inotify.max_user_watches=524288' /etc/sysctl.conf || echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf"
-                "sysctl -p",
-            ],
-            _sudo=True,
-        )
-        server.shell(
-            name="Increase open files limit for user",
-            commands=[
-                "ulimit -n 65536",
-            ],
-        )
-        brew.packages(
-            name="Install base Brew packages (dev tools)",
-            packages=base_brew_packages,
-            update=True,
-            _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
-        )
-        #
+        # Install in batches to prevent triggering open file limits
+        for i, packages in enumerate(itertools.batched(base_brew_packages, 5)):
+            brew.packages(
+                name=f"Install Brew packages (Batch #{i})",
+                packages=packages,
+                update=True,
+                _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
+            )
 
     def macos_setup() -> None:
         # Tap Homebrew repositories
