@@ -247,10 +247,8 @@ def setup_repositories_and_install_packages() -> None:
             "slack",
         ]
 
-        snap.package(
-            name="Install Snap packages",
-            packages=snaps,
-        )
+        for snap_i in snaps:
+            snap.package(name=f"Install {snap_i}", package=snap_i, _sudo=True)
 
         # -------------------------
         # Development Tools via Brew (Linuxbrew)
