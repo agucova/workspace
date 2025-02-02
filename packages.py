@@ -231,7 +231,6 @@ def setup_repositories_and_install_packages() -> None:
             "com.spotify.Client",
             "com.discordapp.Discord",
             "us.zoom.Zoom",
-            "com.johnfactotum.Foliate",
             "org.hugo.Hugo",
             "com.todoist.Todoist",
             "org.ipfs.ipfs-desktop",
