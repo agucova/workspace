@@ -85,14 +85,16 @@ def setup_repositories_and_install_packages() -> None:
             _sudo=True,
         )
 
-        # Insync repository: import key and add repo
+        # Download key ACCAF35C from ubuntu pgp, dearmor and then add signed-by
         server.shell(
-            name="Import Insync key",
+            name="Add Insync GPG key",
             commands=[
-                "apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C"
+                "gpg --keyserver keyserver.ubuntu.com --recv-keys ACCAF35C",
+                "gpg --export ACCAF35C > /etc/apt/keyrings/insync.gpg",
             ],
             _sudo=True,
         )
+
         codename = host.get_fact(LsbRelease)["codename"]
         apt.repo(
             name="Add Insync repository",
