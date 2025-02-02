@@ -16,6 +16,7 @@ from pathlib import Path
 
 from pyinfra.api.deploy import deploy
 from pyinfra.context import host
+from pyinfra.facts.files import Directory
 from pyinfra.facts.server import LsbRelease
 from pyinfra.operations import apt, brew, flatpak, server, snap
 from pyinfra.operations.files import directory
@@ -300,6 +301,15 @@ def setup_repositories_and_install_packages() -> None:
             ],
             upgrade=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
+        )
+
+    # Check if brew is installed
+    if not host.get_fact(Directory, BREW_PATH):
+        server.shell(
+            name="Install brew",
+            commands=[
+                "NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash"
+            ],
         )
 
     if is_linux():
