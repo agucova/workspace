@@ -17,7 +17,7 @@ from pathlib import Path
 
 from pyinfra.api.deploy import deploy
 from pyinfra.context import host
-from pyinfra.facts.files import Directory
+from pyinfra.facts.files import Directory, File
 from pyinfra.facts.server import LsbRelease
 from pyinfra.operations import apt, brew, flatpak, server, snap
 from pyinfra.operations.files import directory
@@ -82,7 +82,7 @@ def setup_repositories_and_install_packages() -> None:
         )
 
         # Download key ACCAF35C from ubuntu pgp, dearmor and then add signed-by
-        if not host.get_fact(Directory, "/etc/apt/keyrings/insync.gpg"):
+        if not host.get_fact(File, "/etc/apt/keyrings/insync.gpg"):
             server.shell(
                 name="Add Insync GPG key",
                 commands=[
@@ -321,7 +321,7 @@ def setup_repositories_and_install_packages() -> None:
 @deploy("Install Docker")
 def install_docker() -> None:
     if is_linux():
-        if not host.get_fact(Directory, "/etc/apt/keyrings/docker.gpg"):
+        if not host.get_fact(File, "/etc/apt/keyrings/docker.asc"):
             server.shell(
                 name="Add Docker GPG key",
                 commands=[
