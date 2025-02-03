@@ -18,11 +18,18 @@ from pathlib import Path
 from pyinfra.api.deploy import deploy
 from pyinfra.context import host
 from pyinfra.facts.files import Directory, File
-from pyinfra.facts.server import LsbRelease
-from pyinfra.operations import apt, brew, flatpak, server, snap
+from pyinfra.facts.server import LsbRelease, OsRelease
+from pyinfra.operations import apt, brew, cargo, flatpak, server, snap
 from pyinfra.operations.files import directory
 
 from config import BREW_PATH, HOME, USER, is_linux, is_macos, settings
+from facts import (
+    DebsigPolicies,
+    DockerConfiguration,
+    FlatpakRemotes,
+    KernelParameters,
+    UserGroups,
+)
 
 
 @deploy("Setup Repositories and Install Packages")
@@ -218,13 +225,14 @@ def setup_repositories_and_install_packages() -> None:
         # -------------------------
         # Flatpak Remote and Apps
         # -------------------------
-        server.shell(
-            name="Add Flathub remote",
-            commands=[
-                "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo"
-            ],
-            _sudo=True,
-        )
+        if "flathub" not in host.get_fact(FlatpakRemotes):
+            server.shell(
+                name="Add Flathub remote",
+                commands=[
+                    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo"
+                ],
+                _sudo=True,
+            )
         flatpak_apps = [
             "com.axosoft.GitKraken",
             "com.stremio.Stremio",
@@ -282,7 +290,6 @@ def setup_repositories_and_install_packages() -> None:
         brew.packages(
             name="Install base Brew packages (dev tools)",
             packages=base_brew_packages,
-            update=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
         # Install Brew casks (applications)
@@ -296,7 +303,6 @@ def setup_repositories_and_install_packages() -> None:
                 "transmission",
                 "vlc",
             ],
-            upgrade=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
 
@@ -353,11 +359,12 @@ def install_docker() -> None:
             cache_time=3600,
             _sudo=True,
         )
-        server.shell(
-            name="Add user to docker group",
-            commands=[f"usermod -aG docker {USER}"],
-            _sudo=True,
-        )
+        if "docker" not in host.get_fact(UserGroups):
+            server.shell(
+                name="Add user to docker group",
+                commands=[f"usermod -aG docker {USER}"],
+                _sudo=True,
+            )
     elif is_macos():
         brew.casks(
             name="Install Docker Desktop",
@@ -397,13 +404,13 @@ def install_firefox_dev() -> None:
                 ],
                 _sudo=True,
             )
-        if installed_firefox.changed:
-            # Cleanup downloaded file
-            server.shell(
-                name="Cleanup Firefox Dev download",
-                commands=["rm -f /tmp/firefox-dev.tar.xz"],
-                _sudo=True,
-            )
+            if installed_firefox.changed:
+                # Cleanup downloaded file
+                server.shell(
+                    name="Cleanup Firefox Dev download",
+                    commands=["rm -f /tmp/firefox-dev.tar.xz"],
+                    _sudo=True,
+                )
     elif is_macos():
         brew.casks(
             name="Install Firefox Developer Edition",
@@ -416,27 +423,25 @@ def install_firefox_dev() -> None:
 @deploy("Install Rust")
 def install_rust() -> None:
     rustup_path = HOME / ".cargo" / "bin" / "rustup"
-    if not rustup_path.exists():
+    if not host.get_fact(File, str(rustup_path)):
         server.shell(
             name="Install Rust using rustup",
             commands=[
                 "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
             ],
         )
-        # Install common Rust tools
-        server.shell(
-            name="Install common Rust tools",
-            commands=[
-                ". $HOME/.cargo/env && cargo install cargo-update cargo-edit",
-            ],
-        )
+
+    # Install common Rust tools
+    cargo.packages(
+        name="Install common Rust tools",
+        packages=["cargo-update", "cargo-edit"],
+        latest=True,
+    )
 
 
 @deploy("Install CUDA for PopOS")
 def install_cuda() -> None:
     if is_linux():
-        from pyinfra.facts.server import OsRelease
-
         os_release = host.get_fact(OsRelease) or {}
         if "pop" in os_release.get("NAME", "").lower():
             # Install CUDA packages
@@ -453,15 +458,24 @@ def install_cuda() -> None:
                 _sudo=True,
             )
 
-            # Configure system for CUDA
-            server.shell(
-                name="Configure CUDA system settings",
-                commands=[
-                    'kernelstub --add-options "systemd.unified_cgroup_hierarchy=0"',
-                    "nvidia-ctk runtime configure --runtime=docker",
-                ],
-                _sudo=True,
-            )
+            if "systemd.unified_cgroup_hierarchy=0" not in host.get_fact(
+                KernelParameters
+            ):
+                # Configure system for CUDA
+                server.shell(
+                    name="Configure Unified Cgroup Hierarchy",
+                    commands=[
+                        'kernelstub --add-options "systemd.unified_cgroup_hierarchy=0"',
+                    ],
+                    _sudo=True,
+                )
+            docker_config = host.get_fact(DockerConfiguration)
+            if "nvidia-container-runtime" not in docker_config.get("runtimes", {}):
+                server.shell(
+                    name="Configure Docker for NVIDIA runtime",
+                    commands=["nvidia-ctk runtime configure --runtime=docker"],
+                    _sudo=True,
+                )
 
 
 @deploy("Install Mathematica")
@@ -489,7 +503,7 @@ def install_kinto() -> None:
     kinto_dir = HOME / "repos" / "kinto"
 
     # Clone the repository if it doesn't exist.
-    if not kinto_dir.exists():
+    if not host.get_fact(Directory, str(kinto_dir)):
         server.shell(
             name="Clone Kinto repository",
             commands=[f"git clone https://github.com/rbreaves/kinto.git {kinto_dir}"],
@@ -506,14 +520,14 @@ def install_kinto() -> None:
 @deploy("Install 1password")
 def install_1password() -> None:
     if is_linux():
-        # Get key from https://downloads.1password.com/linux/keys/1password.asc
-        server.shell(
-            name="Add 1Password GPG key",
-            commands=[
-                "curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor > /usr/share/keyrings/1password-archive-keyring.gpg"
-            ],
-            _sudo=True,
-        )
+        if not host.get_fact(File, "/usr/share/keyrings/1password-archive-keyring.gpg"):
+            server.shell(
+                name="Add 1Password GPG key",
+                commands=[
+                    "curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor > /usr/share/keyrings/1password-archive-keyring.gpg"
+                ],
+                _sudo=True,
+            )
         # Add 1Password repository
         # deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/amd64 stable main
         apt.repo(
@@ -524,13 +538,13 @@ def install_1password() -> None:
             ),
             _sudo=True,
         )
-        # Add debsig-verify policy
-        debsig_dir = directory(
-            name="Create debsig policy directory",
-            path="/etc/debsig/policies/AC2D62742012EA22/",
-            mode="0755",
-        )
-        if debsig_dir.changed:
+        policies = host.get_fact(DebsigPolicies)
+        if "AC2D62742012EA22" not in policies:
+            directory(
+                name="Create debsig policy directory",
+                path="/etc/debsig/policies/AC2D62742012EA22/",
+                mode="0755",
+            )
             server.shell(
                 name="Add 1Password debsig policy",
                 commands=[
