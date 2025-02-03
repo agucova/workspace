@@ -6,9 +6,11 @@ if ! grep -q "ubuntu" /etc/os-release; then
     exit
 fi
 
-# Install `uv`
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source $HOME/.local/bin/env
+if ! hash uv 2> /dev/null
+    # Install `uv`
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    source $HOME/.local/bin/env
+fi
 
 # Install deps
 uv sync
