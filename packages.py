@@ -436,6 +436,7 @@ def install_rust() -> None:
         name="Install common Rust tools",
         packages=["cargo-update", "cargo-edit"],
         latest=True,
+        _env={"PATH": f"{HOME}/.cargo/bin:$PATH"},
     )
 
 

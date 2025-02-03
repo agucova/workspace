@@ -76,3 +76,42 @@ class DockerConfiguration(FactBase):
         import json
 
         return json.loads("".join(output))
+
+
+class DefaultShell(FactBase):
+    """
+    Returns the default shell for a user.
+    """
+
+    def command(self, user: str) -> str:
+        return f"getent passwd {user} | cut -d: -f7"
+
+    def process(self, output: Iterable[str]) -> str:
+        return next(iter(output), "").strip()
+
+
+class UvInstallation(FactBase):
+    """
+    Returns information about uv installation and tools.
+    """
+
+    def command(self) -> str:
+        return "uv --version && uv tool list 2>/dev/null || true"
+
+    def process(self, output: Iterable[str]) -> dict:
+        tools = {}
+        installed = False
+        current_tool = None
+
+        for line in output:
+            if line.startswith("uv"):
+                installed = True
+                version = line.split()[1]
+            elif " v" in line:  # tool header with version
+                current_tool, version = line.split(" v")
+                tools[current_tool] = {"version": version, "binaries": []}
+            elif line.startswith("- "):  # binary entry
+                if current_tool:
+                    tools[current_tool]["binaries"].append(line[2:])
+
+        return {"installed": installed, "tools": tools}

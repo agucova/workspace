@@ -1,4 +1,6 @@
 from pyinfra.api.deploy import deploy
+from pyinfra.context import host
+from pyinfra.facts.files import File
 from pyinfra.operations import files, server
 
 from config import HOME, USER
@@ -67,7 +69,7 @@ def setup_fish() -> None:
 def install_julia() -> None:
     julia_path = HOME / ".juliaup" / "bin" / "julia"
 
-    if not julia_path.exists():
+    if not host.get_fact(File, str(julia_path)):
         server.shell(
             name="Install Julia",
             commands=["curl -fsSL https://install.julialang.org | sh -s -- --yes"],
