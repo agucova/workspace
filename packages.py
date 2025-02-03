@@ -371,12 +371,19 @@ def install_docker() -> None:
 @deploy("Install Firefox Developer Edition")
 def install_firefox_dev() -> None:
     if is_linux():
+        apps_dir = HOME / ".local/share/applications"
         if not (
             host.get_fact(Directory, "/opt/firefox-dev")
-            and host.get_fact(
-                File, f"{HOME}/.local/share/applications/firefox-dev.desktop"
-            )
+            and host.get_fact(File, f"{apps_dir}/firefox-dev.desktop")
         ):
+            directory(
+                name="Create applications directory",
+                path=str(apps_dir),
+                mode="755",
+                user=USER,
+                group=USER,
+            )
+
             installed_firefox = server.shell(
                 name="Install Firefox Developer Edition",
                 commands=[
