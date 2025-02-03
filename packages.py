@@ -101,7 +101,7 @@ def setup_repositories_and_install_packages() -> None:
             _sudo=True,
         )
 
-        apt.update(name="Update apt repositories", cache_time=3600, _sudo=True)
+        apt.update(name="Update apt repositories", _sudo=True)
         apt.upgrade(name="Upgrade APT packages", auto_remove=True, _sudo=True)
 
         # -------------------------
@@ -336,7 +336,7 @@ def install_docker() -> None:
             ),
             _sudo=True,
         )
-        apt.update(name="Update apt for Docker", cache_time=3600, _sudo=True)
+        apt.update(name="Update apt for Docker", _sudo=True)
         apt.packages(
             name="Install Docker packages",
             packages=[
