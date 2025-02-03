@@ -6,7 +6,7 @@ if ! grep -q "ubuntu" /etc/os-release; then
     exit
 fi
 
-if ! hash uv 2> /dev/null
+if ! hash uv 2> /dev/null; then
     # Install `uv`
     curl -LsSf https://astral.sh/uv/install.sh | sh
     source $HOME/.local/bin/env
