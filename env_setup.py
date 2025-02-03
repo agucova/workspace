@@ -73,19 +73,19 @@ def install_julia() -> None:
             commands=["curl -fsSL https://install.julialang.org | sh -s -- --yes"],
         )
 
-    # Julia packages to install
-    julia_packages = [
-        "Plots",
-        "DifferentialEquations",
-        "Revise",
-        "OhMyREPL",
-        "Literate",
-        "Pluto",
-        "PyCall",
-    ]
-
-    for pkg in julia_packages:
-        server.shell(
-            name=f"Install Julia package {pkg}",
-            commands=[f"{julia_path} -e 'using Pkg; Pkg.add(\"{pkg}\")'"],
-        )
+    # Temporarily disabled due to locking issue
+    # # Julia packages to install
+    # julia_packages = [
+    #     "Plots",
+    #     "DifferentialEquations",
+    #     "Revise",
+    #     "OhMyREPL",
+    #     "Literate",
+    #     "Pluto",
+    #     "PyCall",
+    # ]
+    # for pkg in julia_packages:
+    #     server.shell(
+    #         name=f"Install Julia package {pkg}",
+    #         commands=[f"{julia_path} -e 'using Pkg; Pkg.add(\"{pkg}\")'"],
+    #     )
