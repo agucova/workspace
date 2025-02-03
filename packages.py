@@ -325,7 +325,8 @@ def install_docker() -> None:
             server.shell(
                 name="Add Docker GPG key",
                 commands=[
-                    "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+                    "curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc"
+                    "chmod a+r /etc/apt/keyrings/docker.asc",
                 ],
                 _sudo=True,
             )
@@ -333,7 +334,7 @@ def install_docker() -> None:
         apt.repo(
             name="Add Docker repository",
             src=(
-                "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] "
+                "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] "
                 f"https://download.docker.com/linux/ubuntu {codename} stable"
             ),
             _sudo=True,
