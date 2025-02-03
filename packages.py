@@ -370,33 +370,40 @@ def install_docker() -> None:
 @deploy("Install Firefox Developer Edition")
 def install_firefox_dev() -> None:
     if is_linux():
-        server.shell(
-            name="Install Firefox Developer Edition",
-            commands=[
-                "mkdir -p /opt/firefox-dev",
-                "wget -O /tmp/firefox-dev.tar.bz2 'https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64'",
-                "tar -xjf /tmp/firefox-dev.tar.bz2 -C /opt/firefox-dev",
-                (
-                    "echo '[Desktop Entry]\n"
-                    "Version=1.0\n"
-                    "Type=Application\n"
-                    "Name=Firefox Developer Edition\n"
-                    "GenericName=Web Browser\n"
-                    "Icon=/opt/firefox-dev/firefox/browser/chrome/icons/default/default128.png\n"
-                    "Exec=/opt/firefox-dev/firefox/firefox %u\n"
-                    "Terminal=false\n"
-                    "Categories=GNOME;GTK;Network;WebBrowser;' > "
-                    f"{HOME}/.local/share/applications/firefox-dev.desktop"
-                ),
-            ],
-            _sudo=True,
-        )
-        # Cleanup downloaded file
-        server.shell(
-            name="Cleanup Firefox Dev download",
-            commands=["rm -f /tmp/firefox-dev.tar.bz2"],
-            _sudo=True,
-        )
+        if not (
+            host.get_fact(Directory, "/opt/firefox-dev")
+            and host.get_fact(
+                File, f"{HOME}/.local/share/applications/firefox-dev.desktop"
+            )
+        ):
+            installed_firefox = server.shell(
+                name="Install Firefox Developer Edition",
+                commands=[
+                    "mkdir -p /opt/firefox-dev",
+                    "wget -O /tmp/firefox-dev.tar.xz 'https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64'",
+                    "tar -xJf /tmp/firefox-dev.tar.xz -C /opt/firefox-dev",
+                    (
+                        "echo '[Desktop Entry]\n"
+                        "Version=1.0\n"
+                        "Type=Application\n"
+                        "Name=Firefox Developer Edition\n"
+                        "GenericName=Web Browser\n"
+                        "Icon=/opt/firefox-dev/firefox/browser/chrome/icons/default/default128.png\n"
+                        "Exec=/opt/firefox-dev/firefox/firefox %u\n"
+                        "Terminal=false\n"
+                        "Categories=GNOME;GTK;Network;WebBrowser;' > "
+                        f"{HOME}/.local/share/applications/firefox-dev.desktop"
+                    ),
+                ],
+                _sudo=True,
+            )
+        if installed_firefox.changed:
+            # Cleanup downloaded file
+            server.shell(
+                name="Cleanup Firefox Dev download",
+                commands=["rm -f /tmp/firefox-dev.tar.xz"],
+                _sudo=True,
+            )
     elif is_macos():
         brew.casks(
             name="Install Firefox Developer Edition",
