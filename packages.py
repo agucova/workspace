@@ -325,7 +325,7 @@ def install_docker() -> None:
             server.shell(
                 name="Add Docker GPG key",
                 commands=[
-                    "curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc"
+                    "curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc",
                     "chmod a+r /etc/apt/keyrings/docker.asc",
                 ],
                 _sudo=True,
