@@ -109,7 +109,7 @@ def setup_repositories_and_install_packages() -> None:
             _sudo=True,
         )
 
-        apt.update(name="Update apt repositories", _sudo=True)
+        apt.update(name="Update apt repositories", cache_time=3600, _sudo=True)
         apt.upgrade(name="Upgrade APT packages", auto_remove=True, _sudo=True)
 
         # -------------------------
@@ -210,8 +210,6 @@ def setup_repositories_and_install_packages() -> None:
         apt.packages(
             name="Install APT packages",
             packages=system_apt_packages,
-            update=True,
-            cache_time=3600,
             _sudo=True,
         )
 
@@ -270,7 +268,6 @@ def setup_repositories_and_install_packages() -> None:
             brew.packages(
                 name=f"Install Brew packages (Batch #{i})",
                 packages=packages,
-                update=True,
                 _env={"PATH": "/home/linuxbrew/.linuxbrew/bin:$PATH"},
             )
 
@@ -355,8 +352,6 @@ def install_docker() -> None:
                 "docker-buildx-plugin",
                 "docker-compose-plugin",
             ],
-            update=True,
-            cache_time=3600,
             _sudo=True,
         )
         if "docker" not in host.get_fact(UserGroups):
@@ -369,7 +364,6 @@ def install_docker() -> None:
         brew.casks(
             name="Install Docker Desktop",
             casks=["docker"],
-            upgrade=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
 
@@ -415,7 +409,6 @@ def install_firefox_dev() -> None:
         brew.casks(
             name="Install Firefox Developer Edition",
             casks=["firefox-developer-edition"],
-            upgrade=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
 
@@ -453,7 +446,6 @@ def install_cuda() -> None:
                     "nvidia-docker2",
                     "tensorman",
                 ],
-                update=True,
                 cache_time=3600,
                 _sudo=True,
             )
@@ -570,8 +562,6 @@ def install_1password() -> None:
         apt.packages(
             name="Install 1Password",
             packages=["1password", "1password-cli"],
-            update=True,
-            cache_time=3600,
             _sudo=True,
         )
 
@@ -579,6 +569,5 @@ def install_1password() -> None:
         brew.casks(
             name="Install 1Password",
             casks=["1password", "1password-cli"],
-            upgrade=True,
             _env={"PATH": f"{BREW_PATH}:$PATH"},
         )
