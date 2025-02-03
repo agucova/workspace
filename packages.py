@@ -82,14 +82,15 @@ def setup_repositories_and_install_packages() -> None:
         )
 
         # Download key ACCAF35C from ubuntu pgp, dearmor and then add signed-by
-        server.shell(
-            name="Add Insync GPG key",
-            commands=[
-                "gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys ACCAF35C",
-                "gpg --export ACCAF35C > /etc/apt/keyrings/insync.gpg",
-            ],
-            _sudo=True,
-        )
+        if not host.get_fact(Directory, "/etc/apt/keyrings/insync.gpg"):
+            server.shell(
+                name="Add Insync GPG key",
+                commands=[
+                    "gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys ACCAF35C",
+                    "gpg --export ACCAF35C > /etc/apt/keyrings/insync.gpg",
+                ],
+                _sudo=True,
+            )
 
         codename = host.get_fact(LsbRelease)["codename"]
         apt.repo(
@@ -320,13 +321,14 @@ def setup_repositories_and_install_packages() -> None:
 @deploy("Install Docker")
 def install_docker() -> None:
     if is_linux():
-        server.shell(
-            name="Add Docker GPG key",
-            commands=[
-                "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
-            ],
-            _sudo=True,
-        )
+        if not host.get_fact(Directory, "/etc/apt/keyrings/docker.gpg"):
+            server.shell(
+                name="Add Docker GPG key",
+                commands=[
+                    "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg"
+                ],
+                _sudo=True,
+            )
         codename = host.get_fact(LsbRelease)["codename"]
         apt.repo(
             name="Add Docker repository",
