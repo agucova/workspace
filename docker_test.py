@@ -26,7 +26,7 @@ console = Console()
 
 def run_command(
     command: str, check: bool = True, capture_output: bool = True
-) -> subprocess.CompletedProcess:
+) -> subprocess.CompletedProcess | subprocess.CalledProcessError:
     """Run a shell command and return the result."""
     try:
         result = subprocess.run(
@@ -38,8 +38,7 @@ def run_command(
             console.print(f"[bold red]Error running command:[/] {command}")
             console.print(f"[red]{e.stderr if e.stderr else str(e)}[/]")
             sys.exit(1)
-        # Explicitly handle the type error
-        return e  # type: ignore
+        return e
 
 
 def check_docker_image_exists(image_name: str) -> bool:
