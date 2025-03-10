@@ -27,6 +27,11 @@ The repository includes Docker-based testing capabilities to test modules in a h
 
 # Force rebuilding the Docker image
 ./docker-test.sh --build
+
+# Run with interactive shell to inspect the container after execution
+./docker-test.sh --interactive packages.setup_rust
+# or the short version
+./docker-test.sh -i packages.setup_rust
 ```
 
 Each module that requires a graphical environment (GNOME, Firefox, Kinto, Mathematica) has been updated with `has_display()` checks that automatically skip GUI-dependent operations when running in Docker or other headless environments. This allows testing the core functionality while skipping operations that would fail without a display.
