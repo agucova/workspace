@@ -3,7 +3,7 @@
 Main deployment script that ties all modules together.
 """
 
-from config import is_linux
+from config import is_linux, settings
 from env_setup import (
     apply_dotfiles,
     install_julia,
@@ -42,16 +42,20 @@ install_julia()
 
 # 3. Core system tools and applications.
 install_docker()
-install_firefox_dev()
+install_firefox_dev()  # GUI check happens inside the function
 install_rust()
 
 # 4. Linux-specific configurations.
 if is_linux():
     install_cuda()
-    configure_wallpaper()
-    configure_keyboard()
-    install_mathematica()
-    install_kinto()
+    configure_wallpaper()  # GUI check happens inside the function
+    configure_keyboard()  # GUI check happens inside the function
+    install_kinto()  # GUI check happens inside the function
+    install_mathematica()  # GUI check happens inside the function
 
 # 5. Apply dotfiles.
 apply_dotfiles()
+
+# Output testing status
+if settings.docker_testing:
+    print("\nExecuting in Docker testing mode - GUI modules skipped")

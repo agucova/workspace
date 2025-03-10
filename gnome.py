@@ -1,11 +1,15 @@
 from pyinfra.api.deploy import deploy
 from pyinfra.operations import files, server
 
-from config import FILES_DIR, HOME, USER, is_linux
+from config import FILES_DIR, HOME, USER, has_display, is_linux
 
 
 @deploy("Configure GNOME Wallpaper")
 def configure_wallpaper() -> None:
+    if not has_display():
+        print("Skipping GNOME wallpaper configuration (no display available)")
+        return
+
     wallpaper_src = FILES_DIR / "wallpaper.jpg"
     wallpaper_dest = HOME / ".wallpaper.jpg"
 
@@ -33,18 +37,21 @@ def configure_wallpaper() -> None:
 
 @deploy("Configure GNOME Keyboard")
 def configure_keyboard() -> None:
-    if is_linux():
-        server.shell(
-            name="Set GNOME keyboard layout",
-            commands=[
-                f"sudo -u {USER} dconf write /org/gnome/desktop/input-sources/sources \"[('xkb', 'us+altgr-intl')]\""
-            ],
-            _sudo=True,
+    if not is_linux() or not has_display():
+        print(
+            "Skipping GNOME keyboard configuration (not on Linux or no display available)"
         )
-        server.shell(
-            name="Disable GNOME overlay key",
-            commands=[
-                f"sudo -u {USER} dconf write /org/gnome/mutter/overlay-key \"''\""
-            ],
-            _sudo=True,
-        )
+        return
+
+    server.shell(
+        name="Set GNOME keyboard layout",
+        commands=[
+            f"sudo -u {USER} dconf write /org/gnome/desktop/input-sources/sources \"[('xkb', 'us+altgr-intl')]\""
+        ],
+        _sudo=True,
+    )
+    server.shell(
+        name="Disable GNOME overlay key",
+        commands=[f"sudo -u {USER} dconf write /org/gnome/mutter/overlay-key \"''\""],
+        _sudo=True,
+    )

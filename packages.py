@@ -22,7 +22,7 @@ from pyinfra.facts.server import LsbRelease, OsRelease
 from pyinfra.operations import apt, brew, cargo, flatpak, server, snap
 from pyinfra.operations.files import directory
 
-from config import BREW_PATH, HOME, USER, is_linux, is_macos, settings
+from config import BREW_PATH, HOME, USER, has_display, is_linux, is_macos, settings
 from facts import (
     DebsigPolicies,
     DockerConfiguration,
@@ -223,7 +223,8 @@ def setup_repositories_and_install_packages() -> None:
         # -------------------------
         # Flatpak Remote and Apps
         # -------------------------
-        if "flathub" not in host.get_fact(FlatpakRemotes):
+        flatpak_remotes = host.get_fact(FlatpakRemotes)
+        if flatpak_remotes is not None and "flathub" not in flatpak_remotes:
             server.shell(
                 name="Add Flathub remote",
                 commands=[
@@ -370,6 +371,10 @@ def install_docker() -> None:
 
 @deploy("Install Firefox Developer Edition")
 def install_firefox_dev() -> None:
+    if not has_display():
+        print("Skipping Firefox Developer Edition installation (no display available)")
+        return
+        
     if is_linux():
         apps_dir = HOME / ".local/share/applications"
         if not (
@@ -480,6 +485,10 @@ def install_cuda() -> None:
 
 @deploy("Install Mathematica")
 def install_mathematica() -> None:
+    if not has_display():
+        print("Skipping Mathematica installation (no display available)")
+        return
+        
     mathematica_bin = "/usr/local/bin/mathematica"
     if not Path(mathematica_bin).exists() and settings.mathematica_license_key:
         wolfram_email = "agucova@uc.cl"
@@ -500,6 +509,10 @@ def install_kinto() -> None:
     This deploy function clones the repository into ~/repos/kinto (if not already present)
     and then runs its setup script.
     """
+    if not has_display():
+        print("Skipping Kinto installation (no display available)")
+        return
+        
     kinto_dir = HOME / "repos" / "kinto"
 
     # Clone the repository if it doesn't exist.

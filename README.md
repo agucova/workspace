@@ -9,6 +9,27 @@ Supports both macOS and Ubuntu/Pop_OS! environments. This is a rewrite of my pre
 - Cross-platform support for macOS and Ubuntu/Pop_OS!
 - Fast execution with PyInfra v3
 - Modular design for easy customization
+- Docker-based testing harness for non-GUI modules
+
+## Testing
+
+The repository includes Docker-based testing capabilities to test modules in a headless environment:
+
+```bash
+# Build the Docker image and run the entire setup (skipping GUI modules)
+./docker-test.sh
+
+# List available modules
+./docker-test.sh --list
+
+# Run a specific function from a module
+./docker-test.sh env_setup.setup_fish
+
+# Force rebuilding the Docker image
+./docker-test.sh --build
+```
+
+Each module that requires a graphical environment (GNOME, Firefox, Kinto, Mathematica) has been updated with `has_display()` checks that automatically skip GUI-dependent operations when running in Docker or other headless environments. This allows testing the core functionality while skipping operations that would fail without a display.
 
 ## Things missing
 
@@ -20,6 +41,7 @@ Supports both macOS and Ubuntu/Pop_OS! environments. This is a rewrite of my pre
 
 - [ ] Add Aerial screensaver
 - [ ] Add [uxPlay](https://github.com/FDH2/UxPlay)
+- [ ] CI/CD setup for automated testing
 
 ## To-do
 

@@ -7,6 +7,14 @@
 - Test individual function: `echo 'from <module> import <function>; <function>()' | uv run -`
 - Execute arbitrary Python: `echo '<python_code>' | uv run -`
 
+## Docker Testing
+- Run full setup (skipping GUI modules): `./docker-test.sh`
+- List available modules: `./docker-test.sh --list`
+- Run specific function: `./docker-test.sh env_setup.setup_fish`
+- Rebuild Docker image: `./docker-test.sh --build`
+- Docker testing automatically skips GUI modules using config.has_display() checks
+- The Dockerfile uses bootstrap.bash to set up the environment
+
 ## Linting and Type Checking
 - Check types with pyright: `uv run pyright`
 - Check a specific file: `uv run pyright <file.py>`
@@ -20,7 +28,9 @@
 2. Run formatter: `uv run ruff format .`
 3. Run linter and fix issues: `uv run ruff check --fix .`
 4. Run type checker: `uv run pyright`
-5. Test the changes: `uv run pyinfra @local -v <module>.<function>`
+5. Test the changes:
+   - On local machine: `uv run pyinfra @local -v <module>.<function>`
+   - In Docker (for headless modules): `./docker-test.sh --module <module> --function <function>`
 6. Commit changes only after all checks pass
 
 ## Code Style Guidelines
@@ -32,6 +42,7 @@
 - **Error handling**: Prefer early returns over deeply nested conditionals
 - **Configuration**: Use pydantic_settings for typed configuration
 - **Platform checks**: Use config.is_linux() and config.is_macos() for OS-specific code
+- **UI checks**: Use config.has_display() to check for graphical environment
 - **Documentation**: Docstrings for modules and functions explaining purpose
 
 ## Project Context
@@ -47,3 +58,4 @@
 - When making changes, assume the local machine represents the desired state by default
 - Only diverge from the local machine configuration when explicitly needed
 - Testing locally should be safe as operations will detect existing configurations and skip redundant actions
+- Docker-based testing available for headless environments
