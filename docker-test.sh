@@ -3,12 +3,15 @@ set -eo pipefail
 
 # Check if we should rebuild the image
 REBUILD=false
+INTERACTIVE=false
 ARGS=()
 
 # Parse arguments
 for arg in "$@"; do
     if [[ "$arg" == "--build" ]]; then
         REBUILD=true
+    elif [[ "$arg" == "--interactive" || "$arg" == "-i" ]]; then
+        INTERACTIVE=true
     else
         ARGS+=("$arg")
     fi
@@ -20,10 +23,14 @@ if [[ ! "$(docker images -q workspace-test 2> /dev/null)" || "$REBUILD" == "true
     docker build -t workspace-test .
 fi
 
-# No arguments provided (after removing --build if present)
+# No arguments provided (after removing --build and --interactive if present)
 if [[ ${#ARGS[@]} -eq 0 ]]; then
     echo "Running full workspace setup in Docker container..."
-    docker run --rm workspace-test bash -c "pyinfra @local -y main.py"
+    if [[ "$INTERACTIVE" == "true" ]]; then
+        docker run --rm -it workspace-test bash -c "pyinfra @local -y main.py && bash"
+    else
+        docker run --rm workspace-test bash -c "pyinfra @local -y main.py"
+    fi
     exit 0
 fi
 
@@ -33,6 +40,7 @@ if [[ "${ARGS[0]}" == "--help" || "${ARGS[0]}" == "-h" ]]; then
     echo ""
     echo "Options:"
     echo "  --build             Force rebuild the Docker image"
+    echo "  --interactive, -i   Launch interactive bash shell after running commands"
     echo "  --list              List available modules"
     echo "  --help, -h          Show this help message"
     echo ""
@@ -41,6 +49,7 @@ if [[ "${ARGS[0]}" == "--help" || "${ARGS[0]}" == "-h" ]]; then
     echo "  ./docker-test.sh --list                List available modules"
     echo "  ./docker-test.sh env_setup.setup_fish  Run specific function"
     echo "  ./docker-test.sh --build env_setup.setup_fish  Rebuild and run specific function"
+    echo "  ./docker-test.sh -i packages.setup_rust  Run function and open interactive shell"
     exit 0
 fi
 
@@ -57,11 +66,20 @@ if [[ "${ARGS[0]}" == *"."* ]]; then
     MODULE=$(echo "${ARGS[0]}" | cut -d. -f1)
     FUNCTION=$(echo "${ARGS[0]}" | cut -d. -f2)
     echo "Running $MODULE.$FUNCTION in Docker..."
-    docker run --rm workspace-test bash -c "pyinfra @local -vy $MODULE.$FUNCTION"
+    if [[ "$INTERACTIVE" == "true" ]]; then
+        docker run --rm -it workspace-test bash -c "pyinfra @local -vy $MODULE.$FUNCTION && bash"
+    else
+        docker run --rm workspace-test bash -c "pyinfra @local -vy $MODULE.$FUNCTION"
+    fi
     exit 0
 else
     # Try to import and run all functions in the module
-    echo "Running all functions in module ${ARGS[0]} in Docker..."
-    docker run --rm workspace-test bash -c "pyinfra @local -vy $MODULE"
+    MODULE="${ARGS[0]}"
+    echo "Running all functions in module ${MODULE} in Docker..."
+    if [[ "$INTERACTIVE" == "true" ]]; then
+        docker run --rm -it workspace-test bash -c "pyinfra @local -vy $MODULE && bash"
+    else
+        docker run --rm workspace-test bash -c "pyinfra @local -vy $MODULE"
+    fi
     exit 0
 fi
