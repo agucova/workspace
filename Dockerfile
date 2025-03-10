@@ -18,6 +18,12 @@ RUN apt-get update && apt-get install -y \
     dirmngr \
     gpg-agent \
     bash \
+    build-essential \
+    flatpak \
+    snapd \
+    libssl-dev \
+    pkg-config \
+    cmake \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 

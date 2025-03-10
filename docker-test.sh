@@ -1,25 +1,34 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# Check if we should rebuild the image
+REBUILD=false
+ARGS=()
+
+# Parse arguments
+for arg in "$@"; do
+    if [[ "$arg" == "--build" ]]; then
+        REBUILD=true
+    else
+        ARGS+=("$arg")
+    fi
+done
+
 # Build the Docker image if needed or if --build flag is present
-if [[ ! "$(docker images -q workspace-test 2> /dev/null)" || "$1" == "--build" ]]; then
+if [[ ! "$(docker images -q workspace-test 2> /dev/null)" || "$REBUILD" == "true" ]]; then
     echo "Building Docker image..."
     docker build -t workspace-test .
-    
-    if [[ "$1" == "--build" ]]; then
-        shift
-    fi
 fi
 
-# Default behavior: run the entire main.py
-if [[ $# -eq 0 ]]; then
+# No arguments provided (after removing --build if present)
+if [[ ${#ARGS[@]} -eq 0 ]]; then
     echo "Running full workspace setup in Docker container..."
     docker run --rm workspace-test bash -c "pyinfra @local -y main.py"
     exit 0
 fi
 
 # Handle --help flag
-if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+if [[ "${ARGS[0]}" == "--help" || "${ARGS[0]}" == "-h" ]]; then
     echo "Usage: ./docker-test.sh [options] [module.function]"
     echo ""
     echo "Options:"
@@ -31,27 +40,28 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     echo "  ./docker-test.sh                       Run full setup"
     echo "  ./docker-test.sh --list                List available modules"
     echo "  ./docker-test.sh env_setup.setup_fish  Run specific function"
-    echo "  ./docker-test.sh env_setup             Run all functions in module (not implemented yet)"
+    echo "  ./docker-test.sh --build env_setup.setup_fish  Rebuild and run specific function"
     exit 0
 fi
 
 # List available modules
-if [[ "$1" == "--list" ]]; then
+if [[ "${ARGS[0]}" == "--list" ]]; then
     echo "Available modules:"
     docker run --rm workspace-test bash -c "ls -1 *.py | grep -v 'main\|test\|config' | sed 's/\.py$//'"
     exit 0
 fi
 
-# Run specific module.function
-if [[ "$1" == *"."* ]]; then
-    MODULE=$(echo "$1" | cut -d. -f1)
-    FUNCTION=$(echo "$1" | cut -d. -f2)
+# Run specific module.function or just module
+if [[ "${ARGS[0]}" == *"."* ]]; then
+    # Run specific function in module
+    MODULE=$(echo "${ARGS[0]}" | cut -d. -f1)
+    FUNCTION=$(echo "${ARGS[0]}" | cut -d. -f2)
     echo "Running $MODULE.$FUNCTION in Docker..."
     docker run --rm workspace-test bash -c "pyinfra @local -vy $MODULE.$FUNCTION"
     exit 0
+else
+    # Try to import and run all functions in the module
+    echo "Running all functions in module ${ARGS[0]} in Docker..."
+    docker run --rm workspace-test bash -c "pyinfra @local -vy $MODULE"
+    exit 0
 fi
-
-# Run all functions in a module (not implemented yet)
-echo "Running all functions in module $1 is not implemented yet."
-echo "Please specify a specific function using the format: $1.function_name"
-exit 1
