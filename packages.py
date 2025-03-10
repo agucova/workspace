@@ -19,7 +19,7 @@ from pyinfra.api.deploy import deploy
 from pyinfra.context import host
 from pyinfra.facts.files import Directory, File
 from pyinfra.facts.server import LsbRelease, OsRelease
-from pyinfra.operations import apt, brew, cargo, flatpak, server, snap
+from pyinfra.operations import apt, brew, flatpak, server, snap
 from pyinfra.operations.files import directory
 
 from config import BREW_PATH, HOME, USER, has_display, is_linux, is_macos, settings
@@ -206,7 +206,7 @@ def setup_repositories_and_install_packages() -> None:
             "gnome-shell-extension-appindicator",
             "podman",
         ]
-        
+
         # Add gaming packages if we have a display
         if has_display():
             gaming_packages = ["steam-installer", "lutris"]
@@ -215,7 +215,7 @@ def setup_repositories_and_install_packages() -> None:
                 packages=gaming_packages,
                 _sudo=True,
             )
-            
+
         apt.packages(
             name="Install APT packages",
             packages=system_apt_packages,
@@ -236,7 +236,7 @@ def setup_repositories_and_install_packages() -> None:
         # Flatpak Remote and Apps
         # -------------------------
         flatpak_remotes = host.get_fact(FlatpakRemotes)
-        
+
         # Check if flatpak is available
         if flatpak_remotes is None:
             # Try to install flatpak if not already installed
@@ -249,7 +249,7 @@ def setup_repositories_and_install_packages() -> None:
             )
             # Retry getting flatpak remotes
             flatpak_remotes = host.get_fact(FlatpakRemotes)
-            
+
         # Add flathub remote if flatpak is available and flathub isn't configured
         if flatpak_remotes is not None and "flathub" not in flatpak_remotes:
             server.shell(
@@ -259,7 +259,7 @@ def setup_repositories_and_install_packages() -> None:
                 ],
                 _sudo=True,
             )
-            
+
         # Only try to install flatpak apps if flatpak is available and we have a display
         if flatpak_remotes is not None and has_display():
             flatpak_apps = [
@@ -287,7 +287,7 @@ def setup_repositories_and_install_packages() -> None:
             ],
             _sudo=True,
         )
-        
+
         # Only install GUI apps if display is available
         if has_display():
             snaps = [
@@ -421,7 +421,7 @@ def install_firefox_dev() -> None:
     if not has_display():
         print("Skipping Firefox Developer Edition installation (no display available)")
         return
-        
+
     if is_linux():
         apps_dir = HOME / ".local/share/applications"
         if not (
@@ -480,7 +480,7 @@ def install_rust() -> None:
     it installs it. Then it installs common cargo tools.
     """
     rustup_path = HOME / ".cargo" / "bin" / "rustup"
-    
+
     # Install rustup if not already installed
     if not host.get_fact(File, str(rustup_path)):
         server.shell(
@@ -489,7 +489,7 @@ def install_rust() -> None:
                 "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y",
             ],
         )
-        
+
     # In a real environment, we would proceed to install cargo-update and cargo-edit
     # Here we check if running in Docker to avoid long compilations during testing
     if settings.docker_testing:
@@ -500,7 +500,9 @@ def install_rust() -> None:
                 f"bash -c 'source {HOME}/.cargo/env && rustc --version && cargo --version'",
             ],
         )
-        print("In non-testing environments, would proceed to install cargo-update and cargo-edit")
+        print(
+            "In non-testing environments, would proceed to install cargo-update and cargo-edit"
+        )
     else:
         # Normal operation - install cargo tools
         server.shell(
@@ -554,7 +556,7 @@ def install_mathematica() -> None:
     if not has_display():
         print("Skipping Mathematica installation (no display available)")
         return
-        
+
     mathematica_bin = "/usr/local/bin/mathematica"
     if not Path(mathematica_bin).exists() and settings.mathematica_license_key:
         wolfram_email = "agucova@uc.cl"
@@ -578,7 +580,7 @@ def install_kinto() -> None:
     if not has_display():
         print("Skipping Kinto installation (no display available)")
         return
-        
+
     kinto_dir = HOME / "repos" / "kinto"
 
     # Clone the repository if it doesn't exist.
