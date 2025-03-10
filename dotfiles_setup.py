@@ -138,7 +138,8 @@ def setup_dotfiles(github_username=None):
             run_command(f"rm -rf {chezmoi_dir}")
         else:
             print("Skipping chezmoi initialization.")
-            return
+            # Return False to indicate we didn't apply dotfiles (clean skip)
+            return False
     
     print("\n===== Setting up dotfiles with chezmoi =====")
     
@@ -150,6 +151,7 @@ def setup_dotfiles(github_username=None):
     
     if init_result.returncode == 0:
         print("Dotfiles successfully applied!")
+        return True
     else:
         print("Failed to initialize or apply dotfiles.")
         sys.exit(1)
@@ -162,11 +164,16 @@ def main():
 
     check_prerequisites()
     github_authenticate()
-    setup_dotfiles()
+    
+    # Call setup_dotfiles and track whether changes were applied
+    dotfiles_applied = setup_dotfiles()
 
     print("\n===== Setup Complete! =====")
-    print("Your dotfiles have been applied successfully.")
-    print("You may need to restart your shell for all changes to take effect.")
+    if dotfiles_applied:
+        print("Your dotfiles have been applied successfully.")
+        print("You may need to restart your shell for all changes to take effect.")
+    else:
+        print("No changes were made to your dotfiles setup.")
 
 
 if __name__ == "__main__":
