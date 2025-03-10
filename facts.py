@@ -55,10 +55,17 @@ class DebsigPolicies(FactBase):
     """
 
     def command(self) -> str:
+        # The original command doesn't work correctly if the directory doesn't exist
+        # We need to ensure the command returns an empty string in case of errors
         return "ls -1 /etc/debsig/policies/ 2>/dev/null || true"
 
     def process(self, output: Iterable[str]) -> list[str]:
         return [line.strip() for line in output if line.strip()]
+        
+    @staticmethod
+    def default() -> list[str]:
+        # Return empty list as default if fact collection fails
+        return []
 
 
 class DockerConfiguration(FactBase):
