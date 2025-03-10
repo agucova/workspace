@@ -23,6 +23,7 @@ from pyinfra.operations.files import directory
 
 from config import BREW_PATH, HOME, USER, has_display, is_linux, is_macos, settings
 from facts import (
+    DebsigPolicies,
     DockerConfiguration,
     FlatpakRemotes,
     KernelParameters,
@@ -691,54 +692,59 @@ def install_1password() -> None:
                 _sudo=True,
             )
             
-            # Use directories first to ensure parent directories exist
-            directory(
-                name="Create debsig policies directory",
-                path="/etc/debsig/policies",
-                mode="0755",
-                _sudo=True,
-            )
+            # Check if 1Password policy already exists
+            policies = host.get_fact(DebsigPolicies)
+            # Handle None case explicitly - policies can be None in the Docker environment
+            if policies is None or "AC2D62742012EA22" not in policies:
+                # Use directories first to ensure parent directories exist
+                directory(
+                    name="Create debsig policies directory",
+                    path="/etc/debsig/policies",
+                    mode="0755",
+                    _sudo=True,
+                )
+                
+                # Make sure AC2D62742012EA22 policy directory exists
+                directory(
+                    name="Create 1Password policy directory",
+                    path="/etc/debsig/policies/AC2D62742012EA22",
+                    mode="0755",
+                    _sudo=True,
+                )
+                
+                # Add 1Password policy file
+                server.shell(
+                    name="Add 1Password debsig policy",
+                    commands=[
+                        "curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol"
+                    ],
+                    _sudo=True,
+                )
             
-            # Make sure AC2D62742012EA22 policy directory exists
-            directory(
-                name="Create 1Password policy directory",
-                path="/etc/debsig/policies/AC2D62742012EA22",
-                mode="0755",
-                _sudo=True,
-            )
-            
-            # Add 1Password policy file
-            server.shell(
-                name="Add 1Password debsig policy",
-                commands=[
-                    "curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol"
-                ],
-                _sudo=True,
-            )
-            
-            # Create keyrings directories
-            directory(
-                name="Create debsig keyrings directory",
-                path="/usr/share/debsig/keyrings",
-                mode="0755",
-                _sudo=True,
-            )
-            
-            directory(
-                name="Create 1Password keyrings directory",
-                path="/usr/share/debsig/keyrings/AC2D62742012EA22",
-                mode="0755",
-                _sudo=True,
-            )
-            
-            # Add 1Password keyring
-            server.shell(
-                name="Add 1Password debsig keyring",
-                commands=[
-                    "curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg"
-                ],
-                _sudo=True,
-            )
+            # Create keyrings directories if needed
+            if policies is None or "AC2D62742012EA22" not in policies:
+                directory(
+                    name="Create debsig keyrings directory",
+                    path="/usr/share/debsig/keyrings",
+                    mode="0755",
+                    _sudo=True,
+                )
+                
+                directory(
+                    name="Create 1Password keyrings directory",
+                    path="/usr/share/debsig/keyrings/AC2D62742012EA22",
+                    mode="0755",
+                    _sudo=True,
+                )
+                
+                # Add 1Password keyring
+                server.shell(
+                    name="Add 1Password debsig keyring",
+                    commands=[
+                        "curl -sS https://downloads.1password.com/linux/keys/1password.asc | sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg"
+                    ],
+                    _sudo=True,
+                )
                 
             # Install 1password
             apt.packages(
