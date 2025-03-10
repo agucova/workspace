@@ -30,8 +30,9 @@
 4. Run type checker: `uv run pyright`
 5. Test the changes:
    - On local machine: `uv run pyinfra @local -v <module>.<function>`
-   - In Docker (for headless modules): `./docker-test.sh --module <module> --function <function>`
-6. Commit changes only after all checks pass
+   - In Docker (for headless modules): `uv run docker_test.py run <module>.<function>`
+6. IMPORTANT: Never commit changes until they've been fully tested. Commit only after verifying functionality.
+7. Use conventional commit messages
 
 ## Code Style Guidelines
 - **Typing**: Use type hints throughout; prefer `|` for union types in Python 3.10+
