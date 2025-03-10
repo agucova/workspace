@@ -5,7 +5,6 @@ Main deployment script that ties all modules together.
 
 from config import is_linux, settings
 from env_setup import (
-    apply_dotfiles,
     install_julia,
     setup_directories,
     setup_fish,
@@ -52,9 +51,6 @@ if is_linux():
     configure_keyboard()  # GUI check happens inside the function
     install_kinto()  # GUI check happens inside the function
     install_mathematica()  # GUI check happens inside the function
-
-# 5. Apply dotfiles.
-apply_dotfiles()
 
 # Output testing status
 if settings.docker_testing:

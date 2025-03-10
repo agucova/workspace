@@ -44,18 +44,6 @@ def setup_python_env() -> None:
     )
 
 
-@deploy("Apply Dotfiles")
-def apply_dotfiles() -> None:
-    chezmoi_dir = HOME / ".local" / "share" / "chezmoi"
-    if not chezmoi_dir.exists():
-        server.shell(
-            name="Initialize and apply dotfiles",
-            commands=[
-                f"chezmoi init git@github.com:{USER}/dotfiles.git && chezmoi apply"
-            ],
-        )
-
-
 @deploy("Setup Fish Shell")
 def setup_fish() -> None:
     server.shell(

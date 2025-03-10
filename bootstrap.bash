@@ -14,3 +14,14 @@ fi
 
 # Run the main deployment script
 uv run pyinfra @local main.py
+
+# Ask the user if they want to set up dotfiles
+echo ""
+echo "===== PyInfra deployment completed ====="
+read -p "Do you want to set up your private dotfiles now? [y/N] " -n 1 -r
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Run the dotfiles setup script
+    echo "Setting up dotfiles..."
+    uv run dotfiles_setup.py
+fi
