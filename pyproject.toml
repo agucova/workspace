@@ -8,3 +8,9 @@ dependencies = [
     "pydantic-settings>=2.7.1",
     "pyinfra>=3.2",
 ]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.396",
+    "ruff>=0.9.10",
+]

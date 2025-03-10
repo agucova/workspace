@@ -12,8 +12,5 @@ if ! command -v uv &> /dev/null; then
     source $HOME/.local/bin/env
 fi
 
-# Install deps
-uv sync
-
 # Run the main deployment script
 uv run pyinfra @local main.py
