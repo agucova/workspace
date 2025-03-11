@@ -730,10 +730,11 @@ def install_cuda() -> None:
         os_release = host.get_fact(OsRelease) or {}
         if "pop" in os_release.get("NAME", "").lower():
             # Install CUDA packages
-            apt.packages(
+            apt_fast.packages(
                 name="Install CUDA and cuDNN packages",
                 packages=cuda_packages,
-                cache_time=3600,
+                parallel=16,
+                no_recommends=True,
                 _sudo=True,
             )
 
