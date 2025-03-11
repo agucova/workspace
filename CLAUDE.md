@@ -8,10 +8,11 @@
 - Execute arbitrary Python: `echo '<python_code>' | uv run -`
 
 ## Docker Testing
-- Run full setup (skipping GUI modules): `./docker-test.sh`
-- List available modules: `./docker-test.sh --list`
-- Run specific function: `./docker-test.sh env_setup.setup_fish`
-- Rebuild Docker image: `./docker-test.sh --build`
+- Run full setup (skipping GUI modules): `uv run docker_test.py run`
+- List available modules: `uv run docker_test.py list_modules`
+- Run specific function: `uv run docker_test.py run <module>.<function>`
+- Rebuild Docker image: `uv run docker_test.py run --build`
+- IMPORTANT: Always use `uv run` instead of `python` or `python3` for all Python commands
 - Docker testing automatically skips GUI modules using config.has_display() checks
 - The Dockerfile uses bootstrap.bash to set up the environment
 

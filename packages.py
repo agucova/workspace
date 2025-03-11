@@ -21,6 +21,9 @@ from pyinfra.facts.files import Directory, File
 from pyinfra.facts.server import LsbRelease, OsRelease
 from pyinfra.operations import apt, brew, files, flatpak, server, snap
 
+# Import our apt-fast module for faster parallel downloads
+import apt_fast
+
 from config import BREW_PATH, HOME, USER, has_display, is_linux, is_macos, settings
 from facts import (
     DebsigPolicies,
@@ -62,6 +65,14 @@ def setup_repositories() -> None:
             _sudo=True,
         )
 
+        # Ensure apt-fast is installed
+        # We use apt here since apt-fast isn't available yet
+        apt.packages(
+            name="Ensure apt-fast is installed",
+            packages=["apt-fast"],
+            _sudo=True,
+        )
+
         # Download key ACCAF35C from ubuntu pgp, dearmor and then add signed-by
         if not host.get_fact(File, "/etc/apt/keyrings/insync.gpg"):
             server.shell(
@@ -83,8 +94,9 @@ def setup_repositories() -> None:
             _sudo=True,
         )
 
-        apt.update(name="Update apt repositories", cache_time=3600, _sudo=True)
-        apt.upgrade(name="Upgrade APT packages", auto_remove=True, _sudo=True)
+        # Use apt-fast for update and upgrade operations with 16 parallel downloads
+        apt_fast.update(name="Update apt repositories", cache_time=3600, parallel=16, _sudo=True)
+        apt_fast.upgrade(name="Upgrade APT packages", auto_remove=True, parallel=16, _sudo=True)
 
 
 @deploy("Setup Homebrew")
@@ -150,9 +162,11 @@ def install_dev_tools() -> None:
     }
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install development tools (APT)",
             packages=dev_tools["apt"],
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
 
@@ -176,9 +190,11 @@ def install_shell_tools() -> None:
     }
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install shell tools (APT)",
             packages=shell_tools["apt"],
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
 
@@ -229,9 +245,11 @@ def install_build_tools() -> None:
     }
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install build tools (APT)",
             packages=build_tools["apt"],
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
 
@@ -253,9 +271,11 @@ def install_programming_languages() -> None:
     }
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install programming languages (APT)",
             packages=programming_languages["apt"],
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
 
@@ -315,9 +335,11 @@ def install_system_utilities() -> None:
     }
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install system utilities (APT)",
             packages=system_utilities["apt"],
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
 
@@ -376,9 +398,10 @@ def install_gui_apps() -> None:
         return
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install GUI applications (APT)",
             packages=gui_apps["apt"],
+            parallel=16,
             _sudo=True,
         )
 
@@ -387,12 +410,12 @@ def install_gui_apps() -> None:
 
         # Check if flatpak is available
         if flatpak_remotes is None:
-            # Try to install flatpak if not already installed
-            server.shell(
+            # Install flatpak if not already installed
+            apt_fast.packages(
                 name="Ensure flatpak is installed",
-                commands=[
-                    "command -v flatpak || apt-get install -y flatpak",
-                ],
+                packages=["flatpak"],
+                parallel=16,
+                no_recommends=True,
                 _sudo=True,
             )
             # Retry getting flatpak remotes
@@ -420,11 +443,11 @@ def install_gui_apps() -> None:
 
         # Install Snap apps
         # First ensure snapd is installed
-        server.shell(
+        apt_fast.packages(
             name="Ensure snapd is installed",
-            commands=[
-                "command -v snap || apt-get install -y snapd",
-            ],
+            packages=["snapd"],
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
 
@@ -432,9 +455,10 @@ def install_gui_apps() -> None:
             snap.package(name=f"Install {snap_app}", packages=snap_app, _sudo=True)
 
         # Install Zoom
-        apt.deb(
+        apt_fast.deb(
             name="Install Zoom",
             src="https://zoom.us/client/latest/zoom_amd64.deb",
+            parallel=16,
             _sudo=True,
         )
 
@@ -460,9 +484,10 @@ def install_gaming_apps() -> None:
         return
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install gaming applications",
             packages=gaming["apt"],
+            parallel=16,
             _sudo=True,
         )
 
@@ -485,9 +510,10 @@ def install_gnome_tools() -> None:
         print("Skipping GNOME tools (no display or not Linux)")
         return
 
-    apt.packages(
+    apt_fast.packages(
         name="Install GNOME tools",
         packages=gnome_tools["apt"],
+        parallel=16,
         _sudo=True,
     )
 
@@ -501,9 +527,10 @@ def install_fonts() -> None:
     }
 
     if is_linux():
-        apt.packages(
+        apt_fast.packages(
             name="Install fonts (APT)",
             packages=fonts["apt"],
+            parallel=16,
             _sudo=True,
         )
 
@@ -541,10 +568,12 @@ def install_docker() -> None:
             ),
             _sudo=True,
         )
-        apt.update(name="Update apt for Docker", _sudo=True)
-        apt.packages(
+        apt_fast.update(name="Update apt for Docker", parallel=16, _sudo=True)
+        apt_fast.packages(
             name="Install Docker packages",
             packages=docker_packages,
+            parallel=16,
+            no_recommends=True,
             _sudo=True,
         )
         if "docker" not in host.get_fact(UserGroups):

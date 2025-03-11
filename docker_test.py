@@ -123,8 +123,8 @@ def list_modules():
 
 @app.command()
 def run(
-    module_function: Optional[str] = typer.Argument(
-        None, help="Module.function to run (e.g., 'env_setup.setup_fish')"
+    module_function: Optional[List[str]] = typer.Argument(
+        None, help="Module.function(s) to run (e.g., 'packages.setup_repositories packages.install_dev_tools')"
     ),
     build: bool = typer.Option(
         False,
@@ -149,6 +149,8 @@ def run(
     The current directory is mounted as a volume in the container,
     so code changes are immediately available without rebuilding.
     Rebuilding is only necessary when the Dockerfile or dependencies change.
+    
+    You can specify multiple module.function pairs to run them in sequence.
     """
     image_name = "workspace-test"
 
@@ -159,7 +161,7 @@ def run(
     # Determine if we should run dotfiles setup
     # Default: yes for full setup, no for specific function
     run_dotfiles = False
-    if module_function is None:
+    if not module_function:
         # Full setup - default to yes unless explicitly turned off
         run_dotfiles = False if include_dotfiles is False else True
     else:
@@ -181,17 +183,24 @@ def run(
 
     # Build the command to run
     if module_function:
-        # Validate that we're only running specific module.function pairs
-        if "." not in module_function:
-            console.print(
-                "[bold red]Error:[/] Please specify a module.function pair (e.g., 'env_setup.setup_fish').\n"
-                "Running entire modules is not currently supported."
-            )
-            sys.exit(1)
-
-        # Specific module.function
-        console.print(f"[bold blue]Running {module_function} in Docker...[/]")
-        command = f"pyinfra @local -vy {module_function}"
+        # Process module functions
+        module_functions = []
+        for func in module_function:
+            # Validate each module.function pair
+            if "." not in func:
+                console.print(
+                    f"[bold red]Error:[/] '{func}' is not a valid module.function pair.\n"
+                    "Please specify in format 'module.function' (e.g., 'env_setup.setup_fish')."
+                )
+                sys.exit(1)
+            module_functions.append(func)
+        
+        # Build command to run specified module.functions
+        funcs_str = " ".join(module_functions)
+        console.print(f"[bold blue]Running functions: {funcs_str} in Docker...[/]")
+        
+        # Create a combined command for all module functions
+        command = " && ".join([f"pyinfra @local -vy {func}" for func in module_functions])
     else:
         # Full setup
         console.print(
