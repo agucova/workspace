@@ -135,17 +135,17 @@ def setup_brew() -> None:
                     commands=[
                         "mkdir -p /home/linuxbrew",
                         f"chown {USER}:$(id -gn {USER}) /home/linuxbrew",
-                        "chmod 775 /home/linuxbrew"
+                        "chmod 775 /home/linuxbrew",
                     ],
                     _sudo=True,
                 )
-            
+
             # Then install Homebrew as the user directly (without sudo)
             # This avoids the sudo askpass issue in Ubuntu 24.04
             server.shell(
                 name="Install brew",
                 commands=[
-                    'NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash'
+                    "NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash"
                 ],
             )
         elif is_macos():
@@ -153,7 +153,7 @@ def setup_brew() -> None:
             server.shell(
                 name="Install brew",
                 commands=[
-                    'NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash'
+                    "NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash"
                 ],
                 _sudo=True,
                 _preserve_sudo_env=True,
@@ -231,8 +231,18 @@ def install_shell_tools() -> None:
     """Install shell and terminal enhancement tools."""
     # Shell and terminal enhancements
     shell_tools = {
-        "brew": ["lsd", "bat", "navi", "fd", "starship", "fish", "btop"],
-        "apt": ["fish", "neofetch", "micro", "btop", "ncdu", "mosh"],
+        "brew": [
+            "lsd",
+            "bat",
+            "navi",
+            "fd",
+            "starship",
+            "fish",
+            "btop",
+            "fastfetch",
+            "gdu",
+        ],
+        "apt": ["fish", "micro", "btop", "ncdu", "mosh"],
     }
 
     if is_linux():
