@@ -129,15 +129,16 @@ def setup_brew() -> None:
         if is_linux():
             # First ensure the /home/linuxbrew directory exists with correct permissions
             # Create the directory as root and then set appropriate permissions
-            server.shell(
-                name="Create /home/linuxbrew directory with proper permissions",
-                commands=[
-                    "mkdir -p /home/linuxbrew",
-                    f"chown {USER}:$(id -gn {USER}) /home/linuxbrew",
-                    "chmod 775 /home/linuxbrew"
-                ],
-                _sudo=True,
-            )
+            if not host.get_fact(Directory, "/home/linuxbrew"):
+                server.shell(
+                    name="Create /home/linuxbrew directory with proper permissions",
+                    commands=[
+                        "mkdir -p /home/linuxbrew",
+                        f"chown {USER}:$(id -gn {USER}) /home/linuxbrew",
+                        "chmod 775 /home/linuxbrew"
+                    ],
+                    _sudo=True,
+                )
             
             # Then install Homebrew as the user directly (without sudo)
             # This avoids the sudo askpass issue in Ubuntu 24.04
