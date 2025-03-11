@@ -5,7 +5,6 @@ Main deployment script that ties all modules together.
 
 from config import is_linux, settings
 from env_setup import (
-    install_julia,
     setup_directories,
     setup_fish,
     setup_python_env,
@@ -13,11 +12,9 @@ from env_setup import (
 from gnome import configure_keyboard, configure_wallpaper
 from packages import (
     install_cuda,
-    install_docker,
-    install_firefox_dev,
+    install_julia,
     install_kinto,
     install_mathematica,
-    install_rust,
     setup_repositories_and_install_packages,
 )
 
@@ -39,10 +36,7 @@ setup_fish()
 setup_python_env()
 install_julia()
 
-# 3. Core system tools and applications.
-install_docker()
-install_firefox_dev()  # GUI check happens inside the function
-install_rust()
+# 3. Install additional tools (install_docker and install_firefox_dev are already handled)
 
 # 4. Linux-specific configurations.
 if is_linux():

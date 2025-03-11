@@ -1,6 +1,5 @@
 from pyinfra.api.deploy import deploy
 from pyinfra.context import host
-from pyinfra.facts.files import File
 from pyinfra.operations import files, server
 
 from config import HOME, USER
@@ -93,31 +92,4 @@ def setup_fish() -> None:
     )
 
 
-@deploy("Install Julia and Packages")
-def install_julia() -> None:
-    julia_path = HOME / ".juliaup" / "bin" / "julia"
-
-    # Install Julia if not already installed
-    if not host.get_fact(File, str(julia_path)):
-        server.shell(
-            name="Install Julia",
-            commands=["curl -fsSL https://install.julialang.org | sh -s -- --yes"],
-        )
-
-    # Julia packages to install
-    julia_packages = [
-        "Plots",
-        "DifferentialEquations",
-        "Revise",
-        "OhMyREPL",
-        "Literate",
-        "Pluto",
-        # "PyCall",  # Removed due to installation issues with newer Julia versions
-    ]
-
-    # Julia packages to install
-    for pkg in julia_packages:
-        server.shell(
-            name=f"Install Julia package {pkg}",
-            commands=[f"{julia_path} -e 'using Pkg; Pkg.add(\"{pkg}\")'"],
-        )
+# Julia installation moved to packages.py

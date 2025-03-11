@@ -23,7 +23,6 @@ from pyinfra.operations import apt, brew, files, flatpak, server, snap
 
 # Import our apt-fast module for faster parallel downloads
 import apt_fast
-
 from config import BREW_PATH, HOME, USER, has_display, is_linux, is_macos, settings
 from facts import (
     DebsigPolicies,
@@ -34,21 +33,40 @@ from facts import (
 )
 
 
-# Import the Julia installation function
-# We use a late import to avoid circular imports
-def import_julia_function():
-    try:
-        from env_setup import install_julia
+@deploy("Install Julia and Packages")
+def install_julia() -> None:
+    """
+    Install Julia using juliaup and install essential packages.
 
-        return install_julia
-    except ImportError:
-        from pyinfra.api.deploy import deploy
+    This function checks if Julia is already installed via juliaup, and if not,
+    installs it. Then it installs common Julia packages.
+    """
+    julia_path = HOME / ".juliaup" / "bin" / "julia"
 
-        @deploy("Julia Stub")
-        def install_julia_stub() -> None:
-            print("Julia installation function not available")
+    # Install Julia if not already installed
+    if not host.get_fact(File, str(julia_path)):
+        server.shell(
+            name="Install Julia",
+            commands=["curl -fsSL https://install.julialang.org | sh -s -- --yes"],
+        )
 
-        return install_julia_stub
+    # Julia packages to install
+    julia_packages = [
+        "Plots",
+        "DifferentialEquations",
+        "Revise",
+        "OhMyREPL",
+        "Literate",
+        "Pluto",
+        # "PyCall",  # Removed due to installation issues with newer Julia versions
+    ]
+
+    # Install Julia packages
+    for pkg in julia_packages:
+        server.shell(
+            name=f"Install Julia package {pkg}",
+            commands=[f"{julia_path} -e 'using Pkg; Pkg.add(\"{pkg}\")'"],
+        )
 
 
 @deploy("Setup Package Repositories")
@@ -293,8 +311,7 @@ def install_programming_languages() -> None:
     # Install Rust (specific language installation that needs special handling)
     install_rust()
 
-    # Install Julia (dynamically imported to avoid circular imports)
-    install_julia = import_julia_function()
+    # Install Julia
     install_julia()
 
 
@@ -915,7 +932,7 @@ def install_1password() -> None:
         )
 
 
-@deploy("Setup Repositories and Install Packages")
+@deploy("Packages")
 def setup_repositories_and_install_packages() -> None:
     """
     Main function that sets up repositories and installs all packages.
