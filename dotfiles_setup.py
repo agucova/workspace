@@ -41,7 +41,11 @@ def check_prerequisites():
     """Check if required tools are installed."""
     # Check for GitHub CLI
     gh_result = run_command("which gh", check=False)
-    if gh_result.returncode != 0:
+    # Check for homebrew GitHub CLI path as a fallback
+    gh_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/gh"
+    homebrew_gh_exists = Path(gh_homebrew_path).exists()
+    
+    if gh_result.returncode != 0 and not homebrew_gh_exists:
         print("GitHub CLI (gh) is not installed.")
         print("Please run the main PyInfra deployment first or install it manually:")
         print("    brew install gh")
@@ -56,10 +60,26 @@ def check_prerequisites():
         sys.exit(1)
 
 
+def get_gh_command():
+    """Return the appropriate gh command path."""
+    gh_result = run_command("which gh", check=False)
+    if gh_result.returncode == 0:
+        return "gh"
+    
+    # Use Homebrew path as fallback
+    gh_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/gh"
+    if Path(gh_homebrew_path).exists():
+        return gh_homebrew_path
+    
+    # Should never reach here due to check_prerequisites
+    return "gh"
+
 def github_authenticate():
     """Set up GitHub authentication using the gh CLI."""
+    gh_cmd = get_gh_command()
+    
     # Check if already authenticated
-    auth_status = run_command("gh auth status", check=False)
+    auth_status = run_command(f"{gh_cmd} auth status", check=False)
     if auth_status.returncode == 0:
         print("GitHub CLI is already authenticated.")
         return True
@@ -78,7 +98,7 @@ def github_authenticate():
 
     # Run gh auth login with SSH as the preferred Git protocol
     auth_result = run_command(
-        "gh auth login --git-protocol ssh --web", capture_output=False
+        f"{gh_cmd} auth login --git-protocol ssh --web", capture_output=False
     )
     if auth_result.returncode == 0:
         print("GitHub authentication successful!")
@@ -90,10 +110,12 @@ def github_authenticate():
 
 def setup_dotfiles(github_username=None):
     """Clone and apply dotfiles using chezmoi."""
+    gh_cmd = get_gh_command()
+    
     # Determine the user's GitHub username if not provided
     if not github_username:
         try:
-            github_username = run_command("gh api user -q .login").stdout.strip()
+            github_username = run_command(f"{gh_cmd} api user -q .login").stdout.strip()
             print(f"Detected GitHub username: {github_username}")
         except Exception:
             github_username = input("Enter your GitHub username: ")
@@ -122,7 +144,7 @@ def setup_dotfiles(github_username=None):
     if not dotfiles_dir.exists():
         print(f"\n===== Cloning dotfiles repository to {dotfiles_dir} =====")
         clone_result = run_command(
-            f"gh repo clone {github_username}/dotfiles {dotfiles_dir}",
+            f"{gh_cmd} repo clone {github_username}/dotfiles {dotfiles_dir}",
             capture_output=False,
         )
         if clone_result.returncode != 0:
