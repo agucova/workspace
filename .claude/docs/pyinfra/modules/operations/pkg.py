@@ -14,7 +14,9 @@ from .util.packaging import ensure_packages
 
 
 @operation()
-def packages(packages: str | list[str] | None = None, present=True, pkg_path: str | None = None):
+def packages(
+    packages: str | list[str] | None = None, present=True, pkg_path: str | None = None
+):
     """
     Install/remove/update pkg packages. This will use ``pkg ...`` where available
     (FreeBSD) and the ``pkg_*`` variants elsewhere.
@@ -45,11 +47,13 @@ def packages(packages: str | list[str] | None = None, present=True, pkg_path: st
     if present is True:
         if not pkg_path and not host.get_fact(File, path="/etc/installurl"):
             host_os = host.get_fact(Os) or ""
-            pkg_path = "http://ftp.{http}.org/pub/{os}/{version}/packages/{arch}/".format(
-                http=host_os.lower(),
-                os=host_os,
-                version=host.get_fact(OsVersion),
-                arch=host.get_fact(Arch),
+            pkg_path = (
+                "http://ftp.{http}.org/pub/{os}/{version}/packages/{arch}/".format(
+                    http=host_os.lower(),
+                    os=host_os,
+                    version=host.get_fact(OsVersion),
+                    arch=host.get_fact(Arch),
+                )
             )
 
     # FreeBSD used "pkg ..." and OpenBSD uses "pkg_[add|delete]"

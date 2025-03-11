@@ -44,7 +44,9 @@ def dataset(
 
     """
 
-    noop_msg = "{0} is already {1}".format(dataset_name, "present" if present else "absent")
+    noop_msg = "{0} is already {1}".format(
+        dataset_name, "present" if present else "absent"
+    )
 
     properties.update(extra_props)
 
@@ -85,7 +87,9 @@ def dataset(
 
 
 @operation()
-def snapshot(snapshot_name, present=True, recursive=False, properties={}, **extra_props):
+def snapshot(
+    snapshot_name, present=True, recursive=False, properties={}, **extra_props
+):
     """
     Create or destroy a ZFS snapshot, or modify its properties.
 
@@ -117,7 +121,13 @@ def snapshot(snapshot_name, present=True, recursive=False, properties={}, **extr
 
 @operation()
 def volume(
-    volume_name, size, sparse=False, present=True, recursive=False, properties={}, **extra_props
+    volume_name,
+    size,
+    sparse=False,
+    present=True,
+    recursive=False,
+    properties={},
+    **extra_props,
 ):
     """
     Create or destroy a ZFS volume, or modify its properties.

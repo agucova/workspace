@@ -569,7 +569,9 @@ class LinuxDistribution(FactBase[LinuxDistributionDict]):
 
             for filename, content in parts.items():
                 with open(
-                    os.path.join(temp_etc_dir, os.path.basename(filename)), "w", encoding="utf-8"
+                    os.path.join(temp_etc_dir, os.path.basename(filename)),
+                    "w",
+                    encoding="utf-8",
                 ) as fp:
                     fp.write(content)
 
@@ -579,7 +581,9 @@ class LinuxDistribution(FactBase[LinuxDistributionDict]):
                 include_uname=False,
             )
 
-            release_meta = {key.upper(): value for key, value in parsed.os_release_info().items()}
+            release_meta = {
+                key.upper(): value for key, value in parsed.os_release_info().items()
+            }
             # Distro 1.7+ adds this, breaking tests
             # TODO: fix this!
             release_meta.pop("RELEASE_CODENAME", None)

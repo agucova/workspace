@@ -139,7 +139,9 @@ class PostgresDatabases(PostgresFactBase):
     """
 
     default = dict
-    psql_command = "SELECT pg_catalog.pg_encoding_to_char(encoding), * FROM pg_catalog.pg_database"
+    psql_command = (
+        "SELECT pg_catalog.pg_encoding_to_char(encoding), * FROM pg_catalog.pg_database"
+    )
 
     def process(self, output):
         # Remove the last line of the output (row count)

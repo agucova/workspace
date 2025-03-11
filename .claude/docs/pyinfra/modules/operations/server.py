@@ -82,7 +82,9 @@ def reboot(delay=10, interval=1, reboot_timeout=300):
 
     yield FunctionCommand(remove_any_askpass_file, (), {})
 
-    yield StringCommand("reboot", _success_exit_codes=[0, -1])  # -1 being error/disconnected
+    yield StringCommand(
+        "reboot", _success_exit_codes=[0, -1]
+    )  # -1 being error/disconnected
 
     def wait_and_reconnect(state, host):  # pragma: no cover
         sleep(delay)
@@ -98,7 +100,9 @@ def reboot(delay=10, interval=1, reboot_timeout=300):
 
             if retries > max_retries:
                 raise Exception(
-                    ("Server did not reboot in time (reboot_timeout={0}s)").format(reboot_timeout),
+                    ("Server did not reboot in time (reboot_timeout={0}s)").format(
+                        reboot_timeout
+                    ),
                 )
 
             sleep(interval)
@@ -430,7 +434,9 @@ def sysctl(
         )
     """
 
-    string_value = " ".join(["{0}".format(v) for v in value]) if isinstance(value, list) else value
+    string_value = (
+        " ".join(["{0}".format(v) for v in value]) if isinstance(value, list) else value
+    )
 
     value = [try_int(v) for v in value] if isinstance(value, list) else try_int(value)
 
@@ -504,12 +510,17 @@ def service(
 
     # NOTE: important that we are not Linux here because /etc/rc.d will exist but checking it's
     # contents may trigger things (like a reboot: https://github.com/Fizzadar/pyinfra/issues/819)
-    elif host.get_fact(Os) != "Linux" and bool(host.get_fact(Directory, path="/etc/rc.d")):
+    elif host.get_fact(Os) != "Linux" and bool(
+        host.get_fact(Directory, path="/etc/rc.d")
+    ):
         service_operation = bsdinit.service
 
     else:
         raise OperationError(
-            ("No init system found " "(no systemctl, initctl, /etc/init.d or /etc/rc.d found)"),
+            (
+                "No init system found "
+                "(no systemctl, initctl, /etc/init.d or /etc/rc.d found)"
+            ),
         )
 
     yield from service_operation._inner(
@@ -567,7 +578,9 @@ def packages(
     elif host.get_fact(Which, command="pacman"):
         package_operation = pacman.packages
 
-    elif host.get_fact(Which, command="xbps-install") or host.get_fact(Which, command="xbps"):
+    elif host.get_fact(Which, command="xbps-install") or host.get_fact(
+        Which, command="xbps"
+    ):
         package_operation = xbps.packages
 
     elif host.get_fact(Which, command="yum"):
@@ -711,7 +724,9 @@ def user_authorized_keys(
 
         return [key.strip()]
 
-    public_keys = [key for key_or_file in public_keys for key in read_any_pub_key_file(key_or_file)]
+    public_keys = [
+        key for key_or_file in public_keys for key in read_any_pub_key_file(key_or_file)
+    ]
 
     # Ensure .ssh directory
     # note that this always outputs commands unless the SSH user has access to the
@@ -753,7 +768,9 @@ def user_authorized_keys(
 
         # And every public key is present
         for key in public_keys:
-            yield from files.line._inner(path=authorized_key_file, line=key, ensure_newline=True)
+            yield from files.line._inner(
+                path=authorized_key_file, line=key, ensure_newline=True
+            )
 
 
 @operation()
@@ -1016,14 +1033,18 @@ def locale(
 
     # Find the matching line in /etc/locale.gen
     matching_lines = host.get_fact(
-        FindInFile, path=locales_definitions_file, pattern=rf"^.*{locale}[[:space:]]\+.*$"
+        FindInFile,
+        path=locales_definitions_file,
+        pattern=rf"^.*{locale}[[:space:]]\+.*$",
     )
 
     if not matching_lines:
         raise OperationError(f"Locale {locale} not found in {locales_definitions_file}")
 
     if len(matching_lines) > 1:
-        raise OperationError(f"Multiple locales matches for {locale} in {locales_definitions_file}")
+        raise OperationError(
+            f"Multiple locales matches for {locale} in {locales_definitions_file}"
+        )
 
     matching_line = matching_lines[0]
 
@@ -1032,7 +1053,9 @@ def locale(
         logger.debug(f"Removing locale {locale}")
 
         yield from files.line._inner(
-            path=locales_definitions_file, line=f"^{matching_line}$", replace=f"# {matching_line}"
+            path=locales_definitions_file,
+            line=f"^{matching_line}$",
+            replace=f"# {matching_line}",
         )
 
         yield "locale-gen"

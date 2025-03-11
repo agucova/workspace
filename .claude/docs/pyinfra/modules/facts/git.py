@@ -40,7 +40,9 @@ class GitConfig(GitFactBase):
 
 class GitTrackingBranch(GitFactBase):
     def command(self, repo) -> str:
-        return r"! test -d {0} || (cd {0} && git status --branch --porcelain)".format(repo)
+        return r"! test -d {0} || (cd {0} && git status --branch --porcelain)".format(
+            repo
+        )
 
     def process(self, output):
         if not output:

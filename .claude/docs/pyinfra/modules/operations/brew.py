@@ -8,7 +8,13 @@ import urllib.parse
 
 from pyinfra import host
 from pyinfra.api import operation
-from pyinfra.facts.brew import BrewCasks, BrewPackages, BrewTaps, BrewVersion, new_cask_cli
+from pyinfra.facts.brew import (
+    BrewCasks,
+    BrewPackages,
+    BrewTaps,
+    BrewVersion,
+    new_cask_cli,
+)
 
 from .util.packaging import ensure_packages
 
@@ -96,7 +102,9 @@ def packages(
 
 
 def cask_args():
-    return ("", " --cask") if new_cask_cli(host.get_fact(BrewVersion)) else ("cask ", "")
+    return (
+        ("", " --cask") if new_cask_cli(host.get_fact(BrewVersion)) else ("cask ", "")
+    )
 
 
 @operation(is_idempotent=False)

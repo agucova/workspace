@@ -97,18 +97,18 @@ def setup_dotfiles(github_username=None):
             print(f"Detected GitHub username: {github_username}")
         except Exception:
             github_username = input("Enter your GitHub username: ")
-    
+
     # Setup paths
     home_dir = Path.home()
     repos_dir = home_dir / "repos"
     dotfiles_dir = repos_dir / "dotfiles"
     chezmoi_dir = home_dir / ".local" / "share" / "chezmoi"
-    
+
     # Create repos directory if it doesn't exist
     if not repos_dir.exists():
         print(f"Creating repos directory at {repos_dir}")
         repos_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Check if dotfiles repo already exists
     if dotfiles_dir.exists():
         print(f"Dotfiles repository already exists at {dotfiles_dir}")
@@ -117,7 +117,7 @@ def setup_dotfiles(github_username=None):
             run_command(f"rm -rf {dotfiles_dir}")
         else:
             print("Using existing dotfiles repository.")
-    
+
     # Clone dotfiles repository if it doesn't exist
     if not dotfiles_dir.exists():
         print(f"\n===== Cloning dotfiles repository to {dotfiles_dir} =====")
@@ -128,7 +128,7 @@ def setup_dotfiles(github_username=None):
         if clone_result.returncode != 0:
             print("Failed to clone dotfiles repository.")
             sys.exit(1)
-    
+
     # Check if chezmoi is already initialized
     if chezmoi_dir.exists():
         print("chezmoi directory already exists.")
@@ -140,15 +140,15 @@ def setup_dotfiles(github_username=None):
             print("Skipping chezmoi initialization.")
             # Return False to indicate we didn't apply dotfiles (clean skip)
             return False
-    
+
     print("\n===== Setting up dotfiles with chezmoi =====")
-    
+
     # Initialize chezmoi with the local repository and apply
     init_result = run_command(
         f"chezmoi init --apply {dotfiles_dir}",
         capture_output=False,
     )
-    
+
     if init_result.returncode == 0:
         print("Dotfiles successfully applied!")
         return True
@@ -164,7 +164,7 @@ def main():
 
     check_prerequisites()
     github_authenticate()
-    
+
     # Call setup_dotfiles and track whether changes were applied
     dotfiles_applied = setup_dotfiles()
 

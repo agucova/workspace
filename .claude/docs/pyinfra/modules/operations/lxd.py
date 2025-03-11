@@ -11,7 +11,9 @@ from pyinfra.api import operation
 from pyinfra.facts.lxd import LxdContainers
 
 
-def get_container_named(name: str, containers: list[dict[str, Any]]) -> dict[str, Any] | None:
+def get_container_named(
+    name: str, containers: list[dict[str, Any]]
+) -> dict[str, Any] | None:
     for container in containers:
         if container["name"] == name:
             return container

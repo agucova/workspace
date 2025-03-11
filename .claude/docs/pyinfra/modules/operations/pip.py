@@ -180,7 +180,9 @@ def packages(
     # (un)Install requirements
     if requirements is not None:
         if present:
-            yield "{0} -r {1}".format(upgrade_command if latest else install_command, requirements)
+            yield "{0} -r {1}".format(
+                upgrade_command if latest else install_command, requirements
+            )
         else:
             yield "{0} -r {1}".format(uninstall_command, requirements)
 
@@ -191,7 +193,9 @@ def packages(
         # PEP-0426 states that Python packages should be compared using lowercase, so lowercase both
         # the input packages and the fact packages before comparison.
         packages = [pkg.lower() for pkg in packages]
-        current_packages = {pkg.lower(): versions for pkg, versions in current_packages.items()}
+        current_packages = {
+            pkg.lower(): versions for pkg, versions in current_packages.items()
+        }
 
         yield from ensure_packages(
             host,

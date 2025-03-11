@@ -172,7 +172,9 @@ def ensure_packages(
         )
 
 
-def ensure_rpm(state: State, host: Host, source: str, present: bool, package_manager_command: str):
+def ensure_rpm(
+    state: State, host: Host, source: str, present: bool, package_manager_command: str
+):
     original_source = source
 
     # If source is a url

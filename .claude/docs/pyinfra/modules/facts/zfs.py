@@ -35,21 +35,31 @@ class ZfsFilesystems(ShortFactBase):
     fact = ZfsDatasets
 
     def process_data(self, data):
-        return {name: props for name, props in data.items() if props.get("type") == "filesystem"}
+        return {
+            name: props
+            for name, props in data.items()
+            if props.get("type") == "filesystem"
+        }
 
 
 class ZfsSnapshots(ShortFactBase):
     fact = ZfsDatasets
 
     def process_data(self, data):
-        return {name: props for name, props in data.items() if props.get("type") == "snapshot"}
+        return {
+            name: props
+            for name, props in data.items()
+            if props.get("type") == "snapshot"
+        }
 
 
 class ZfsVolumes(ShortFactBase):
     fact = ZfsDatasets
 
     def process_data(self, data):
-        return {name: props for name, props in data.items() if props.get("type") == "volume"}
+        return {
+            name: props for name, props in data.items() if props.get("type") == "volume"
+        }
 
 
 # TODO: remove these in v4! Or flip the convention and remove all the other fact prefixes!

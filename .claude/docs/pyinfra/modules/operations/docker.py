@@ -188,7 +188,6 @@ def volume(volume, driver="", labels=None, present=True):
     existent_volume = host.get_fact(DockerVolume, object_id=volume)
 
     if present:
-
         if existent_volume:
             host.noop("Volume already exists!")
             return

@@ -128,7 +128,9 @@ class OpkgFeeds(FactBase):
     default = dict
 
     def command(self) -> str:
-        return "cat /etc/opkg/distfeeds.conf; echo CUSTOM; cat /etc/opkg/customfeeds.conf"
+        return (
+            "cat /etc/opkg/distfeeds.conf; echo CUSTOM; cat /etc/opkg/customfeeds.conf"
+        )
 
     def process(self, output):
         feeds, kind = {}, "distribution"
@@ -136,7 +138,9 @@ class OpkgFeeds(FactBase):
             match = self.regex.match(line)
 
             if match is None:
-                logger.warning(f"Opkg: could not parse /etc/opkg/*feeds.conf line '{line}'")
+                logger.warning(
+                    f"Opkg: could not parse /etc/opkg/*feeds.conf line '{line}'"
+                )
             elif match.group(0) == "CUSTOM":
                 kind = "custom"
             elif match.group("name") is not None:
@@ -226,7 +230,9 @@ class OpkgUpgradeablePackages(FactBase):
         for line in output:
             match = self.regex.match(line)
             if match and len(match.groups()) == 3:
-                result[match.group(1)] = OpkgPkgUpgradeInfo(match.group(2), match.group(3))
+                result[match.group(1)] = OpkgPkgUpgradeInfo(
+                    match.group(2), match.group(3)
+                )
             else:
                 logger.warning(f"Opkg: could not list-upgradable line '{line}'")
 

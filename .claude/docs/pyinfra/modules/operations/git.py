@@ -16,7 +16,9 @@ from .util.files import chown, unix_path_join
 
 
 @operation()
-def config(key: str, value: str, multi_value=False, repo: str | None = None, system=False):
+def config(
+    key: str, value: str, multi_value=False, repo: str | None = None, system=False
+):
     """
     Manage git config at repository, user or system level.
 
@@ -161,7 +163,9 @@ def repo(
 
     # Attach prefixes for directory
     command_prefix = "cd {0} && git".format(dest)
-    git_commands = ["{0} {1}".format(command_prefix, command) for command in git_commands]
+    git_commands = [
+        "{0} {1}".format(command_prefix, command) for command in git_commands
+    ]
 
     for cmd in git_commands:
         yield cmd
@@ -365,7 +369,10 @@ def worktree(
                 command += " --rebase"
 
             if from_remote_branch:
-                if len(from_remote_branch) != 2 or type(from_remote_branch) not in (tuple, list):
+                if len(from_remote_branch) != 2 or type(from_remote_branch) not in (
+                    tuple,
+                    list,
+                ):
                     raise OperationError(
                         "The remote branch must be a 2-tuple (remote, branch) such as "
                         '("origin", "master")',
@@ -411,5 +418,7 @@ def bare_repo(
             if user or group:
                 yield chown(path, user, group, recursive=True)
         else:
-            if (user and head_file["user"] != user) or (group and head_file["group"] != group):
+            if (user and head_file["user"] != user) or (
+                group and head_file["group"] != group
+            ):
                 yield chown(path, user, group, recursive=True)

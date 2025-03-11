@@ -69,7 +69,11 @@ class FileContextMapping(FactBase):
         return "semanage"
 
     def command(self, target):
-        return "set -o pipefail && semanage fcontext -n -l | (grep '^{0}' || true)".format(target)
+        return (
+            "set -o pipefail && semanage fcontext -n -l | (grep '^{0}' || true)".format(
+                target
+            )
+        )
 
     def process(self, output):
         # example output: /etc       all files          system_u:object_r:etc_t:s0 # noqa: SC100
@@ -77,7 +81,11 @@ class FileContextMapping(FactBase):
         if len(output) != 1:
             return self.default()
         m = re.match(r"^.*\s+(\w+):(\w+):(\w+):(\w+)", output[0])
-        return {k: m.group(i) for i, k in enumerate(FIELDS, 1)} if m is not None else self.default()
+        return (
+            {k: m.group(i) for i, k in enumerate(FIELDS, 1)}
+            if m is not None
+            else self.default()
+        )
 
 
 class SEPorts(FactBase):
@@ -118,7 +126,9 @@ class SEPorts(FactBase):
                     start, stop = int(pieces[0]), int(pieces[1])
                 else:
                     start = stop = int(item)
-                labels[m.group(2)].update({port: m.group(1) for port in range(start, stop + 1)})
+                labels[m.group(2)].update(
+                    {port: m.group(1) for port in range(start, stop + 1)}
+                )
 
         return labels
 
@@ -136,7 +146,9 @@ class SEPort(FactBase):
         return "sepolicy"
 
     def command(self, protocol, port):
-        return "(sepolicy network -p {0} 2>/dev/null || true) | grep {1}".format(port, protocol)
+        return "(sepolicy network -p {0} 2>/dev/null || true) | grep {1}".format(
+            port, protocol
+        )
 
     def process(self, output):
         # if type set, first line is specific and second is generic type for port range

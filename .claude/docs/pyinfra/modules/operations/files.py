@@ -56,7 +56,13 @@ from pyinfra.facts.files import (
 from pyinfra.facts.server import Date, Which
 
 from .util import files as file_utils
-from .util.files import adjust_regex, ensure_mode_int, get_timestamp, sed_replace, unix_path_join
+from .util.files import (
+    adjust_regex,
+    ensure_mode_int,
+    get_timestamp,
+    sed_replace,
+    unix_path_join,
+)
 
 
 @operation()
@@ -126,7 +132,9 @@ def download(
         if cache_time:
             # Time on files is not tz-aware, and will be the same tz as the server's time,
             # so we can safely remove the tzinfo from the Date fact before comparison.
-            ctime = host.get_fact(Date).replace(tzinfo=None) - timedelta(seconds=cache_time)
+            ctime = host.get_fact(Date).replace(tzinfo=None) - timedelta(
+                seconds=cache_time
+            )
             if info["mtime"] and info["mtime"] < ctime:
                 download = True
 
@@ -493,7 +501,9 @@ def replace(
         raise TypeError("Missing argument `text` required in `files.replace` operation")
 
     if replace is None:
-        raise TypeError("Missing argument `replace` required in `files.replace` operation")
+        raise TypeError(
+            "Missing argument `replace` required in `files.replace` operation"
+        )
 
     existing_lines = host.get_fact(
         FindInFile,
@@ -589,7 +599,9 @@ def sync(
     put_files = []
     ensure_dirnames = []
     for dirpath, dirnames, filenames in os.walk(src, topdown=True):
-        remote_dirpath = Path(os.path.normpath(os.path.relpath(dirpath, src))).as_posix()
+        remote_dirpath = Path(
+            os.path.normpath(os.path.relpath(dirpath, src))
+        ).as_posix()
 
         # Filter excluded dirs
         for child_dir in dirnames[:]:
@@ -758,11 +770,15 @@ def get(
 
     # No remote file, so assume exists and download it "blind"
     if not remote_file or force:
-        yield FileDownloadCommand(src, dest, remote_temp_filename=host.get_temp_filename(dest))
+        yield FileDownloadCommand(
+            src, dest, remote_temp_filename=host.get_temp_filename(dest)
+        )
 
     # No local file, so always download
     elif not os.path.exists(dest):
-        yield FileDownloadCommand(src, dest, remote_temp_filename=host.get_temp_filename(dest))
+        yield FileDownloadCommand(
+            src, dest, remote_temp_filename=host.get_temp_filename(dest)
+        )
 
     # Remote file exists - check if it matches our local
     else:
@@ -771,7 +787,9 @@ def get(
 
         # Check sha1sum, upload if needed
         if local_sum != remote_sum:
-            yield FileDownloadCommand(src, dest, remote_temp_filename=host.get_temp_filename(dest))
+            yield FileDownloadCommand(
+                src, dest, remote_temp_filename=host.get_temp_filename(dest)
+            )
 
 
 @operation()
@@ -860,7 +878,9 @@ def put(
             mode = get_path_permissions_mode(local_file)
         else:
             logger.warning(
-                ("No local file exists to get permissions from with `mode=True` ({0})").format(
+                (
+                    "No local file exists to get permissions from with `mode=True` ({0})"
+                ).format(
                     get_call_location(),
                 ),
             )
@@ -918,7 +938,9 @@ def put(
                 changed = True
 
             # Check user/group
-            if (user and remote_file["user"] != user) or (group and remote_file["group"] != group):
+            if (user and remote_file["user"] != user) or (
+                group and remote_file["group"] != group
+            ):
                 yield file_utils.chown(dest, user, group)
                 changed = True
 
@@ -1437,7 +1459,11 @@ def flags(path: str, flags: list[str] | None = None, present=True):
         host.noop(f"no changes requested to flags for '{path}'")
     else:
         current_set = set(host.get_fact(Flags, path=path))
-        to_change = list(set(flags) - current_set) if present else list(current_set & set(flags))
+        to_change = (
+            list(set(flags) - current_set)
+            if present
+            else list(current_set & set(flags))
+        )
 
         if len(to_change) > 0:
             prefix = "" if present else "no"
@@ -1445,7 +1471,7 @@ def flags(path: str, flags: list[str] | None = None, present=True):
             yield StringCommand("chflags", new_flags, QuoteString(path))
         else:
             host.noop(
-                f'\'{path}\' already has \'{",".join(flags)}\' {"set" if present else "clear"}',
+                f"'{path}' already has '{','.join(flags)}' {'set' if present else 'clear'}",
             )
 
 
@@ -1579,7 +1605,9 @@ def block(
     cmd = None
     if present:
         if not content:
-            raise OperationValueError("'content' must be supplied when 'present' == True")
+            raise OperationValueError(
+                "'content' must be supplied when 'present' == True"
+            )
         if line:
             if before == after:
                 raise OperationValueError(
@@ -1593,7 +1621,9 @@ def block(
             # convert string to list of lines
             content = content.split("\n")
         if try_prevent_shell_expansion and any("'" in line for line in content):
-            logger.warning("content contains single quotes, shell expansion prevention may fail")
+            logger.warning(
+                "content contains single quotes, shell expansion prevention may fail"
+            )
 
         the_block = "\n".join([mark_1, *content, mark_2])
 
@@ -1609,7 +1639,9 @@ def block(
                 f"<<{here}" if not try_prevent_shell_expansion else f"<<'{here}'",
                 f"\n{the_block}\n{here}",
             )
-        elif current == []:  # markers not found and have a pattern to match (not start or end)
+        elif (
+            current == []
+        ):  # markers not found and have a pattern to match (not start or end)
             assert isinstance(line, str)
             regex = adjust_regex(line, escape_regex_characters)
             print_before = "{ print }" if before else ""
@@ -1623,7 +1655,9 @@ def block(
                 out_prep,
                 prog,
                 q_path,
-                f'"{the_block}"' if not try_prevent_shell_expansion else f"'{the_block}'",
+                f'"{the_block}"'
+                if not try_prevent_shell_expansion
+                else f"'{the_block}'",
                 "> $OUT &&",
                 real_out,
             )

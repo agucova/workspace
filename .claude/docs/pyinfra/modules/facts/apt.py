@@ -33,7 +33,9 @@ APT_CHANGES_RE = re.compile(
 
 
 def parse_apt_repo(name):
-    regex = r"^(deb(?:-src)?)(?:\s+\[([^\]]+)\])?\s+([^\s]+)\s+([^\s]+)\s+([a-z-\s\d]*)$"
+    regex = (
+        r"^(deb(?:-src)?)(?:\s+\[([^\]]+)\])?\s+([^\s]+)\s+([^\s]+)\s+([a-z-\s\d]*)$"
+    )
 
     matches = re.match(regex, name)
 

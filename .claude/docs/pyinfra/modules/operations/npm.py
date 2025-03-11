@@ -33,15 +33,21 @@ def packages(
     current_packages = host.get_fact(NpmPackages, directory=directory)
 
     install_command = (
-        "npm install -g" if directory is None else "cd {0} && npm install".format(directory)
+        "npm install -g"
+        if directory is None
+        else "cd {0} && npm install".format(directory)
     )
 
     uninstall_command = (
-        "npm uninstall -g" if directory is None else "cd {0} && npm uninstall".format(directory)
+        "npm uninstall -g"
+        if directory is None
+        else "cd {0} && npm uninstall".format(directory)
     )
 
     upgrade_command = (
-        "npm update -g" if directory is None else "cd {0} && npm update".format(directory)
+        "npm update -g"
+        if directory is None
+        else "cd {0} && npm update".format(directory)
     )
 
     yield from ensure_packages(

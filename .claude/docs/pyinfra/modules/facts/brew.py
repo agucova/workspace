@@ -20,7 +20,9 @@ def new_cask_cli(version):
     return (version[0] >= 3) or ((version[0] >= 2) and version[1] >= 6)
 
 
-VERSION_MATCHER = re.compile(r"^Homebrew\s+(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*$")
+VERSION_MATCHER = re.compile(
+    r"^Homebrew\s+(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+).*$"
+)
 
 
 def unknown_version():

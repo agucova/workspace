@@ -112,7 +112,7 @@ APT_UPDATE_FILENAME = "/var/lib/apt/periodic/update-success-stamp"
 def noninteractive_apt_fast(command: str, force=False, parallel=8):
     """
     Generate a noninteractive apt-fast command string with parallel download support.
-    
+
     Args:
         command: The apt-fast command to run (e.g., 'install <packages>')
         force: Whether to add --force-yes to the command
@@ -127,7 +127,7 @@ def noninteractive_apt_fast(command: str, force=False, parallel=8):
         (
             '-o Dpkg::Options::="--force-confdef"',
             '-o Dpkg::Options::="--force-confold"',
-            f'-o Acquire::http::Dl-Limit={parallel}',  # Set number of parallel downloads
+            f"-o Acquire::http::Dl-Limit={parallel}",  # Set number of parallel downloads
             command,
         ),
     )
@@ -138,7 +138,7 @@ def noninteractive_apt_fast(command: str, force=False, parallel=8):
 def _simulate_then_perform(command: str, force=False, parallel=8):
     """
     Simulate an apt-fast command and only execute it if it would make changes.
-    
+
     Args:
         command: The apt-fast command to simulate and possibly run
         force: Whether to add --force-yes to the command
@@ -164,17 +164,17 @@ def _simulate_then_perform(command: str, force=False, parallel=8):
 def update(cache_time=None, parallel=8):
     """
     Update apt repositories using apt-fast for faster downloads.
-    
+
     This operation uses apt-fast instead of apt-get for repository updates,
     enabling multiple parallel downloads for better performance.
-    
+
     Args:
         cache_time: Cache updates for this many seconds. When set, this operation
                    will not run if the update was performed within the specified time.
         parallel: Number of parallel downloads (default: 8). Higher values can
                  improve performance but may saturate your network connection.
                  Recommended values: 8-16 for most systems.
-    
+
     Example:
         ```python
         apt_fast.update(
@@ -188,14 +188,16 @@ def update(cache_time=None, parallel=8):
     # If cache_time check when apt was last updated
     if cache_time:
         cache_info = host.get_fact(File, path=APT_UPDATE_FILENAME)
-        host_cache_time = host.get_fact(Date).replace(tzinfo=None) - timedelta(seconds=cache_time)
-        
+        host_cache_time = host.get_fact(Date).replace(tzinfo=None) - timedelta(
+            seconds=cache_time
+        )
+
         if cache_info and cache_info["mtime"] and cache_info["mtime"] > host_cache_time:
             host.noop("apt is already up to date")
             return
 
     yield noninteractive_apt_fast("update", parallel=parallel)
-    
+
     # Touch the update timestamp file to enable cache_time functionality
     if cache_time:
         yield f"touch {APT_UPDATE_FILENAME}"
@@ -205,18 +207,18 @@ def update(cache_time=None, parallel=8):
 def upgrade(auto_remove=False, parallel=8):
     """
     Upgrade all packages using apt-fast for faster downloads.
-    
+
     This operation performs a system-wide package upgrade using apt-fast with
     parallel download support for significantly faster performance compared to
     regular apt-get upgrade.
-    
+
     Args:
-        auto_remove: Remove unneeded packages after upgrade. When True, this 
+        auto_remove: Remove unneeded packages after upgrade. When True, this
                     performs the equivalent of apt-get --autoremove upgrade.
         parallel: Number of parallel downloads (default: 8). Higher values can
                  improve performance but may saturate your network connection.
                  Recommended values: 8-16 for most systems.
-    
+
     Example:
         ```python
         apt_fast.upgrade(
@@ -228,10 +230,10 @@ def upgrade(auto_remove=False, parallel=8):
         ```
     """
     command = ["upgrade"]
-    
+
     if auto_remove:
         command.append("--autoremove")
-        
+
     yield from _simulate_then_perform(" ".join(command), parallel=parallel)
 
 
@@ -239,11 +241,11 @@ def upgrade(auto_remove=False, parallel=8):
 def deb(src: str, present=True, force=False, parallel=8):
     """
     Add/remove .deb file packages using apt-fast for dependency installation.
-    
+
     This operation is similar to PyInfra's apt.deb operation but enhances it by
     using apt-fast for dependency installation, which can significantly speed up
     the installation process when a .deb package has many dependencies.
-    
+
     Args:
         src: Filename or URL of the .deb file. If a URL is provided, it will be
              downloaded automatically.
@@ -253,7 +255,7 @@ def deb(src: str, present=True, force=False, parallel=8):
                This can help resolve some installation issues.
         parallel: Number of parallel downloads for dependency installation (default: 8).
                  Higher values can speed up dependency installation.
-    
+
     Example:
         ```python
         apt_fast.deb(
@@ -263,7 +265,7 @@ def deb(src: str, present=True, force=False, parallel=8):
             _sudo=True,
         )
         ```
-    
+
     Note:
         This operation uses the regular apt.deb operation to install the .deb file
         and then uses apt-fast to resolve and install dependencies, combining the
@@ -271,8 +273,9 @@ def deb(src: str, present=True, force=False, parallel=8):
     """
     # First use the regular apt.deb operation to install the package
     from pyinfra.operations import apt
+
     yield from apt.deb._inner(src=src, present=present, force=force)
-    
+
     # If we're installing the package, use apt-fast to install any dependencies
     if present:
         yield noninteractive_apt_fast("install -f", force=force, parallel=parallel)
@@ -295,11 +298,11 @@ def packages(
 ):
     """
     Install/remove/update packages using apt-fast for parallel downloads.
-    
+
     This operation is a direct replacement for PyInfra's apt.packages operation but
     uses apt-fast for significantly faster downloads through parallelization. It maintains
     all the same functionality while adding parallel download support.
-    
+
     Args:
         packages: List of packages to ensure.
         present: Whether the packages should be installed.
@@ -308,17 +311,17 @@ def packages(
         cache_time: When used with update, cache for this many seconds.
         upgrade: Run apt-fast upgrade before installing packages.
         force: Whether to force package installs by passing --force-yes to apt.
-        no_recommends: Don't install recommended packages. Setting this to True can 
+        no_recommends: Don't install recommended packages. Setting this to True can
                       significantly reduce download size and installation time.
         allow_downgrades: Allow downgrading packages with version (--allow-downgrades).
         extra_install_args: Additional arguments to the apt install command.
         extra_uninstall_args: Additional arguments to the apt uninstall command.
-        parallel: Number of parallel downloads (default: 8). Higher values (16-32) 
+        parallel: Number of parallel downloads (default: 8). Higher values (16-32)
                  can significantly improve performance for large package installations.
-    
+
     Versions:
         Package versions can be pinned like apt: ``<pkg>=<version>``
-    
+
     Example:
         ```python
         apt_fast.packages(
@@ -330,7 +333,7 @@ def packages(
             _sudo=True,
         )
         ```
-    
+
     Performance Tips:
         - Set parallel=16 or higher for large package installations
         - Use no_recommends=True to reduce download size
@@ -341,9 +344,15 @@ def packages(
     if update:
         if cache_time:
             cache_info = host.get_fact(File, path=APT_UPDATE_FILENAME)
-            host_cache_time = host.get_fact(Date).replace(tzinfo=None) - timedelta(seconds=cache_time)
-            
-            if not (cache_info and cache_info["mtime"] and cache_info["mtime"] > host_cache_time):
+            host_cache_time = host.get_fact(Date).replace(tzinfo=None) - timedelta(
+                seconds=cache_time
+            )
+
+            if not (
+                cache_info
+                and cache_info["mtime"]
+                and cache_info["mtime"] > host_cache_time
+            ):
                 yield noninteractive_apt_fast("update", parallel=parallel)
                 yield f"touch {APT_UPDATE_FILENAME}"
         else:
@@ -381,9 +390,15 @@ def packages(
         packages,
         host.get_fact(DebPackages),
         present,
-        install_command=noninteractive_apt_fast(install_command, force=force, parallel=parallel),
-        uninstall_command=noninteractive_apt_fast(uninstall_command, force=force, parallel=parallel),
-        upgrade_command=noninteractive_apt_fast(upgrade_command, force=force, parallel=parallel),
+        install_command=noninteractive_apt_fast(
+            install_command, force=force, parallel=parallel
+        ),
+        uninstall_command=noninteractive_apt_fast(
+            uninstall_command, force=force, parallel=parallel
+        ),
+        upgrade_command=noninteractive_apt_fast(
+            upgrade_command, force=force, parallel=parallel
+        ),
         version_join="=",
         latest=latest,
     )

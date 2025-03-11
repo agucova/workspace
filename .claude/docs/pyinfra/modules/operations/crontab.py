@@ -83,8 +83,12 @@ def crontab(
     name_comment = "# pyinfra-name={0}".format(cron_name)
 
     existing_crontab = ctb.get_command(command=command, name=cron_name)
-    existing_crontab_command = existing_crontab["command"] if existing_crontab else command
-    existing_crontab_match = existing_crontab["command"] if existing_crontab else command
+    existing_crontab_command = (
+        existing_crontab["command"] if existing_crontab else command
+    )
+    existing_crontab_match = (
+        existing_crontab["command"] if existing_crontab else command
+    )
 
     exists = existing_crontab is not None
     exists_name = existing_crontab is not None and name_comment in existing_crontab.get(
@@ -97,13 +101,15 @@ def crontab(
     if special_time:
         new_crontab_line = "{0} {1}".format(special_time, command)
     else:
-        new_crontab_line = "{minute} {hour} {day_of_month} {month} {day_of_week} {command}".format(
-            minute=minute,
-            hour=hour,
-            day_of_month=day_of_month,
-            month=month,
-            day_of_week=day_of_week,
-            command=command,
+        new_crontab_line = (
+            "{minute} {hour} {day_of_month} {month} {day_of_week} {command}".format(
+                minute=minute,
+                hour=hour,
+                day_of_month=day_of_month,
+                month=month,
+                day_of_week=day_of_week,
+                command=command,
+            )
         )
 
     existing_crontab_match = ".*{0}.*".format(existing_crontab_match)

@@ -65,8 +65,10 @@ class DebPackage(FactBase):
         return "dpkg"
 
     def command(self, package):
-        return "! test -e {0} && (dpkg -s {0} 2>/dev/null || true) || dpkg -I {0}".format(
-            shlex.quote(package)
+        return (
+            "! test -e {0} && (dpkg -s {0} 2>/dev/null || true) || dpkg -I {0}".format(
+                shlex.quote(package)
+            )
         )
 
     def process(self, output):

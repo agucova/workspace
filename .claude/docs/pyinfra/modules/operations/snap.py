@@ -86,7 +86,11 @@ def package(
                 pkg_info = host.get_fact(SnapPackage, package=package)
 
                 # the channel is different
-                if pkg_info and "channel" in pkg_info and channel != pkg_info["channel"]:
+                if (
+                    pkg_info
+                    and "channel" in pkg_info
+                    and channel != pkg_info["channel"]
+                ):
                     refresh_packages.append(package)
                     pkg_info["channel"] = channel
 
@@ -114,4 +118,6 @@ def package(
         yield " ".join(["snap", "remove"] + remove_packages)
 
     if refresh_packages:
-        yield " ".join(["snap", "refresh"] + refresh_packages + [f"--channel={channel}"])
+        yield " ".join(
+            ["snap", "refresh"] + refresh_packages + [f"--channel={channel}"]
+        )

@@ -7,7 +7,12 @@ from __future__ import annotations
 from pyinfra import host
 from pyinfra.api import operation
 from pyinfra.api.exceptions import OperationError
-from pyinfra.facts.iptables import Ip6tablesChains, Ip6tablesRules, IptablesChains, IptablesRules
+from pyinfra.facts.iptables import (
+    Ip6tablesChains,
+    Ip6tablesRules,
+    IptablesChains,
+    IptablesRules,
+)
 
 
 @operation()
@@ -186,7 +191,9 @@ def rule(
     # --log-prefix is only supported with jump=LOG
     if log_prefix and jump != "LOG":
         raise OperationError(
-            "iptables only supports log_prefix with the LOG jump " "(jump={0})".format(jump),
+            "iptables only supports log_prefix with the LOG jump (jump={0})".format(
+                jump
+            ),
         )
 
     definition = {

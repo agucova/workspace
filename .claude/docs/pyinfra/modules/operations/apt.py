@@ -46,7 +46,11 @@ def _simulate_then_perform(command: str):
 
 
 @operation()
-def key(src: str | None = None, keyserver: str | None = None, keyid: str | list[str] | None = None):
+def key(
+    src: str | None = None,
+    keyserver: str | None = None,
+    keyid: str | list[str] | None = None,
+):
     """
     Add apt gpg keys with ``apt-key``.
 
@@ -94,7 +98,11 @@ def key(src: str | None = None, keyserver: str | None = None, keyid: str | list[
             else:
                 yield "apt-key add {0}".format(src)
         else:
-            host.noop("All keys from {0} are already available in the apt keychain".format(src))
+            host.noop(
+                "All keys from {0} are already available in the apt keychain".format(
+                    src
+                )
+            )
 
     if keyserver:
         if not keyid:
@@ -261,7 +269,9 @@ def deb(src: str, present=True, force=False):
     if present:
         if not exists:
             # Install .deb file - ignoring failure (on unmet dependencies)
-            yield "dpkg --force-confdef --force-confold -i {0} 2> /dev/null || true".format(src)
+            yield "dpkg --force-confdef --force-confold -i {0} 2> /dev/null || true".format(
+                src
+            )
             # Attempt to install any missing dependencies
             yield "{0} -f".format(noninteractive_apt("install", force=force))
             # Now reinstall, and critically configure, the package - if there are still
@@ -311,7 +321,9 @@ def update(cache_time: int | None = None):
 
         # Time on files is not tz-aware, and will be the same tz as the server's time,
         # so we can safely remove the tzinfo from the Date fact before comparison.
-        host_cache_time = host.get_fact(Date).replace(tzinfo=None) - timedelta(seconds=cache_time)
+        host_cache_time = host.get_fact(Date).replace(tzinfo=None) - timedelta(
+            seconds=cache_time
+        )
         if cache_info and cache_info["mtime"] and cache_info["mtime"] > host_cache_time:
             host.noop("apt is already up to date")
             return

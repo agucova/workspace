@@ -62,9 +62,13 @@ class RunitManaged(FactBase):
 
     def command(self, service=None, svdir="/var/service"):
         if service is None:
-            return 'cd "{0}" && find -mindepth 1 -maxdepth 1 -type l -printf "%f\n"'.format(svdir)
+            return 'cd "{0}" && find -mindepth 1 -maxdepth 1 -type l -printf "%f\n"'.format(
+                svdir
+            )
         else:
-            return 'cd "{0}" && test -h "{1}" && echo "{1}" || true'.format(svdir, service)
+            return 'cd "{0}" && test -h "{1}" && echo "{1}" || true'.format(
+                svdir, service
+            )
 
     def process(self, output):
         return set(output)

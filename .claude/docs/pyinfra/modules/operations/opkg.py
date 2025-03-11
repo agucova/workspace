@@ -1,10 +1,10 @@
 """
-    Manage packages on OpenWrt using opkg
-        + ``update`` - update local copy of package information
-        + ``packages`` -  install and remove packages
+Manage packages on OpenWrt using opkg
+    + ``update`` - update local copy of package information
+    + ``packages`` -  install and remove packages
 
-    see https://openwrt.org/docs/guide-user/additional-software/opkg
-    OpenWrt recommends against upgrading all packages  thus there is no ``opkg.upgrade`` function
+see https://openwrt.org/docs/guide-user/additional-software/opkg
+OpenWrt recommends against upgrading all packages  thus there is no ``opkg.upgrade`` function
 """
 
 from typing import List, Union
@@ -63,7 +63,8 @@ def packages(
         )
     """
     if str(packages) == "" or (
-        isinstance(packages, list) and (len(packages) < 1 or all(len(p) < 1 for p in packages))
+        isinstance(packages, list)
+        and (len(packages) < 1 or all(len(p) < 1 for p in packages))
     ):
         host.noop("empty or invalid package list provided to opkg.packages")
         return
@@ -71,7 +72,9 @@ def packages(
     pkg_list = packages if isinstance(packages, list) else [packages]
     have_equals = ",".join([pkg.split(EQUALS)[0] for pkg in pkg_list if EQUALS in pkg])
     if len(have_equals) > 0:
-        raise ValueError(f"opkg does not support version pinning but found for: '{have_equals}'")
+        raise ValueError(
+            f"opkg does not support version pinning but found for: '{have_equals}'"
+        )
 
     if update:
         yield from _update._inner()

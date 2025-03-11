@@ -18,8 +18,12 @@ from pyinfra.api.facts import FactBase
 from pyinfra.api.util import try_int
 from pyinfra.facts.util.units import parse_size
 
-LINUX_STAT_COMMAND = "stat -c 'user=%U group=%G mode=%A atime=%X mtime=%Y ctime=%Z size=%s %N'"
-BSD_STAT_COMMAND = "stat -f 'user=%Su group=%Sg mode=%Sp atime=%a mtime=%m ctime=%c size=%z %N%SY'"
+LINUX_STAT_COMMAND = (
+    "stat -c 'user=%U group=%G mode=%A atime=%X mtime=%Y ctime=%Z size=%s %N'"
+)
+BSD_STAT_COMMAND = (
+    "stat -f 'user=%Su group=%Sg mode=%Sp atime=%a mtime=%m ctime=%c size=%z %N%SY'"
+)
 
 STAT_REGEX = (
     r"user=(.*) group=(.*) mode=(.*) "
@@ -270,13 +274,17 @@ class Sha1File(HashFileFactBase, digits=40, cmds=["sha1sum", "shasum", "sha1"]):
     """
 
 
-class Sha256File(HashFileFactBase, digits=64, cmds=["sha256sum", "shasum -a 256", "sha256"]):
+class Sha256File(
+    HashFileFactBase, digits=64, cmds=["sha256sum", "shasum -a 256", "sha256"]
+):
     """
     Returns a SHA256 hash of a file, or ``None`` if the file does not exist.
     """
 
 
-class Sha384File(HashFileFactBase, digits=96, cmds=["sha384sum", "shasum -a 384", "sha384"]):
+class Sha384File(
+    HashFileFactBase, digits=96, cmds=["sha384sum", "shasum -a 384", "sha384"]
+):
     """
     Returns a SHA384 hash of a file, or ``None`` if the file does not exist.
     """
@@ -456,7 +464,11 @@ class Flags(FactBase):
         )
 
     def process(self, output):
-        return [flag for flag in output[0].split(",") if len(flag) > 0] if len(output) == 1 else []
+        return (
+            [flag for flag in output[0].split(",") if len(flag) > 0]
+            if len(output) == 1
+            else []
+        )
 
 
 MARKER_DEFAULT = "# {mark} PYINFRA BLOCK"
@@ -495,7 +507,9 @@ class Block(FactBase):
         start = (marker or MARKER_DEFAULT).format(mark=begin or MARKER_BEGIN_DEFAULT)
         end = (marker or MARKER_DEFAULT).format(mark=end or MARKER_END_DEFAULT)
         if start == end:
-            raise ValueError(f"delimiters for block must be different but found only '{start}'")
+            raise ValueError(
+                f"delimiters for block must be different but found only '{start}'"
+            )
 
         backstop = make_formatted_string_command(
             "(find {0} -type f > /dev/null && echo {1} || echo {2} )",

@@ -190,7 +190,8 @@ class NetworkDevices(FactBase):
                 else:
                     mask_bits = int(value)
                 netmask = ".".join(
-                    str((0xFFFFFFFF << (32 - b) >> mask_bits) & 0xFF) for b in (24, 16, 8, 0)
+                    str((0xFFFFFFFF << (32 - b) >> mask_bits) & 0xFF)
+                    for b in (24, 16, 8, 0)
                 )
             except ValueError:
                 mask_bits = sum(bin(int(x)).count("1") for x in value.split("."))
@@ -231,7 +232,9 @@ class NetworkDevices(FactBase):
                 # ip a
                 re.compile(r"inet6\s+(?P<address>[0-9a-fA-F:]+)/(?P<mask>\d+)"),
                 # ifconfig -a
-                re.compile(r"inet6\s+(?P<address>[0-9a-fA-F:]+)\s+prefixlen\s+(?P<mask>\d+)"),
+                re.compile(
+                    r"inet6\s+(?P<address>[0-9a-fA-F:]+)\s+prefixlen\s+(?P<mask>\d+)"
+                ),
             )
 
             # Parsing the output

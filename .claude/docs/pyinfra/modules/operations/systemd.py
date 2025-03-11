@@ -14,7 +14,9 @@ from .util.service import handle_service_control
 
 
 @operation(is_idempotent=False)
-def daemon_reload(user_mode=False, machine: str | None = None, user_name: str | None = None):
+def daemon_reload(
+    user_mode=False, machine: str | None = None, user_name: str | None = None
+):
     """
     Reload the systemd daemon to read unit file changes.
 

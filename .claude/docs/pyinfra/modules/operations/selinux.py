@@ -8,7 +8,13 @@ from enum import Enum
 
 from pyinfra import host
 from pyinfra.api import OperationValueError, QuoteString, StringCommand, operation
-from pyinfra.facts.selinux import FileContext, FileContextMapping, SEBoolean, SEPort, SEPorts
+from pyinfra.facts.selinux import (
+    FileContext,
+    FileContextMapping,
+    SEBoolean,
+    SEPort,
+    SEPorts,
+)
 from pyinfra.facts.server import Which
 
 
@@ -119,9 +125,15 @@ def file_context_mapping(target: str, se_type: str | None = None, present=True):
 
     current = host.get_fact(FileContextMapping, target=target)
     if present:
-        option = "-a" if len(current) == 0 else ("-m" if current.get("type") != se_type else "")
+        option = (
+            "-a"
+            if len(current) == 0
+            else ("-m" if current.get("type") != se_type else "")
+        )
         if option != "":
-            yield StringCommand("semanage", "fcontext", option, "-t", se_type, QuoteString(target))
+            yield StringCommand(
+                "semanage", "fcontext", option, "-t", se_type, QuoteString(target)
+            )
         else:
             host.noop(f"mapping for '{target}' -> '{se_type}' already present")
     else:
@@ -132,7 +144,9 @@ def file_context_mapping(target: str, se_type: str | None = None, present=True):
 
 
 @operation()
-def port(protocol: Protocol | str, port_num: int, se_type: str | None = None, present=True):
+def port(
+    protocol: Protocol | str, port_num: int, se_type: str | None = None, present=True
+):
     """
     Set the SELinux type for the specified protocol and port.
 
@@ -173,7 +187,9 @@ def port(protocol: Protocol | str, port_num: int, se_type: str | None = None, pr
     if present:
         option = "-a" if current == "" else ("-m" if current != se_type else "")
         if option != "":
-            yield StringCommand("semanage", "port", option, "-t", se_type, "-p", protocol, port_num)
+            yield StringCommand(
+                "semanage", "port", option, "-t", se_type, "-p", protocol, port_num
+            )
         else:
             host.noop(f"setype for '{protocol}/{port_num}' is already '{se_type}'")
     else:

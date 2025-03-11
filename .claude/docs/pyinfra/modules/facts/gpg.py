@@ -113,7 +113,9 @@ class GpgKeys(GpgFactBase):
         if not keyring:
             return "gpg --list-keys --with-colons"
 
-        return ("gpg --list-keys --with-colons --keyring {0} --no-default-keyring").format(keyring)
+        return (
+            "gpg --list-keys --with-colons --keyring {0} --no-default-keyring"
+        ).format(keyring)
 
 
 class GpgSecretKeys(GpgFactBase):
@@ -138,6 +140,8 @@ class GpgSecretKeys(GpgFactBase):
         if not keyring:
             return "gpg --list-secret-keys --with-colons"
 
-        return ("gpg --list-secret-keys --with-colons --keyring {0} --no-default-keyring").format(
+        return (
+            "gpg --list-secret-keys --with-colons --keyring {0} --no-default-keyring"
+        ).format(
             keyring,
         )

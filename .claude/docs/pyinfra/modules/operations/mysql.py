@@ -16,7 +16,13 @@ See the example/mysql.py
 from __future__ import annotations
 
 from pyinfra import host
-from pyinfra.api import MaskString, OperationError, QuoteString, StringCommand, operation
+from pyinfra.api import (
+    MaskString,
+    OperationError,
+    QuoteString,
+    StringCommand,
+    operation,
+)
 from pyinfra.facts.mysql import (
     MysqlDatabases,
     MysqlUserGrants,
@@ -139,11 +145,17 @@ def user(
 
     if require != "X509":
         if require_cipher:
-            raise OperationError('Cannot set `require_cipher` if `require` is not "X509"')
+            raise OperationError(
+                'Cannot set `require_cipher` if `require` is not "X509"'
+            )
         if require_issuer:
-            raise OperationError('Cannot set `require_issuer` if `require` is not "X509"')
+            raise OperationError(
+                'Cannot set `require_issuer` if `require` is not "X509"'
+            )
         if require_subject:
-            raise OperationError('Cannot set `require_subject` if `require` is not "X509"')
+            raise OperationError(
+                'Cannot set `require_subject` if `require` is not "X509"'
+            )
 
     current_users = host.get_fact(
         MysqlUsers,
@@ -197,11 +209,17 @@ def user(
         if max_connections:
             resource_bits.append("MAX_USER_CONNECTIONS {0}".format(max_connections))
         if max_queries_per_hour:
-            resource_bits.append("MAX_QUERIES_PER_HOUR {0}".format(max_queries_per_hour))
+            resource_bits.append(
+                "MAX_QUERIES_PER_HOUR {0}".format(max_queries_per_hour)
+            )
         if max_updates_per_hour:
-            resource_bits.append("MAX_UPDATES_PER_HOUR {0}".format(max_updates_per_hour))
+            resource_bits.append(
+                "MAX_UPDATES_PER_HOUR {0}".format(max_updates_per_hour)
+            )
         if max_connections_per_hour:
-            resource_bits.append("MAX_CONNECTIONS_PER_HOUR {0}".format(max_connections_per_hour))
+            resource_bits.append(
+                "MAX_CONNECTIONS_PER_HOUR {0}".format(max_connections_per_hour)
+            )
 
         if resource_bits:
             sql_bits.append("WITH")
@@ -245,12 +263,24 @@ def user(
         resource_bits = []
         if max_connections and current_user["max_user_connections"] != max_connections:
             resource_bits.append("MAX_USER_CONNECTIONS {0}".format(max_connections))
-        if max_queries_per_hour and current_user["max_questions"] != max_queries_per_hour:
-            resource_bits.append("MAX_QUERIES_PER_HOUR {0}".format(max_queries_per_hour))
+        if (
+            max_queries_per_hour
+            and current_user["max_questions"] != max_queries_per_hour
+        ):
+            resource_bits.append(
+                "MAX_QUERIES_PER_HOUR {0}".format(max_queries_per_hour)
+            )
         if max_updates_per_hour and current_user["max_updates"] != max_updates_per_hour:
-            resource_bits.append("MAX_UPDATES_PER_HOUR {0}".format(max_updates_per_hour))
-        if max_connections_per_hour and current_user["max_connections"] != max_connections_per_hour:
-            resource_bits.append("MAX_CONNECTIONS_PER_HOUR {0}".format(max_connections_per_hour))
+            resource_bits.append(
+                "MAX_UPDATES_PER_HOUR {0}".format(max_updates_per_hour)
+            )
+        if (
+            max_connections_per_hour
+            and current_user["max_connections"] != max_connections_per_hour
+        ):
+            resource_bits.append(
+                "MAX_CONNECTIONS_PER_HOUR {0}".format(max_connections_per_hour)
+            )
 
         if resource_bits:
             alter_bits.append("WITH")
@@ -433,7 +463,9 @@ def privileges(
         # We can't set privileges on *.tablename as MySQL won't allow it
         if database == "*":
             raise OperationError(
-                ("Cannot apply MySQL privileges on {0}.{1}, no database provided").format(
+                (
+                    "Cannot apply MySQL privileges on {0}.{1}, no database provided"
+                ).format(
                     database,
                     table,
                 ),
@@ -461,7 +493,9 @@ def privileges(
 
     def handle_privileges(action, target, privileges_to_apply, with_statement=None):
         command = (
-            "{action} {privileges} " "ON {database}.{table} " '{target} "{user}"@"{user_hostname}"'
+            "{action} {privileges} "
+            "ON {database}.{table} "
+            '{target} "{user}"@"{user_hostname}"'
         ).format(
             privileges=", ".join(sorted(privileges_to_apply)),
             action=action,
@@ -506,7 +540,9 @@ def privileges(
             # ALL must be named by itself and cannot be specified along with other privileges
             # The only exception for us is GRANT OPTION but as a WITH clause
             # So handle this case and let the other ones fail
-            yield from handle_privileges("GRANT", "TO", {"ALL PRIVILEGES"}, "GRANT OPTION")
+            yield from handle_privileges(
+                "GRANT", "TO", {"ALL PRIVILEGES"}, "GRANT OPTION"
+            )
         else:
             yield from handle_privileges("GRANT", "TO", privileges_to_grant)
 

@@ -174,7 +174,9 @@ class Crontab(FactBase[CrontabFile]):
                 )
                 crons.add_item(item)
             else:
-                minute, hour, day_of_month, month, day_of_week, command = line.split(None, 5)
+                minute, hour, day_of_month, month, day_of_week, command = line.split(
+                    None, 5
+                )
                 item = CrontabDict(
                     command=command,
                     minute=try_int(minute),

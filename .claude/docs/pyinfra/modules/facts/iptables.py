@@ -39,7 +39,9 @@ def parse_iptables_rule(line):
         arg_string = " ".join(args)
 
         if key and key in IPTABLES_ARGS:
-            definition_key = "not_{0}".format(IPTABLES_ARGS[key]) if not_arg else IPTABLES_ARGS[key]
+            definition_key = (
+                "not_{0}".format(IPTABLES_ARGS[key]) if not_arg else IPTABLES_ARGS[key]
+            )
             definition[definition_key] = arg_string
         else:
             definition.setdefault("extras", []).extend((key, arg_string))
