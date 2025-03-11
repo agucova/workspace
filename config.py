@@ -26,11 +26,21 @@ def is_macos() -> bool:
     """
     Check if the current system is macOS.
 
-    While we could use host.get_fact(Kernel) == "Darwin", this helper function:
-    1. Works before PyInfra is initialized
-    2. Is faster than querying the remote system
-    3. Provides a consistent interface with other helper functions
+    Uses PyInfra's Kernel fact to determine the OS when possible,
+    with fallback to platform.system() when called outside a deploy context.
     """
+    try:
+        from pyinfra.context import ctx_host
+        from pyinfra.facts.server import Kernel
+
+        # Check if we're in a deploy context
+        host = ctx_host.get()
+        if host is not None:
+            return host.get_fact(Kernel) == "Darwin"
+    except (ImportError, AttributeError):
+        pass
+
+    # Fallback to platform.system() if PyInfra isn't available or initialized
     return platform.system() == "Darwin"
 
 
@@ -38,11 +48,21 @@ def is_linux() -> bool:
     """
     Check if the current system is Linux.
 
-    While we could use host.get_fact(Kernel) == "Linux", this helper function:
-    1. Works before PyInfra is initialized
-    2. Is faster than querying the remote system
-    3. Provides a consistent interface with other helper functions
+    Uses PyInfra's Kernel fact to determine the OS when possible,
+    with fallback to platform.system() when called outside a deploy context.
     """
+    try:
+        from pyinfra.context import ctx_host
+        from pyinfra.facts.server import Kernel
+
+        # Check if we're in a deploy context
+        host = ctx_host.get()
+        if host is not None:
+            return host.get_fact(Kernel) == "Linux"
+    except (ImportError, AttributeError):
+        pass
+
+    # Fallback to platform.system() if PyInfra isn't available or initialized
     return platform.system() == "Linux"
 
 
@@ -50,20 +70,34 @@ def has_display() -> bool:
     """
     Check if there's a graphical display available.
 
-    While we could use host.get_fact(HasGui) on Linux, this helper function:
-    1. Works consistently across Linux and macOS
-    2. Handles the Docker testing environment
-    3. Uses a more reliable detection method
+    Uses PyInfra's HasGui fact on Linux when possible, with fallback to
+    a combination of environment checks and shell commands.
+    Handles macOS and Docker testing environments properly.
     """
+    # Always return False in Docker testing
     if settings.docker_testing:
         return False
 
-    # Check for DISPLAY environment variable on Linux
-    if is_linux() and not os.environ.get("DISPLAY"):
-        return False
-
-    # Check if we're in a Desktop environment
     if is_linux():
+        # Try to use PyInfra's HasGui fact
+        try:
+            from pyinfra.context import ctx_host
+            from pyinfra.facts.server import HasGui
+
+            # Check if we're in a deploy context
+            host = ctx_host.get()
+            if host is not None:
+                return host.get_fact(HasGui)
+        except (ImportError, AttributeError):
+            pass
+
+        # Fallback to our custom checks if PyInfra isn't available
+
+        # Check for DISPLAY environment variable
+        if not os.environ.get("DISPLAY"):
+            return False
+
+        # Check if we're in a Desktop environment
         try:
             result = subprocess.run(
                 [
