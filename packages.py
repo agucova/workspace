@@ -95,8 +95,12 @@ def setup_repositories() -> None:
         )
 
         # Use apt-fast for update and upgrade operations with 16 parallel downloads
-        apt_fast.update(name="Update apt repositories", cache_time=3600, parallel=16, _sudo=True)
-        apt_fast.upgrade(name="Upgrade APT packages", auto_remove=True, parallel=16, _sudo=True)
+        apt_fast.update(
+            name="Update apt repositories", cache_time=3600, parallel=16, _sudo=True
+        )
+        apt_fast.upgrade(
+            name="Upgrade APT packages", auto_remove=True, parallel=16, _sudo=True
+        )
 
 
 @deploy("Setup Homebrew")
@@ -845,6 +849,12 @@ def install_1password() -> None:
                     "deb [arch=amd64 signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] "
                     "https://downloads.1password.com/linux/debian/amd64 stable main"
                 ),
+                _sudo=True,
+            )
+
+            # Update apt cache after adding repository
+            apt.update(
+                name="Update apt cache for 1Password",
                 _sudo=True,
             )
 

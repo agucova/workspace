@@ -124,7 +124,8 @@ def list_modules():
 @app.command()
 def run(
     module_function: Optional[List[str]] = typer.Argument(
-        None, help="Module.function(s) to run (e.g., 'packages.setup_repositories packages.install_dev_tools')"
+        None,
+        help="Module.function(s) to run (e.g., 'packages.setup_repositories packages.install_dev_tools')",
     ),
     build: bool = typer.Option(
         False,
@@ -149,7 +150,7 @@ def run(
     The current directory is mounted as a volume in the container,
     so code changes are immediately available without rebuilding.
     Rebuilding is only necessary when the Dockerfile or dependencies change.
-    
+
     You can specify multiple module.function pairs to run them in sequence.
     """
     image_name = "workspace-test"
@@ -194,13 +195,16 @@ def run(
                 )
                 sys.exit(1)
             module_functions.append(func)
-        
+
         # Build command to run specified module.functions
         funcs_str = " ".join(module_functions)
         console.print(f"[bold blue]Running functions: {funcs_str} in Docker...[/]")
-        
-        # Create a combined command for all module functions
-        command = " && ".join([f"pyinfra @local -vy {func}" for func in module_functions])
+
+        # First ensure repositories are set up (to make apt-fast available)
+        # Then run the requested module functions
+        setup_repo_cmd = "pyinfra @local -vy packages.setup_repositories"
+        module_cmds = [f"pyinfra @local -vy {func}" for func in module_functions]
+        command = f"{setup_repo_cmd} && " + " && ".join(module_cmds)
     else:
         # Full setup
         console.print(

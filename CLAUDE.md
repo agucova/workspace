@@ -15,6 +15,7 @@
 - IMPORTANT: Always use `uv run` instead of `python` or `python3` for all Python commands
 - Docker testing automatically skips GUI modules using config.has_display() checks
 - The Dockerfile uses bootstrap.bash to set up the environment
+- When testing individual functions, `packages.setup_repositories` is always run first to ensure apt-fast and other core dependencies are installed
 
 ## Linting and Type Checking
 - Check types with pyright: `uv run pyright`
