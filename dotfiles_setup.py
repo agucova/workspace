@@ -53,7 +53,11 @@ def check_prerequisites():
 
     # Check for chezmoi
     chezmoi_result = run_command("which chezmoi", check=False)
-    if chezmoi_result.returncode != 0:
+    # Check for homebrew chezmoi path as a fallback
+    chezmoi_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/chezmoi"
+    homebrew_chezmoi_exists = Path(chezmoi_homebrew_path).exists()
+    
+    if chezmoi_result.returncode != 0 and not homebrew_chezmoi_exists:
         print("chezmoi is not installed.")
         print("Please run the main PyInfra deployment first or install it manually:")
         print("    brew install chezmoi")
@@ -73,6 +77,21 @@ def get_gh_command():
     
     # Should never reach here due to check_prerequisites
     return "gh"
+
+
+def get_chezmoi_command():
+    """Return the appropriate chezmoi command path."""
+    chezmoi_result = run_command("which chezmoi", check=False)
+    if chezmoi_result.returncode == 0:
+        return "chezmoi"
+    
+    # Use Homebrew path as fallback
+    chezmoi_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/chezmoi"
+    if Path(chezmoi_homebrew_path).exists():
+        return chezmoi_homebrew_path
+    
+    # Should never reach here due to check_prerequisites
+    return "chezmoi"
 
 def github_authenticate():
     """Set up GitHub authentication using the gh CLI."""
@@ -166,8 +185,9 @@ def setup_dotfiles(github_username=None):
     print("\n===== Setting up dotfiles with chezmoi =====")
 
     # Initialize chezmoi with the local repository and apply
+    chezmoi_cmd = get_chezmoi_command()
     init_result = run_command(
-        f"chezmoi init --apply {dotfiles_dir}",
+        f"{chezmoi_cmd} init --apply {dotfiles_dir}",
         capture_output=False,
     )
 
