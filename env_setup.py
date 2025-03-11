@@ -14,19 +14,31 @@ def setup_directories() -> None:
         _sudo=True,
     )
 
+    # Import here to avoid circular imports
+    from config import settings
+
     # User directories
     for dirname, path in [
         ("repos", str(HOME / "repos")),
         ("bin", str(HOME / ".bin")),
         ("fonts", str(HOME / ".local" / "share" / "fonts")),
     ]:
-        files.directory(
-            name=f"Create {dirname} directory",
-            path=path,
-            mode="0770",
-            user=USER,
-            group=USER,
-        )
+        # In Docker testing environment, don't set owner/group
+        # This avoids permission errors when mounting the host directory
+        if settings.docker_testing:
+            files.directory(
+                name=f"Create {dirname} directory",
+                path=path,
+                _sudo=True,
+            )
+        else:
+            files.directory(
+                name=f"Create {dirname} directory",
+                path=path,
+                mode="0770",
+                user=USER,
+                group=USER,
+            )
 
 
 @deploy("Setup Python Environment")
