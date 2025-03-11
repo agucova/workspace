@@ -23,15 +23,38 @@ class Settings(BaseSettings):
 
 
 def is_macos() -> bool:
+    """
+    Check if the current system is macOS.
+
+    While we could use host.get_fact(Kernel) == "Darwin", this helper function:
+    1. Works before PyInfra is initialized
+    2. Is faster than querying the remote system
+    3. Provides a consistent interface with other helper functions
+    """
     return platform.system() == "Darwin"
 
 
 def is_linux() -> bool:
+    """
+    Check if the current system is Linux.
+
+    While we could use host.get_fact(Kernel) == "Linux", this helper function:
+    1. Works before PyInfra is initialized
+    2. Is faster than querying the remote system
+    3. Provides a consistent interface with other helper functions
+    """
     return platform.system() == "Linux"
 
 
 def has_display() -> bool:
-    """Check if there's a graphical display available."""
+    """
+    Check if there's a graphical display available.
+
+    While we could use host.get_fact(HasGui) on Linux, this helper function:
+    1. Works consistently across Linux and macOS
+    2. Handles the Docker testing environment
+    3. Uses a more reliable detection method
+    """
     if settings.docker_testing:
         return False
 
