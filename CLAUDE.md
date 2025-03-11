@@ -11,11 +11,13 @@
 - Run full setup (skipping GUI modules): `uv run docker_test.py run`
 - List available modules: `uv run docker_test.py list_modules`
 - Run specific function: `uv run docker_test.py run <module>.<function>`
+- Run multiple functions in sequence: `uv run docker_test.py run packages.setup_repositories <module>.<function>`
 - Rebuild Docker image: `uv run docker_test.py run --build`
 - IMPORTANT: Always use `uv run` instead of `python` or `python3` for all Python commands
 - Docker testing automatically skips GUI modules using config.has_display() checks
 - The Dockerfile uses bootstrap.bash to set up the environment
-- When testing individual functions, `packages.setup_repositories` is always run first to ensure apt-fast and other core dependencies are installed
+- IMPORTANT: When testing modules that require apt-fast, always run packages.setup_repositories first
+  (e.g., `uv run docker_test.py run packages.setup_repositories packages.install_1password`)
 
 ## Linting and Type Checking
 - Check types with pyright: `uv run pyright`

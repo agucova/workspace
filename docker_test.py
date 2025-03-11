@@ -200,11 +200,10 @@ def run(
         funcs_str = " ".join(module_functions)
         console.print(f"[bold blue]Running functions: {funcs_str} in Docker...[/]")
 
-        # First ensure repositories are set up (to make apt-fast available)
-        # Then run the requested module functions
-        setup_repo_cmd = "pyinfra @local -vy packages.setup_repositories"
-        module_cmds = [f"pyinfra @local -vy {func}" for func in module_functions]
-        command = f"{setup_repo_cmd} && " + " && ".join(module_cmds)
+        # Create a combined command for all module functions
+        command = " && ".join(
+            [f"pyinfra @local -vy {func}" for func in module_functions]
+        )
     else:
         # Full setup
         console.print(

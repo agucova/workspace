@@ -853,8 +853,9 @@ def install_1password() -> None:
             )
 
             # Update apt cache after adding repository
-            apt.update(
+            apt_fast.update(
                 name="Update apt cache for 1Password",
+                parallel=16,
                 _sudo=True,
             )
 
@@ -913,9 +914,10 @@ def install_1password() -> None:
                 )
 
             # Install 1password
-            apt.packages(
+            apt_fast.packages(
                 name="Install 1Password",
                 packages=["1password", "1password-cli"],
+                parallel=16,
                 _sudo=True,
             )
 
