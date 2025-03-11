@@ -398,7 +398,6 @@ def install_gui_apps() -> None:
 
     # Skip if no display
     if not has_display():
-        print("Skipping GUI applications (no display available)")
         return
 
     if is_linux():
@@ -484,7 +483,6 @@ def install_gaming_apps() -> None:
 
     # Skip if no display
     if not has_display():
-        print("Skipping gaming applications (no display available)")
         return
 
     if is_linux():
@@ -511,7 +509,6 @@ def install_gnome_tools() -> None:
 
     # Skip if no display or not Linux
     if not has_display() or not is_linux():
-        print("Skipping GNOME tools (no display or not Linux)")
         return
 
     apt_fast.packages(
@@ -598,7 +595,6 @@ def install_docker() -> None:
 def install_firefox_dev() -> None:
     """Install Firefox Developer Edition."""
     if not has_display():
-        print("Skipping Firefox Developer Edition installation (no display available)")
         return
 
     if is_linux():
@@ -692,27 +688,13 @@ def install_rust() -> None:
             ],
         )
 
-    # In a real environment, we would proceed to install cargo-update and cargo-edit
-    # Here we check if running in Docker to avoid long compilations during testing
-    if settings.docker_testing:
-        # For Docker testing, we'll just verify Rust is correctly installed
-        server.shell(
-            name="Verify Rust installation in Docker",
-            commands=[
-                f"bash -c 'source {HOME}/.cargo/env && rustc --version && cargo --version'",
-            ],
-        )
-        print(
-            "In non-testing environments, would proceed to install cargo-update and cargo-edit"
-        )
-    else:
-        # Normal operation - install cargo tools
-        server.shell(
-            name="Install Cargo tools",
-            commands=[
-                f"bash -c 'source {HOME}/.cargo/env && cargo install cargo-edit cargo-update --force'",
-            ],
-        )
+    # Install cargo tools (now enabled in both regular and Docker environments)
+    server.shell(
+        name="Install Cargo tools",
+        commands=[
+            f"bash -c 'source {HOME}/.cargo/env && cargo install cargo-edit cargo-update --force'",
+        ],
+    )
 
 
 @deploy("Install CUDA for PopOS")
@@ -762,7 +744,6 @@ def install_cuda() -> None:
 def install_mathematica() -> None:
     """Install Mathematica if license key is available."""
     if not has_display():
-        print("Skipping Mathematica installation (no display available)")
         return
 
     mathematica_bin = "/usr/local/bin/mathematica"
@@ -786,7 +767,6 @@ def install_kinto() -> None:
     and then runs its setup script.
     """
     if not has_display():
-        print("Skipping Kinto installation (no display available)")
         return
 
     kinto_dir = HOME / "repos" / "kinto"

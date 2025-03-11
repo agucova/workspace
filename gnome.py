@@ -7,7 +7,6 @@ from config import FILES_DIR, HOME, USER, has_display, is_linux
 @deploy("Configure GNOME Wallpaper")
 def configure_wallpaper() -> None:
     if not has_display():
-        print("Skipping GNOME wallpaper configuration (no display available)")
         return
 
     wallpaper_src = FILES_DIR / "wallpaper.jpg"
@@ -38,9 +37,6 @@ def configure_wallpaper() -> None:
 @deploy("Configure GNOME Keyboard")
 def configure_keyboard() -> None:
     if not is_linux() or not has_display():
-        print(
-            "Skipping GNOME keyboard configuration (not on Linux or no display available)"
-        )
         return
 
     server.shell(
