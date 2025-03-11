@@ -1,5 +1,98 @@
 """
 apt_fast.py - A module to use apt-fast for faster parallel downloads in PyInfra.
+
+This module provides operations to use apt-fast as a drop-in replacement for apt in PyInfra,
+enabling parallel downloads for significant speed improvements during package installation.
+
+Overview:
+---------
+The apt-fast module is designed to:
+1. Accelerate package installation with parallel downloads
+2. Serve as a drop-in replacement for PyInfra's apt operations
+3. Minimize changes required to existing code
+
+Usage:
+------
+Import the module:
+```python
+import apt_fast
+```
+
+Basic operations:
+```python
+# Update repositories (with 8 parallel downloads)
+apt_fast.update(
+    name="Update apt repositories",
+    parallel=8,
+    _sudo=True,
+)
+
+# Install packages (with 16 parallel downloads)
+apt_fast.packages(
+    name="Install development tools",
+    packages=["git", "build-essential", "python3-dev"],
+    no_recommends=True,
+    parallel=16,
+    _sudo=True,
+)
+
+# Upgrade all packages
+apt_fast.upgrade(
+    name="Upgrade all packages",
+    auto_remove=True,
+    parallel=16,
+    _sudo=True,
+)
+```
+
+Replace apt with apt-fast in existing code:
+```python
+# Original:
+from pyinfra.operations import apt
+apt.packages(
+    name="Install development tools",
+    packages=["git", "build-essential"],
+    _sudo=True,
+)
+
+# New code:
+import apt_fast
+apt_fast.packages(
+    name="Install development tools",
+    packages=["git", "build-essential"],
+    parallel=16,  # New parameter
+    _sudo=True,
+)
+```
+
+Performance Recommendations:
+---------------------------
+- Set parallel=16 for most systems (adjust based on available bandwidth)
+- Use no_recommends=True where possible to reduce download size
+- Combine related package installations into larger batches
+- Consider the cache_time parameter to avoid redundant updates
+
+Requirements:
+------------
+- apt-fast must be installed on the target system
+- The apt-fast PPA should be added (ppa:apt-fast/stable)
+- PyInfra v3.x
+
+Integration Notes:
+-----------------
+This module can be used directly after installing apt-fast. To ensure apt-fast is
+available, first run an apt.packages operation to install it:
+
+```python
+apt.ppa(name="Add apt-fast PPA", src="ppa:apt-fast/stable", _sudo=True)
+apt.packages(
+    name="Ensure apt-fast is installed",
+    packages=["apt-fast"],
+    _sudo=True,
+)
+```
+
+Then you can use apt_fast for all subsequent operations.
 """
 
 from datetime import timedelta
@@ -72,9 +165,25 @@ def update(cache_time=None, parallel=8):
     """
     Update apt repositories using apt-fast for faster downloads.
     
+    This operation uses apt-fast instead of apt-get for repository updates,
+    enabling multiple parallel downloads for better performance.
+    
     Args:
-        cache_time: Cache updates for this many seconds
-        parallel: Number of parallel downloads (default: 8)
+        cache_time: Cache updates for this many seconds. When set, this operation
+                   will not run if the update was performed within the specified time.
+        parallel: Number of parallel downloads (default: 8). Higher values can
+                 improve performance but may saturate your network connection.
+                 Recommended values: 8-16 for most systems.
+    
+    Example:
+        ```python
+        apt_fast.update(
+            name="Update apt repositories",
+            cache_time=3600,  # Cache for 1 hour
+            parallel=16,
+            _sudo=True,
+        )
+        ```
     """
     # If cache_time check when apt was last updated
     if cache_time:
@@ -97,9 +206,26 @@ def upgrade(auto_remove=False, parallel=8):
     """
     Upgrade all packages using apt-fast for faster downloads.
     
+    This operation performs a system-wide package upgrade using apt-fast with
+    parallel download support for significantly faster performance compared to
+    regular apt-get upgrade.
+    
     Args:
-        auto_remove: Remove unneeded packages after upgrade
-        parallel: Number of parallel downloads (default: 8)
+        auto_remove: Remove unneeded packages after upgrade. When True, this 
+                    performs the equivalent of apt-get --autoremove upgrade.
+        parallel: Number of parallel downloads (default: 8). Higher values can
+                 improve performance but may saturate your network connection.
+                 Recommended values: 8-16 for most systems.
+    
+    Example:
+        ```python
+        apt_fast.upgrade(
+            name="Upgrade all packages",
+            auto_remove=True,  # Clean up unneeded dependencies
+            parallel=16,
+            _sudo=True,
+        )
+        ```
     """
     command = ["upgrade"]
     
@@ -114,11 +240,34 @@ def deb(src: str, present=True, force=False, parallel=8):
     """
     Add/remove .deb file packages using apt-fast for dependency installation.
     
+    This operation is similar to PyInfra's apt.deb operation but enhances it by
+    using apt-fast for dependency installation, which can significantly speed up
+    the installation process when a .deb package has many dependencies.
+    
     Args:
-        src: filename or URL of the .deb file
-        present: whether the package should exist on the system
-        force: whether to force the package install by passing --force-yes to apt
-        parallel: Number of parallel downloads for dependency installation
+        src: Filename or URL of the .deb file. If a URL is provided, it will be
+             downloaded automatically.
+        present: Whether the package should exist on the system. When False, the
+                package will be removed.
+        force: Whether to force the package install by passing --force-yes to apt.
+               This can help resolve some installation issues.
+        parallel: Number of parallel downloads for dependency installation (default: 8).
+                 Higher values can speed up dependency installation.
+    
+    Example:
+        ```python
+        apt_fast.deb(
+            name="Install Zoom",
+            src="https://zoom.us/client/latest/zoom_amd64.deb",
+            parallel=16,
+            _sudo=True,
+        )
+        ```
+    
+    Note:
+        This operation uses the regular apt.deb operation to install the .deb file
+        and then uses apt-fast to resolve and install dependencies, combining the
+        benefits of both tools.
     """
     # First use the regular apt.deb operation to install the package
     from pyinfra.operations import apt
@@ -147,19 +296,46 @@ def packages(
     """
     Install/remove/update packages using apt-fast for parallel downloads.
     
+    This operation is a direct replacement for PyInfra's apt.packages operation but
+    uses apt-fast for significantly faster downloads through parallelization. It maintains
+    all the same functionality while adding parallel download support.
+    
     Args:
-        packages: List of packages to ensure
-        present: Whether the packages should be installed
-        latest: Whether to upgrade packages without a specified version
-        update: Run apt-fast update before installing packages
-        cache_time: When used with update, cache for this many seconds
-        upgrade: Run apt-fast upgrade before installing packages
-        force: Whether to force package installs by passing --force-yes to apt
-        no_recommends: Don't install recommended packages
-        allow_downgrades: Allow downgrading packages with version (--allow-downgrades)
-        extra_install_args: Additional arguments to the apt install command
-        extra_uninstall_args: Additional arguments to the apt uninstall command
-        parallel: Number of parallel downloads (default: 8)
+        packages: List of packages to ensure.
+        present: Whether the packages should be installed.
+        latest: Whether to upgrade packages without a specified version.
+        update: Run apt-fast update before installing packages.
+        cache_time: When used with update, cache for this many seconds.
+        upgrade: Run apt-fast upgrade before installing packages.
+        force: Whether to force package installs by passing --force-yes to apt.
+        no_recommends: Don't install recommended packages. Setting this to True can 
+                      significantly reduce download size and installation time.
+        allow_downgrades: Allow downgrading packages with version (--allow-downgrades).
+        extra_install_args: Additional arguments to the apt install command.
+        extra_uninstall_args: Additional arguments to the apt uninstall command.
+        parallel: Number of parallel downloads (default: 8). Higher values (16-32) 
+                 can significantly improve performance for large package installations.
+    
+    Versions:
+        Package versions can be pinned like apt: ``<pkg>=<version>``
+    
+    Example:
+        ```python
+        apt_fast.packages(
+            name="Install development tools",
+            packages=["git", "build-essential", "python3-dev"],
+            update=True,  # Update repositories first
+            no_recommends=True,  # Skip recommended packages
+            parallel=16,  # Use 16 parallel downloads
+            _sudo=True,
+        )
+        ```
+    
+    Performance Tips:
+        - Set parallel=16 or higher for large package installations
+        - Use no_recommends=True to reduce download size
+        - Consider combining multiple small package installations into a single larger one
+        - Update and upgrade operations can also be parallelized if used
     """
     # Update if needed
     if update:
