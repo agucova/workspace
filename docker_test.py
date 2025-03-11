@@ -76,6 +76,10 @@ def run_docker_container(
     if interactive:
         docker_cmd += " -it"
 
+    # Mount the current directory to the container workspace
+    current_dir = os.path.abspath(os.path.curdir)
+    docker_cmd += f" -v {current_dir}:/home/agucova/repos/workspace"
+
     # Add SSH agent forwarding if requested and available
     if ssh_agent and "SSH_AUTH_SOCK" in os.environ:
         ssh_sock = os.environ["SSH_AUTH_SOCK"]
@@ -123,7 +127,10 @@ def run(
         None, help="Module.function to run (e.g., 'env_setup.setup_fish')"
     ),
     build: bool = typer.Option(
-        False, "--build", "-b", help="Force rebuild the Docker image"
+        False,
+        "--build",
+        "-b",
+        help="Force rebuild the Docker image (only needed when Dockerfile changes)",
     ),
     interactive: bool = typer.Option(
         False,
@@ -137,7 +144,12 @@ def run(
         help="Include dotfiles setup (default: yes for full setup, no for specific function)",
     ),
 ):
-    """Run PyInfra modules in a Docker container."""
+    """Run PyInfra modules in a Docker container.
+
+    The current directory is mounted as a volume in the container,
+    so code changes are immediately available without rebuilding.
+    Rebuilding is only necessary when the Dockerfile or dependencies change.
+    """
     image_name = "workspace-test"
 
     # Build image if needed or requested

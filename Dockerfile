@@ -33,15 +33,15 @@ RUN useradd -m agucova && \
     chmod 0440 /etc/sudoers.d/agucova
 
 # Set up working directory
-WORKDIR /home/agucova/workspace
-COPY . /home/agucova/workspace/
+WORKDIR /home/agucova/repos/workspace
 
-# Fix permissions
-RUN chown -R agucova:agucova /home/agucova/workspace
+# Create workspace directory if it doesn't exist
+RUN mkdir -p /home/agucova/repos/workspace && \
+    chown -R agucova:agucova /home/agucova/repos/workspace
 
 # Switch to the test user
 USER agucova
-WORKDIR /home/agucova/workspace
+WORKDIR /home/agucova/repos/workspace
 
 # Install uv 
 RUN curl -LsSf https://astral.sh/uv/install.sh | bash
@@ -54,7 +54,7 @@ RUN python3 -m venv /home/agucova/venv && \
     /home/agucova/.local/bin/uv pip install --python /home/agucova/venv/bin/python3 pyinfra pydantic-settings
 
 # Set up environment
-ENV PYTHONPATH="/home/agucova/workspace:${PYTHONPATH}"
+ENV PYTHONPATH="/home/agucova/repos/workspace:${PYTHONPATH}"
 ENV PATH="/home/agucova/venv/bin:${PATH}"
 
 # Default command just opens a shell with bash

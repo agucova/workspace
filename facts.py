@@ -61,7 +61,7 @@ class DebsigPolicies(FactBase):
 
     def process(self, output: Iterable[str]) -> list[str]:
         return [line.strip() for line in output if line.strip()]
-        
+
     @staticmethod
     def default() -> list[str]:
         # Return empty list as default if fact collection fails
@@ -122,3 +122,22 @@ class UvInstallation(FactBase):
                     tools[current_tool]["binaries"].append(line[2:])
 
         return {"installed": installed, "tools": tools}
+
+
+class JuliaPackages(FactBase):
+    """
+    Returns a list of installed Julia packages.
+    """
+
+    def command(self) -> str:
+        return "julia -e 'using Pkg; println(join(keys(Pkg.project().dependencies), \",\"))' 2>/dev/null || true"
+
+    def requires_command(self) -> str:
+        return "julia"
+
+    def process(self, output: Iterable[str]) -> list[str]:
+        packages = []
+        for line in output:
+            if line.strip():  # Skip empty lines
+                packages.extend(pkg.strip() for pkg in line.split(",") if pkg.strip())
+        return packages
