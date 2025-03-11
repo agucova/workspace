@@ -63,36 +63,52 @@ def setup_python_env() -> None:
             return "not_installed" in python_check.stdout
         return not uv_info.get("installed", False)
 
-    # Install Python 3.13 if not already installed
-    server.shell(
-        name="Install Python 3.13",
-        commands=["uv python install 3.13 --default --preview"],
-        _if=needs_python_install,
-    )
-
-    # Install tools if not already installed
-    for tool in ["ruff", "pyright"]:
-        # Check if tool is already installed
-        tool_name = tool  # Create a copy for closure
-
-        # Define a function to check if this specific tool needs to be installed
-        def needs_tool_install(t=tool_name):
-            if uv_info.get("installed", False) and uv_info.get("tools", {}):
-                return t not in uv_info.get("tools", {})
-            return True
-
+    # Import settings to check if we're in Docker
+    from config import settings
+    
+    # In Docker, use the full environment setup 
+    if settings.docker_testing:
         server.shell(
-            name=f"Install {tool_name}",
-            commands=[f"uv tool install {tool_name}"],
-            _if=needs_tool_install,
+            name="Install Python and tools in Docker",
+            commands=[
+                "export PATH=$HOME/.local/bin:$PATH && " +
+                "uv python install 3.13 --default --preview && " +
+                "uv tool install ruff && " +
+                "uv tool install pyright && " +
+                "uv tool update-shell"
+            ],
+        )
+    else:
+        # Standard installation for non-Docker environment
+        server.shell(
+            name="Install Python 3.13",
+            commands=["uv python install 3.13 --default --preview"],
+            _if=needs_python_install,
         )
 
-    # Update shell configuration
-    server.shell(
-        name="Update shell integration",
-        commands=["uv tool update-shell"],
-        _sudo=False,  # Make sure we don't use sudo for this
-    )
+        # Install tools if not already installed
+        for tool in ["ruff", "pyright"]:
+            # Check if tool is already installed
+            tool_name = tool  # Create a copy for closure
+
+            # Define a function to check if this specific tool needs to be installed
+            def needs_tool_install(t=tool_name):
+                if uv_info.get("installed", False) and uv_info.get("tools", {}):
+                    return t not in uv_info.get("tools", {})
+                return True
+
+            server.shell(
+                name=f"Install {tool_name}",
+                commands=[f"uv tool install {tool_name}"],
+                _if=needs_tool_install,
+            )
+
+        # Update shell configuration
+        server.shell(
+            name="Update shell integration",
+            commands=["uv tool update-shell"],
+            _sudo=False,  # Make sure we don't use sudo for this
+        )
 
 
 @deploy("Setup Fish Shell")

@@ -126,15 +126,36 @@ def setup_brew() -> None:
     """Set up Homebrew for package management."""
     # Check if brew is installed
     if not host.get_fact(Directory, str(BREW_PATH)):
-        server.shell(
-            name="Install brew",
-            commands=[
-                "NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash"
-            ],
-            _sudo=True,
-            _preserve_sudo_env=True,
-            _sudo_user=USER,
-        )
+        if is_linux():
+            # First ensure the /home/linuxbrew directory exists with correct permissions
+            files.directory(
+                name="Create /home/linuxbrew directory",
+                path="/home/linuxbrew",
+                mode="775",
+                _sudo=True,
+            )
+            
+            # Then install Homebrew
+            server.shell(
+                name="Install brew",
+                commands=[
+                    'NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash'
+                ],
+                _sudo=True,
+                _preserve_sudo_env=True,
+                _sudo_user=USER,
+            )
+        elif is_macos():
+            # For macOS, just run the installer
+            server.shell(
+                name="Install brew",
+                commands=[
+                    'NONINTERACTIVE=1 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash'
+                ],
+                _sudo=True,
+                _preserve_sudo_env=True,
+                _sudo_user=USER,
+            )
 
     # Set up taps based on platform
     if is_linux():
