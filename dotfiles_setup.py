@@ -10,11 +10,13 @@ Usage:
 
 The script will:
 1. Check if GitHub CLI is installed
-2. Prompt the user to authenticate with GitHub
-3. Clone the private dotfiles repository
-4. Apply the dotfiles using chezmoi
+2. Check if 1Password CLI is set up (for secrets management)
+3. Prompt the user to authenticate with GitHub and 1Password
+4. Clone the private dotfiles repository
+5. Apply the dotfiles using chezmoi
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -62,6 +64,43 @@ def check_prerequisites():
         print("Please run the main PyInfra deployment first or install it manually:")
         print("    brew install chezmoi")
         sys.exit(1)
+        
+    # Check for 1Password CLI
+    op_result = run_command("which op", check=False)
+    if op_result.returncode == 0:
+        # Check if the user is logged in using whoami
+        status_result = run_command("op whoami", check=False)
+        if status_result.returncode != 0:
+            print("\n===== 1Password Authentication =====")
+            print("The 1Password CLI is installed but you don't appear to be logged in.")
+            print("Your dotfiles may use 1Password for secrets management.")
+            
+            response = input("Do you want to log in to 1Password now? [Y/n]: ")
+            if response.lower() not in ["n", "no"]:
+                # Give instructions and time to set up
+                print("\nSigning in with the 1Password desktop app...")
+                print("If this is your first time, please make sure to:")
+                print("1. Open the 1Password app")
+                print("2. Navigate to Settings > Developer and enable 'Integrate with 1Password CLI'")
+                
+                app_ready = input("\nPress Enter when the 1Password app is ready, or type 'skip' to skip: ")
+                if app_ready.lower() == 'skip':
+                    print("Skipping 1Password login...")
+                    return
+                
+                # Start by trying the app integration method
+                print("Attempting to authenticate with 1Password...")
+                
+                # We need to use --raw to get just the session token without other output
+                session_result = run_command("op signin --raw", check=False)
+                
+                if session_result.returncode == 0:
+                    # Success - set the OP_SESSION environment variable for the rest of the script
+                    os.environ["OP_SESSION"] = session_result.stdout.strip()
+                    print("Successfully authenticated with 1Password!")
+                else:
+                    print("Authentication failed or was canceled. Some dotfiles features may not work.")
+                    print("You can manually sign in later with 'op signin'.")
 
 
 def get_gh_command():
