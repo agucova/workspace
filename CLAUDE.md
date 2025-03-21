@@ -36,7 +36,8 @@
    - On local machine: `uv run pyinfra @local -v <module>.<function>`
    - In Docker (for headless modules): `uv run docker_test.py run <module>.<function>`
 6. IMPORTANT: Never commit changes until they've been fully tested. Commit only after verifying functionality.
-7. Use conventional commit messages
+7. IMPORTANT: NEVER commit changes unless explicitly requested by the user. Always wait for confirmation before creating any git commits.
+8. Use conventional commit messages
 
 ## Code Style Guidelines
 - **Typing**: Use type hints throughout; prefer `|` for union types in Python 3.10+

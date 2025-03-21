@@ -141,3 +141,55 @@ class JuliaPackages(FactBase):
             if line.strip():  # Skip empty lines
                 packages.extend(pkg.strip() for pkg in line.split(",") if pkg.strip())
         return packages
+
+
+class BunGlobalPackages(FactBase):
+    """
+    Returns a list of globally installed Bun packages.
+    """
+
+    def command(self) -> str:
+        return "bun pm ls --global 2>/dev/null || true"
+
+    def requires_command(self) -> str:
+        return "bun"
+
+    def process(self, output: Iterable[str]) -> dict:
+        packages = {}
+        for line in output:
+            # Skip the header line or lines that don't contain package info
+            if not '@' in line:
+                continue
+                
+            # Handle lines like "├── @anthropic-ai/claude-code@0.2.53"
+            # or "└── electron@34.0.0"
+            if '├── ' in line:
+                pkg_info = line.split('├── ')[1]
+            elif '└── ' in line:
+                pkg_info = line.split('└── ')[1]
+            else:
+                # For lines without tree symbols
+                pkg_info = line
+                
+            # Now parse package@version format
+            if '@' in pkg_info:
+                # Handle NPM scoped packages correctly (@org/pkg@version)
+                if pkg_info.startswith('@'):
+                    # For scoped packages, find the last @
+                    last_at_index = pkg_info.rindex('@')
+                    name = pkg_info[:last_at_index]
+                    version = pkg_info[last_at_index+1:]
+                else:
+                    # Regular packages (pkg@version)
+                    parts = pkg_info.split('@', 1)
+                    name = parts[0]
+                    version = parts[1] if len(parts) > 1 else ""
+                    
+                packages[name] = version
+                
+        return packages
+    
+    @staticmethod
+    def default() -> dict:
+        # Return empty dict as default if fact collection fails
+        return {}

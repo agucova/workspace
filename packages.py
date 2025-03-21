@@ -25,6 +25,7 @@ from pyinfra.operations import apt, brew, files, flatpak, server, snap
 import apt_fast
 from config import BREW_PATH, HOME, USER, has_display, is_linux, is_macos, settings
 from facts import (
+    BunGlobalPackages,
     DebsigPolicies,
     DockerConfiguration,
     FlatpakRemotes,
@@ -1070,50 +1071,33 @@ def install_claude_code() -> None:
     Install Claude Code CLI tool via bun.
     
     This installs Anthropic's official Claude Code CLI tool globally using bun.
+    The executable is called 'claude' (not 'claude-code').
     """
-    # First check if bun is installed
-    bun_check = server.shell(
-        name="Check if bun is installed",
-        commands=["which bun >/dev/null 2>&1 && echo 'installed' || echo 'not installed'"],
-    )
+    # Check if Claude Code is already installed using our custom fact
+    bun_packages = host.get_fact(BunGlobalPackages)
     
-    if bun_check.stdout.strip() != "installed":
-        print("Bun is not installed. Installing bun first...")
-        server.shell(
-            name="Install bun",
-            commands=["curl -fsSL https://bun.sh/install | bash"],
-        )
-        # Export bun to path for this session
-        server.shell(
-            name="Add bun to PATH for current session",
-            commands=["export BUN_INSTALL=\"$HOME/.bun\" && export PATH=\"$BUN_INSTALL/bin:$PATH\""],
-        )
+    # Package name for Claude Code in bun
+    claude_package_name = "@anthropic-ai/claude-code"
     
-    # Check if Claude Code is already installed
-    installed_check = server.shell(
-        name="Check if Claude Code is installed",
-        commands=["which claude-code >/dev/null 2>&1 && echo 'installed' || echo 'not installed'"],
-    )
-    
-    if installed_check.stdout.strip() == "installed":
-        print("Claude Code is already installed. Checking for updates...")
+    if claude_package_name in bun_packages:
+        print(f"Claude Code is already installed (version {bun_packages[claude_package_name]}). Checking for updates...")
         # Update Claude Code if already installed
         server.shell(
             name="Update Claude Code",
-            commands=["$HOME/.bun/bin/bun install --global @anthropic-ai/claude-code@latest"],
+            commands=["bun install --global @anthropic-ai/claude-code@latest"],
         )
     else:
         print("Installing Claude Code...")
         # Install Claude Code globally via bun
         server.shell(
             name="Install Claude Code",
-            commands=["$HOME/.bun/bin/bun install --global @anthropic-ai/claude-code"],
+            commands=["bun install --global @anthropic-ai/claude-code"],
         )
         
     # Verify the installation
     server.shell(
         name="Verify Claude Code installation",
-        commands=["$HOME/.bun/bin/claude-code --version || claude-code --version"],
+        commands=["claude --version"],
     )
 
 
