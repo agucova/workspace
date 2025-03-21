@@ -36,7 +36,21 @@
       };
     };
     
-    # Configure terminal
+    # Configure terminal - Ghostty (primary) and Alacritty (backup)
+    programs.ghostty = {
+      enable = true;
+      settings = {
+        window.padding = "15";
+        window.opacity = 0.95;
+        font.size = 11;
+        
+        # Theme settings
+        background = "#282c34";
+        foreground = "#abb2bf";
+      };
+    };
+    
+    # Keep Alacritty as a backup terminal
     programs.alacritty = {
       enable = true;
       settings = {

@@ -82,6 +82,8 @@
     vim
     micro
     htop
+    # Use ghostty from the direct flake reference for the latest version
+    ghostty.packages.${pkgs.stdenv.hostPlatform.system}.default
 
     # GUI applications
     firefox

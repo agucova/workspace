@@ -1036,6 +1036,34 @@ def install_claude_desktop() -> None:
         )
 
 
+@deploy("Install Ghostty Terminal")
+def install_ghostty() -> None:
+    """
+    Install Ghostty Terminal.
+    
+    On macOS, installs via Homebrew cask.
+    On Linux, installs via snap package.
+    """
+    if not has_display():
+        return
+        
+    if is_linux():
+        # Install Ghostty via snap (simplest cross-distro option)
+        snap.package(
+            name="Install Ghostty Terminal",
+            packages="ghostty",
+            classic=True,
+            _sudo=True,
+        )
+    elif is_macos():
+        # Install Ghostty via Homebrew
+        brew.casks(
+            name="Install Ghostty Terminal",
+            casks=["ghostty"],
+            _env={"PATH": f"{BREW_PATH}:$PATH"},
+        )
+
+
 @deploy("Packages")
 def setup_repositories_and_install_packages() -> None:
     """

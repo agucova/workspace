@@ -12,6 +12,7 @@ from env_setup import (
 from gnome import configure_keyboard, configure_wallpaper
 from packages import (
     install_cuda,
+    install_ghostty,
     install_julia,
     install_kinto,
     install_mathematica,
@@ -45,6 +46,7 @@ if is_linux():
     configure_keyboard()  # GUI check happens inside the function
     install_kinto()  # GUI check happens inside the function
     install_mathematica()  # GUI check happens inside the function
+    install_ghostty()  # GUI check happens inside the function
 
 # Output testing status
 if settings.docker_testing:

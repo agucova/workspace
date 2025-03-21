@@ -88,6 +88,15 @@ sudo nixos-rebuild switch --flake ~/.nixos#hostname
 - `hosts/cosmic/home.nix` contains user-specific configurations managed by Home Manager
 - Customize this file to set up your preferred applications and settings
 
+### Terminal Configuration
+
+This setup comes with Ghostty as the primary terminal:
+
+- Ghostty is a fast, feature-rich GPU-accelerated terminal
+- Configured via Home Manager in `hosts/cosmic/home.nix`
+- Latest version from the upstream Ghostty repository
+- Alacritty is included as a backup terminal
+
 ## Updating Your System
 
 To update your packages and configurations:
