@@ -973,57 +973,60 @@ def install_claude_desktop() -> None:
     Install Claude Desktop app.
     
     On macOS, installs the official app via brew cask.
-    On Linux, installs a custom Debian package from GitHub.
+    On Linux, builds and installs a custom Debian package from GitHub.
     """
     # Skip if no display
     if not has_display():
         return
         
     if is_linux():
-        # Add the repository for Claude Desktop
-        if not host.get_fact(File, "/etc/apt/keyrings/claude-desktop.gpg"):
-            # Create keyrings directory if it doesn't exist
-            files.directory(
-                name="Ensure keyrings directory exists",
-                path="/usr/share/keyrings",
-                mode="755",
+        claude_desktop_dir = HOME / "repos" / "claude-desktop-debian"
+        deb_file = claude_desktop_dir / "claude-desktop_0.7.7_amd64.deb"
+        
+        # Check if already installed
+        installed_check = server.shell(
+            name="Check if Claude Desktop is installed",
+            commands=["dpkg-query -W -f='${Status}' claude-desktop 2>/dev/null | grep -q 'install ok installed' && echo 'installed' || echo 'not installed'"],
+        )
+        
+        if installed_check.stdout != "installed":
+            # Clone the repository if it doesn't exist
+            if not host.get_fact(Directory, str(claude_desktop_dir)):
+                # Create parent directory if needed
+                files.directory(
+                    name="Create repos directory",
+                    path=str(HOME / "repos"),
+                    mode="755",
+                    user=USER,
+                    group=USER,
+                )
+                
+                server.shell(
+                    name="Clone Claude Desktop repository",
+                    commands=[f"git clone https://github.com/agucova/claude-desktop-debian.git {claude_desktop_dir}"],
+                )
+            
+            # Install build dependencies
+            apt_fast.packages(
+                name="Install Claude Desktop build dependencies",
+                packages=["nodejs", "npm"],
+                parallel=16,
                 _sudo=True,
             )
             
-            # Add the repository GPG key
+            # Build the .deb package
+            if not host.get_fact(File, str(deb_file)):
+                server.shell(
+                    name="Build Claude Desktop package",
+                    commands=[f"cd {claude_desktop_dir} && ./build-deb.sh"],
+                )
+            
+            # Install the .deb package
             server.shell(
-                name="Add Claude Desktop GPG key",
-                commands=[
-                    "curl -fsSL https://raw.githubusercontent.com/agucova/claude-desktop-debian/main/KEY.gpg | gpg --dearmor > /etc/apt/keyrings/claude-desktop.gpg",
-                    "chmod 644 /etc/apt/keyrings/claude-desktop.gpg",
-                ],
+                name="Install Claude Desktop package",
+                commands=[f"dpkg -i {deb_file}"],
                 _sudo=True,
             )
-            
-        # Add the repository
-        apt.repo(
-            name="Add Claude Desktop repository",
-            src=(
-                "deb [arch=amd64 signed-by=/etc/apt/keyrings/claude-desktop.gpg] "
-                "https://raw.githubusercontent.com/agucova/claude-desktop-debian/main/ /"
-            ),
-            _sudo=True,
-        )
-        
-        # Update apt cache after adding repository
-        apt_fast.update(
-            name="Update apt cache for Claude Desktop",
-            parallel=16,
-            _sudo=True,
-        )
-        
-        # Install Claude Desktop
-        apt_fast.packages(
-            name="Install Claude Desktop",
-            packages=["claude-desktop"],
-            parallel=16,
-            _sudo=True,
-        )
     elif is_macos():
         # Install Claude Desktop via Homebrew
         brew.casks(
