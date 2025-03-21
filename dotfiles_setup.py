@@ -192,11 +192,21 @@ def setup_dotfiles(github_username=None):
     # Check if dotfiles repo already exists
     if dotfiles_dir.exists():
         print(f"Dotfiles repository already exists at {dotfiles_dir}")
-        response = input("Do you want to remove and re-clone it? [y/N]: ")
-        if response.lower() in ["y", "yes"]:
-            run_command(f"rm -rf {dotfiles_dir}")
+        print("Pulling latest changes...")
+        pull_result = run_command(
+            f"cd {dotfiles_dir} && git pull",
+            capture_output=False,
+        )
+        if pull_result.returncode != 0:
+            print("Warning: Failed to pull latest changes. Using existing repository state.")
+            response = input("Would you like to remove and re-clone the repository instead? [y/N]: ")
+            if response.lower() in ["y", "yes"]:
+                run_command(f"rm -rf {dotfiles_dir}")
+                # Will now proceed to clone in the code below
+            else:
+                print("Continuing with existing repository state.")
         else:
-            print("Using existing dotfiles repository.")
+            print("Repository updated successfully.")
 
     # Clone dotfiles repository if it doesn't exist
     if not dotfiles_dir.exists():
@@ -210,32 +220,50 @@ def setup_dotfiles(github_username=None):
             sys.exit(1)
 
     # Check if chezmoi is already initialized
+    chezmoi_cmd = get_chezmoi_command()
     if chezmoi_dir.exists():
         print("chezmoi directory already exists.")
-        response = input("Do you want to reinitialize your dotfiles? [y/N]: ")
-        if response.lower() in ["y", "yes"]:
-            # Remove existing chezmoi directory to allow re-initialization
-            run_command(f"rm -rf {chezmoi_dir}")
+        print("Updating dotfiles...")
+        # Use 'chezmoi update' to pull the latest changes and apply them
+        update_result = run_command(
+            f"{chezmoi_cmd} update --no-tty",
+            capture_output=False,
+        )
+        
+        if update_result.returncode == 0:
+            print("Dotfiles successfully updated!")
+            return True
         else:
-            print("Skipping chezmoi initialization.")
-            # Return False to indicate we didn't apply dotfiles (clean skip)
-            return False
+            print("Warning: Failed to update dotfiles.")
+            response = input("Would you like to reinitialize your dotfiles completely? [y/N]: ")
+            if response.lower() in ["y", "yes"]:
+                # Remove existing chezmoi directory to allow re-initialization
+                run_command(f"rm -rf {chezmoi_dir}")
+            else:
+                print("Skipping further dotfiles changes.")
+                # Return False to indicate we didn't fully apply dotfiles (update failed)
+                return False
 
-    print("\n===== Setting up dotfiles with chezmoi =====")
+    # Only proceed with initialization if the directory doesn't exist or was removed above
+    if not chezmoi_dir.exists():
+        print("\n===== Setting up dotfiles with chezmoi =====")
 
-    # Initialize chezmoi with the local repository and apply
-    chezmoi_cmd = get_chezmoi_command()
-    init_result = run_command(
-        f"{chezmoi_cmd} init --apply {dotfiles_dir}",
-        capture_output=False,
-    )
-
-    if init_result.returncode == 0:
-        print("Dotfiles successfully applied!")
-        return True
-    else:
-        print("Failed to initialize or apply dotfiles.")
-        sys.exit(1)
+        # Initialize chezmoi with the local repository and apply
+        init_result = run_command(
+            f"{chezmoi_cmd} init --apply --no-tty {dotfiles_dir}",
+            capture_output=False,
+        )
+        
+        if init_result.returncode == 0:
+            print("Dotfiles successfully applied!")
+            return True
+        else:
+            print("Failed to initialize or apply dotfiles.")
+            sys.exit(1)
+            
+    # If we got here, we've already returned True or exited
+    # This ensures we don't try to reference init_result when it might not exist
+    return True
 
 
 def main():
