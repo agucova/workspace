@@ -11,6 +11,7 @@ from env_setup import (
 )
 from gnome import configure_keyboard, configure_wallpaper
 from packages import (
+    install_claude_code,
     install_cuda,
     install_ghostty,
     install_julia,
@@ -38,6 +39,7 @@ setup_python_env()
 install_julia()
 
 # 3. Install additional tools (install_docker and install_firefox_dev are already handled)
+install_claude_code()  # Install Claude Code CLI (works on both platforms)
 
 # 4. Linux-specific configurations.
 if is_linux():

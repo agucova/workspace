@@ -1064,6 +1064,59 @@ def install_ghostty() -> None:
         )
 
 
+@deploy("Install Claude Code CLI")
+def install_claude_code() -> None:
+    """
+    Install Claude Code CLI tool via bun.
+    
+    This installs Anthropic's official Claude Code CLI tool globally using bun.
+    """
+    # First check if bun is installed
+    bun_check = server.shell(
+        name="Check if bun is installed",
+        commands=["which bun >/dev/null 2>&1 && echo 'installed' || echo 'not installed'"],
+    )
+    
+    if bun_check.stdout.strip() != "installed":
+        print("Bun is not installed. Installing bun first...")
+        server.shell(
+            name="Install bun",
+            commands=["curl -fsSL https://bun.sh/install | bash"],
+        )
+        # Export bun to path for this session
+        server.shell(
+            name="Add bun to PATH for current session",
+            commands=["export BUN_INSTALL=\"$HOME/.bun\" && export PATH=\"$BUN_INSTALL/bin:$PATH\""],
+        )
+    
+    # Check if Claude Code is already installed
+    installed_check = server.shell(
+        name="Check if Claude Code is installed",
+        commands=["which claude-code >/dev/null 2>&1 && echo 'installed' || echo 'not installed'"],
+    )
+    
+    if installed_check.stdout.strip() == "installed":
+        print("Claude Code is already installed. Checking for updates...")
+        # Update Claude Code if already installed
+        server.shell(
+            name="Update Claude Code",
+            commands=["$HOME/.bun/bin/bun install --global @anthropic-ai/claude-code@latest"],
+        )
+    else:
+        print("Installing Claude Code...")
+        # Install Claude Code globally via bun
+        server.shell(
+            name="Install Claude Code",
+            commands=["$HOME/.bun/bin/bun install --global @anthropic-ai/claude-code"],
+        )
+        
+    # Verify the installation
+    server.shell(
+        name="Verify Claude Code installation",
+        commands=["$HOME/.bun/bin/claude-code --version || claude-code --version"],
+    )
+
+
 @deploy("Packages")
 def setup_repositories_and_install_packages() -> None:
     """
