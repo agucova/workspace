@@ -58,6 +58,7 @@ def install_julia() -> None:
         "OhMyREPL",
         "Literate",
         "Pluto",
+        "BenchmarkTools"
         # "PyCall",  # Removed due to installation issues with newer Julia versions
     ]
 
@@ -966,6 +967,72 @@ def install_1password() -> None:
         )
 
 
+@deploy("Install Claude Desktop")
+def install_claude_desktop() -> None:
+    """
+    Install Claude Desktop app.
+    
+    On macOS, installs the official app via brew cask.
+    On Linux, installs a custom Debian package from GitHub.
+    """
+    # Skip if no display
+    if not has_display():
+        return
+        
+    if is_linux():
+        # Add the repository for Claude Desktop
+        if not host.get_fact(File, "/etc/apt/keyrings/claude-desktop.gpg"):
+            # Create keyrings directory if it doesn't exist
+            files.directory(
+                name="Ensure keyrings directory exists",
+                path="/usr/share/keyrings",
+                mode="755",
+                _sudo=True,
+            )
+            
+            # Add the repository GPG key
+            server.shell(
+                name="Add Claude Desktop GPG key",
+                commands=[
+                    "curl -fsSL https://raw.githubusercontent.com/agucova/claude-desktop-debian/main/KEY.gpg | gpg --dearmor > /etc/apt/keyrings/claude-desktop.gpg",
+                    "chmod 644 /etc/apt/keyrings/claude-desktop.gpg",
+                ],
+                _sudo=True,
+            )
+            
+        # Add the repository
+        apt.repo(
+            name="Add Claude Desktop repository",
+            src=(
+                "deb [arch=amd64 signed-by=/etc/apt/keyrings/claude-desktop.gpg] "
+                "https://raw.githubusercontent.com/agucova/claude-desktop-debian/main/ /"
+            ),
+            _sudo=True,
+        )
+        
+        # Update apt cache after adding repository
+        apt_fast.update(
+            name="Update apt cache for Claude Desktop",
+            parallel=16,
+            _sudo=True,
+        )
+        
+        # Install Claude Desktop
+        apt_fast.packages(
+            name="Install Claude Desktop",
+            packages=["claude-desktop"],
+            parallel=16,
+            _sudo=True,
+        )
+    elif is_macos():
+        # Install Claude Desktop via Homebrew
+        brew.casks(
+            name="Install Claude Desktop",
+            casks=["claude"],
+            _env={"PATH": f"{BREW_PATH}:$PATH"},
+        )
+
+
 @deploy("Packages")
 def setup_repositories_and_install_packages() -> None:
     """
@@ -995,6 +1062,7 @@ def setup_repositories_and_install_packages() -> None:
         install_fonts()
         install_firefox_dev()
 
-    # Install Docker and 1Password
+    # Install Docker, 1Password and Claude Desktop
     install_docker()
     install_1password()
+    install_claude_desktop()
