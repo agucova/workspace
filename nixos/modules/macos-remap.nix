@@ -175,59 +175,59 @@ in {
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
       # Disable overview key (Super/Windows key)
       [org.gnome.mutter]
-      overlay-key=''
+      overlay-key = ''
 
       # Disable minimize (conflicts with show hidden files in Nautilus)
       [org.gnome.desktop.wm.keybindings]
-      minimize=[]
+      minimize = []
 
       # Show desktop (minimize all windows)
       [org.gnome.desktop.wm.keybindings]
-      show-desktop=['<Control>d']
+      show-desktop = ['<Control>d']
 
       # Set switch applications to Cmd+Tab (Ctrl+Tab with xremap)
       [org.gnome.desktop.wm.keybindings]
-      switch-applications=['<Control>Tab']
-      switch-applications-backward=['<Shift><Control>Tab']
-      switch-group=['<Control>grave']
-      switch-group-backward=['<Shift><Control>grave']
+      switch-applications = ['<Control>Tab']
+      switch-applications-backward = ['<Shift><Control>Tab']
+      switch-group = ['<Control>grave']
+      switch-group-backward = ['<Shift><Control>grave']
 
       # Reset default input source shortcuts
       [org.gnome.desktop.wm.keybindings]
-      switch-input-source=@as []
-      switch-input-source-backward=@as []
+      switch-input-source = @as []
+      switch-input-source-backward = @as []
 
       # Window tiling conflicts with workspace switching
       [org.gnome.mutter.keybindings]
-      toggle-tiled-left=[]
-      toggle-tiled-right=[]
+      toggle-tiled-left = []
+      toggle-tiled-right = []
 
       # Workspace switching with Super+Left/Right
       [org.gnome.desktop.wm.keybindings]
-      switch-to-workspace-left=['<Super>Left']
-      switch-to-workspace-right=['<Super>Right']
+      switch-to-workspace-left = ['<Super>Left']
+      switch-to-workspace-right = ['<Super>Right']
 
       # Fix paste in terminal interfering with notification panel
       [org.gnome.shell.keybindings]
-      toggle-message-tray=[]
+      toggle-message-tray = []
 
       # Screenshots macOS-style
       [org.gnome.shell.keybindings]
-      screenshot=['<Shift><Control>3']
-      show-screenshot-ui=['<Shift><Control>4']
-      screenshot-window=['<Shift><Control>5']
+      screenshot = ['<Shift><Control>3']
+      show-screenshot-ui = ['<Shift><Control>4']
+      screenshot-window = ['<Shift><Control>5']
 
       # Disable screensaver to avoid issues
       [org.gnome.settings-daemon.plugins.media-keys]
-      screensaver=[]
+      screensaver = []
       
       # Toggle overview with F3
       [org.gnome.shell.keybindings]
-      toggle-overview=['LaunchA']
+      toggle-overview = ['LaunchA']
       
       # Show all applications (spotlight-like)
       [org.gnome.shell.keybindings]
-      toggle-application-view=['<Primary>space', 'LaunchB']
+      toggle-application-view = ['<Primary>space', 'LaunchB']
     '';
 
     # Configure terminal bindings if GNOME Terminal is installed
