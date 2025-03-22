@@ -53,9 +53,6 @@
     };
 
     # Security - leave most defaults but adjust as needed for gaming
-    security = {
-      # Disable TCP timestamps for better privacy
-      tcp-timestamp-disable = true;
-    };
+    # Some options were removed or renamed in nix-mineral
   };
 }
