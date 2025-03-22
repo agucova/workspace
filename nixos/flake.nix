@@ -40,6 +40,9 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;
+        config = {
+          allowUnfree = true;
+        };
         overlays = [
           # Make ghostty available as a regular package
           (final: prev: {
