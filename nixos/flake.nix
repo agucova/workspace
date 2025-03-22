@@ -21,9 +21,15 @@
       url = "github:nix-community/nixos-generators";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # nix-index-database for command-not-found functionality
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, ... }:
+  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -43,8 +49,27 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
-          home-manager.users.agucova = import ./hosts/gnome/home.nix;
+          home-manager.backupFileExtension = "backup";
+          # Pass additional arguments to home-manager modules if needed
+          home-manager.extraSpecialArgs = { inherit nix-index-database; };
+          
+          # Make Home Manager activate properly with debug settings
+          home-manager.sharedModules = [
+            {
+              # Enable a consistent state version across configurations
+              home.stateVersion = "24.11";
+              # Add debugging capabilities
+              home.enableDebugInfo = true;
+              home.sessionVariables = {
+                HM_DEBUG = "1";
+              };
+            }
+          ];
         }
+        
+        # IMPORTANT: We're now using Home Manager for nix-index-database, 
+        # so we don't include the NixOS module to avoid conflicts
+        # nix-index-database.nixosModules.nix-index
       ];
     in
     {
@@ -55,6 +80,10 @@
           inherit system;
           modules = commonModules ++ [
             ./hosts/gnome/configuration.nix
+            {
+              # User-specific Home Manager configuration
+              home-manager.users.agucova = import ./hosts/gnome/home.nix;
+            }
           ];
           specialArgs = { inherit pkgs; };
         };
@@ -64,6 +93,10 @@
           inherit system;
           modules = commonModules ++ [
             ./hosts/vm-test/configuration.nix
+            {
+              # User-specific Home Manager configuration (reuse the same home.nix)
+              home-manager.users.agucova = import ./hosts/gnome/home.nix;
+            }
           ];
           specialArgs = { inherit pkgs; };
         };
@@ -87,18 +120,17 @@
         vm = nixos-generators.nixosGenerate {
           inherit system;
           format = "vm";
-          modules = [
+          modules = commonModules ++ [
             ./hosts/vm-test/configuration.nix
-            # Simplify for VM usage
             {
               virtualisation = {
-                cores = 12;         # Increased from 4 to utilize your 7800X3D better
-                memorySize = 8192;  # Increased from 4GB to 8GB for better performance
+                cores = 12;
+                memorySize = 8192;
                 diskSize = 40960;   # 40GB in MB
                 qemu.options = [
                   "-vga virtio"
                   "-display gtk,grab-on-hover=on"
-                  "-cpu host" # Pass through CPU features for best performance
+                  "-cpu host"
                 ];
               };
             }
