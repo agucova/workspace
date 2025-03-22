@@ -158,56 +158,10 @@ in {
       debug = false; # Set to true to enable debug logging
     };
     
-    # Enable the GNOME Shell extension for xremap and add helper script
+    # Enable the GNOME Shell extension for xremap
     environment.systemPackages = with pkgs; [
       # GNOME xremap extension
       gnomeExtensions.xremap
-      
-      # Script to apply all macOS-like keybindings
-      (writeShellScriptBin "apply-macos-keybindings" ''
-        #!/usr/bin/env bash
-        
-        # Apply all macOS-like keybindings via gsettings
-        
-        # GNOME Mutter settings
-        gsettings set org.gnome.mutter overlay-key ""
-        
-        # WM keybindings
-        gsettings set org.gnome.desktop.wm.keybindings minimize "[]"
-        gsettings set org.gnome.desktop.wm.keybindings show-desktop "['<Control>d']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Control>Tab']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-applications-backward "['<Shift><Control>Tab']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-group "['<Control>grave']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-group-backward "['<Shift><Control>grave']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-input-source "[]"
-        gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "[]"
-        gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "['<Super>Left']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "['<Super>Right']"
-        
-        # Mutter keybindings
-        gsettings set org.gnome.mutter.keybindings toggle-tiled-left "[]"
-        gsettings set org.gnome.mutter.keybindings toggle-tiled-right "[]"
-        
-        # Shell keybindings
-        gsettings set org.gnome.shell.keybindings toggle-message-tray "[]"
-        gsettings set org.gnome.shell.keybindings screenshot "['<Shift><Control>3']"
-        gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Shift><Control>4']"
-        gsettings set org.gnome.shell.keybindings screenshot-window "['<Shift><Control>5']"
-        gsettings set org.gnome.shell.keybindings toggle-overview "['LaunchA']"
-        gsettings set org.gnome.shell.keybindings toggle-application-view "['<Primary>space', 'LaunchB']"
-        
-        # Media keys
-        gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver "[]"
-        
-        # Terminal keybindings
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ copy "<Shift><Super>c"
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ paste "<Shift><Super>v"
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ new-tab "<Shift><Super>t"
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ new-window "<Shift><Super>n"
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ close-tab "<Shift><Super>w"
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ close-window "<Shift><Super>q"
-        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ find "<Shift><Super>f"
-      '')
     ];
 
     # Add user to input group to allow xremap to run without sudo
@@ -220,13 +174,113 @@ in {
       KERNEL=="uinput", GROUP="input", TAG+="uaccess"
     '';
 
-    # GNOME settings tweaks to enable macOS-like behavior - use Nix dconf
-    services.xserver.desktopManager.gnome = {
-      # We don't need to set any overrides here, all done via dconf
-      enable = true;
-    };
-    
-    # Enable dconf to store GNOME settings
+    # Enable dconf for GNOME settings
     programs.dconf.enable = true;
+    
+    # Configure macOS-like dconf settings for all users
+    home-manager.users = let
+      usernames = if config ? "users" && config.users ? "defaultUserName" 
+                 then [ config.users.defaultUserName ] 
+                 else [ "agucova" "nixos" ];
+      
+      # Define macOS dconf settings for any user
+      macOSdconfSettings = {
+        dconf.settings = {
+          # GNOME Mutter settings
+          "org.gnome.mutter" = {
+            overlay-key = "";
+          };
+          
+          # Window Manager keybindings
+          "org.gnome.desktop.wm.keybindings" = {
+            minimize = [];
+            show-desktop = ["<Control>d"];
+            switch-applications = ["<Control>Tab"];
+            switch-applications-backward = ["<Shift><Control>Tab"];
+            switch-group = ["<Control>grave"];
+            switch-group-backward = ["<Shift><Control>grave"];
+            switch-input-source = [];
+            switch-input-source-backward = [];
+            switch-to-workspace-left = ["<Super>Left"];
+            switch-to-workspace-right = ["<Super>Right"];
+          };
+          
+          # Mutter keybindings
+          "org.gnome.mutter.keybindings" = {
+            toggle-tiled-left = [];
+            toggle-tiled-right = [];
+          };
+          
+          # Shell keybindings
+          "org.gnome.shell.keybindings" = {
+            toggle-message-tray = [];
+            screenshot = ["<Shift><Control>3"];
+            show-screenshot-ui = ["<Shift><Control>4"];
+            screenshot-window = ["<Shift><Control>5"];
+            toggle-overview = ["LaunchA"];
+            toggle-application-view = ["<Primary>space" "LaunchB"];
+          };
+          
+          # Media keys
+          "org.gnome.settings-daemon.plugins.media-keys" = {
+            screensaver = [];
+          };
+          
+          # Terminal keybindings
+          "org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/" = {
+            copy = "<Shift><Super>c";
+            paste = "<Shift><Super>v";
+            new-tab = "<Shift><Super>t";
+            new-window = "<Shift><Super>n";
+            close-tab = "<Shift><Super>w";
+            close-window = "<Shift><Super>q";
+            find = "<Shift><Super>f";
+          };
+        };
+      };
+      
+      # Create a set of username → configuration pairs
+      userConfigs = builtins.listToAttrs (map (username: {
+        name = username;
+        value = macOSdconfSettings;
+      }) usernames);
+      
+    in userConfigs;
+
+    # Create toggle script for ISO environment
+    environment.systemPackages = with pkgs; [
+      (writeShellScriptBin "toggle-macos-keybindings" ''
+        #!/usr/bin/env bash
+        
+        XREMAP_SERVICE="xremap"
+        
+        if systemctl --user is-active ''${XREMAP_SERVICE} >/dev/null 2>&1; then
+          echo "Disabling macOS-like keybindings..."
+          systemctl --user stop ''${XREMAP_SERVICE}
+          systemctl --user disable ''${XREMAP_SERVICE}
+          
+          # Reset GNOME settings
+          dconf reset -f /org/gnome/mutter/overlay-key
+          dconf reset -f /org/gnome/desktop/wm/keybindings/
+          dconf reset -f /org/gnome/mutter/keybindings/
+          dconf reset -f /org/gnome/shell/keybindings/
+          dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/screensaver
+          dconf reset -f /org/gnome/terminal/legacy/keybindings/
+          
+          echo "macOS-like keybindings disabled. Restart GNOME Shell with Alt+F2, r, Enter for full effect."
+        else
+          echo "Enabling macOS-like keybindings..."
+          
+          # Start service
+          systemctl --user daemon-reload
+          systemctl --user enable ''${XREMAP_SERVICE}
+          systemctl --user start ''${XREMAP_SERVICE}
+          
+          echo "macOS-like keybindings enabled! ⌘ now acts as Ctrl and vice versa."
+          echo "Try ⌘C to copy, ⌘V to paste, ⌘Tab to switch applications."
+          echo "To disable, run this command again."
+        fi
+      '')
+    ];
   };
 }

@@ -80,14 +80,10 @@
     userName = "nixos"; # Use the live ISO username
   };
   
-  # Create a systemd service to apply macOS keybindings on login for the live user
-  systemd.user.services.apply-macos-keybindings = {
-    description = "Apply macOS-like keybindings on session startup";
-    wantedBy = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.bash}/bin/bash -c 'sleep 5 && /run/current-system/sw/bin/apply-macos-keybindings'";
-    };
+  # Home Manager configuration for the live user
+  home-manager.users.nixos = {
+    # Home Manager specific settings here if needed
+    home.stateVersion = "24.11";
   };
   
   # Networking settings for the live image
@@ -139,63 +135,7 @@
     # Tools for the MacOS-like keybinding toggle script
     xdotool
     
-    # Add a toggle script for macOS-like keybindings in the live environment
-    (writeScriptBin "toggle-macos-keybindings" ''
-      #!/usr/bin/env bash
-      
-      XREMAP_SERVICE="xremap"
-      
-      if systemctl --user is-active ''${XREMAP_SERVICE} >/dev/null 2>&1; then
-        echo "Disabling macOS-like keybindings..."
-        systemctl --user stop ''${XREMAP_SERVICE}
-        systemctl --user disable ''${XREMAP_SERVICE}
-        
-        # Reset GNOME settings
-        gsettings reset org.gnome.mutter overlay-key
-        gsettings reset org.gnome.desktop.wm.keybindings minimize
-        gsettings reset org.gnome.desktop.wm.keybindings switch-applications
-        gsettings reset org.gnome.desktop.wm.keybindings switch-applications-backward
-        gsettings reset org.gnome.desktop.wm.keybindings switch-group
-        gsettings reset org.gnome.desktop.wm.keybindings switch-group-backward
-        gsettings reset org.gnome.desktop.wm.keybindings switch-input-source
-        gsettings reset org.gnome.desktop.wm.keybindings switch-input-source-backward
-        gsettings reset org.gnome.mutter.keybindings toggle-tiled-left
-        gsettings reset org.gnome.mutter.keybindings toggle-tiled-right
-        gsettings reset org.gnome.shell.keybindings toggle-message-tray
-        gsettings reset org.gnome.shell.keybindings screenshot
-        gsettings reset org.gnome.shell.keybindings show-screenshot-ui
-        gsettings reset org.gnome.shell.keybindings screenshot-window
-        
-        echo "macOS-like keybindings disabled. Restart GNOME Shell with Alt+F2, r, Enter for full effect."
-      else
-        echo "Enabling macOS-like keybindings..."
-        
-        # Apply GNOME settings
-        gsettings set org.gnome.mutter overlay-key ""
-        gsettings set org.gnome.desktop.wm.keybindings minimize "[]"
-        gsettings set org.gnome.desktop.wm.keybindings show-desktop "['<Control>d']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Control>Tab']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-applications-backward "['<Shift><Control>Tab']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-group "['<Control>grave']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-group-backward "['<Shift><Control>grave']"
-        gsettings set org.gnome.desktop.wm.keybindings switch-input-source "[]"
-        gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "[]"
-        gsettings set org.gnome.mutter.keybindings toggle-tiled-left "[]"
-        gsettings set org.gnome.mutter.keybindings toggle-tiled-right "[]"
-        gsettings set org.gnome.shell.keybindings toggle-message-tray "[]"
-        gsettings set org.gnome.shell.keybindings screenshot "['<Shift><Control>3']"
-        gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Shift><Control>4']"
-        
-        # Start service
-        systemctl --user daemon-reload
-        systemctl --user enable ''${XREMAP_SERVICE}
-        systemctl --user start ''${XREMAP_SERVICE}
-        
-        echo "macOS-like keybindings enabled! ⌘ now acts as Ctrl and vice versa."
-        echo "Try ⌘C to copy, ⌘V to paste, ⌘Tab to switch applications."
-        echo "To disable, run this command again."
-      fi
-    '')
+    # Already defined in the macos-remap.nix module, so we don't need to duplicate it here
   ];
   
   environment.etc."issue".text = lib.mkForce ''
