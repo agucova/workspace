@@ -18,15 +18,24 @@ in
       chezmoi
     ];
 
-    # Just clone the dotfiles repo but don't apply (requires 1Password login first)
+    # Clone the dotfiles repo but don't apply (requires 1Password login first)
     home.activation.cloneDotfiles = lib.hm.dag.entryAfter [ "installPackages" ] ''
-      if [ ! -d "${dotfilesPath}" ]; then
+      if [ ! -d "${dotfilesPath}/.git" ]; then
         echo "Cloning dotfiles repository..."
+        $DRY_RUN_CMD rm -rf "${dotfilesPath}" # Remove dir if exists but isn't a git repo
         $DRY_RUN_CMD mkdir -p "$(dirname ${dotfilesPath})"
         $DRY_RUN_CMD ${pkgs.git}/bin/git clone ${dotfilesRepo} ${dotfilesPath}
-        echo "Dotfiles cloned. To apply, first login to 1Password with 'op signin' then run 'chezmoi init --source=${dotfilesPath} --apply --no-tty'"
+        
+        if [ -d "${dotfilesPath}/.git" ]; then
+          echo "Dotfiles successfully cloned with $(find ${dotfilesPath} -type f | wc -l) files."
+          echo "To apply, first login to 1Password with 'op signin' then run 'chezmoi init --source=${dotfilesPath} --apply --no-tty'"
+        else
+          echo "Error: Failed to clone dotfiles properly. Please check manually."
+        fi
       else
-        echo "Dotfiles repository already exists at ${dotfilesPath}"
+        echo "Checking dotfiles repository at ${dotfilesPath}..."
+        cd ${dotfilesPath} && $DRY_RUN_CMD ${pkgs.git}/bin/git pull
+        echo "Dotfiles repository updated. $(find ${dotfilesPath} -type f | wc -l) files present."
         echo "To apply, first login to 1Password with 'op signin' then run 'chezmoi apply --no-tty'"
       fi
     '';
