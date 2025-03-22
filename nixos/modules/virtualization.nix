@@ -5,8 +5,8 @@
 {
   # Enable graphics in VM
   hardware.graphics = {
-    enable = true;         # Renamed from hardware.opengl.enable
-    enable32Bit = true;    # Renamed from hardware.opengl.driSupport32Bit
+    enable = true;
+    enable32Bit = true;
   };
 
   # Disable NVIDIA configuration when running in VM
@@ -33,7 +33,6 @@
 
   # VM performance optimizations
   nix.settings.max-jobs = lib.mkDefault 3;
-  # hardware.video.hidpi.enable = false; # This option is now deprecated
 
   # Reduce memory usage (override the base.nix setting)
   zramSwap.memoryPercent = lib.mkForce 25;  # Lower than on hardware

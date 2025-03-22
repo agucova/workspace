@@ -23,6 +23,8 @@
 
 The `nixos/` directory contains a Nix Flake-based configuration for NixOS with GNOME Desktop:
 
+> **IMPORTANT**: When updating NixOS configuration files, do NOT add comments indicating option renames or deprecation warnings (like "# Renamed from X" or "# This option is now deprecated"). Keep the code clean and commit messages should instead document these changes.
+
 ### Directory Structure
 - `flake.nix` - Main entry point defining inputs and outputs for the configuration
 - `modules/` - Modular NixOS configuration files:

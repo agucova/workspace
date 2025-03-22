@@ -81,8 +81,7 @@
   };
 
   # Enable sound with pipewire and low-latency settings
-  # sound.enable = true; # This option is now deprecated
-  services.pulseaudio.enable = false; # Renamed from hardware.pulseaudio
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;

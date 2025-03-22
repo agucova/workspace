@@ -4,8 +4,8 @@
 {
   # Basic graphics configuration
   hardware.graphics = {
-    enable = true;         # Renamed from hardware.opengl.enable
-    enable32Bit = true;    # Renamed from hardware.opengl.driSupport32Bit
+    enable = true;
+    enable32Bit = true;
   };
 
   # NVIDIA RTX 4090 configuration

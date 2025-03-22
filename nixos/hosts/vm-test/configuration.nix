@@ -42,7 +42,7 @@
   # Add minimal set of packages for testing
   environment.systemPackages = with pkgs; [
     firefox
-    gnome-terminal  # Renamed from gnome.gnome-terminal
+    gnome-terminal
   ];
 
   # State version

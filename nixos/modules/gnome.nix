@@ -11,7 +11,7 @@
 
   # Enable required services for GNOME
   programs.dconf.enable = true;
-  services.udev.packages = with pkgs; [ gnome-settings-daemon ];  # Renamed from gnome.gnome-settings-daemon
+  services.udev.packages = with pkgs; [ gnome-settings-daemon ];
 
   # Enable XDG Portal (required for Flatpak)
   xdg.portal = {
@@ -43,15 +43,15 @@
     xdg-desktop-portal
 
     # GNOME packages
-    adwaita-icon-theme      # Renamed from gnome.adwaita-icon-theme
-    gnome-tweaks            # Renamed from gnome.gnome-tweaks
-    dconf-editor            # Renamed from gnome.dconf-editor
-    gnome-shell-extensions  # Renamed from gnome.gnome-shell-extensions
-    baobab                  # Renamed from gnome.baobab - Disk usage analyzer
-    gnome-console           # Renamed from gnome.console - Terminal
-    gnome-characters        # Renamed from gnome.gnome-characters - Character map
-    gnome-system-monitor    # Renamed from gnome.gnome-system-monitor
-    nautilus                # Renamed from gnome.nautilus - File manager
+    adwaita-icon-theme
+    gnome-tweaks
+    dconf-editor
+    gnome-shell-extensions
+    baobab                  # Disk usage analyzer
+    gnome-console           # Terminal
+    gnome-characters        # Character map
+    gnome-system-monitor
+    nautilus                # File manager
 
     # GNOME Shell Extensions
     gnomeExtensions.appindicator  # System tray icons support
@@ -77,8 +77,8 @@
     aggregatedIcons = pkgs.buildEnv {
       name = "system-icons";
       paths = with pkgs; [
-        adwaita-icon-theme         # Renamed from gnome.adwaita-icon-theme
-        gnome-themes-extra         # Renamed from gnome.gnome-themes-extra
+        adwaita-icon-theme
+        gnome-themes-extra
       ];
       pathsToLink = [ "/share/icons" ];
     };
