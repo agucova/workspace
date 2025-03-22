@@ -132,6 +132,11 @@
   # Enable macOS-like keyboard remapping with xremap
   services.macos-remap.enable = true;
   
+  # Configure xremap
+  services.xremap = {
+    userName = "agucova"; # Use the default user
+  };
+  
   # State version
   system.stateVersion = "23.11";
 }

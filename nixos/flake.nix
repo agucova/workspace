@@ -136,6 +136,19 @@
         "iso" = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
+            # Include Home Manager module
+            home-manager.nixosModules.home-manager
+            {
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                backupFileExtension = "backup";
+              };
+            }
+            
+            # Include xremap module
+            xremap-flake.nixosModules.default
+            
             # Base modules
             ./modules/base.nix
             ./modules/gnome.nix

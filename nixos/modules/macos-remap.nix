@@ -158,92 +158,75 @@ in {
       debug = false; # Set to true to enable debug logging
     };
     
-    # Enable the GNOME Shell extension for xremap
-    services.gnome.extensions = with pkgs.gnomeExtensions; [
-      xremap # This is the GNOME extension for xremap
+    # Enable the GNOME Shell extension for xremap and add helper script
+    environment.systemPackages = with pkgs; [
+      # GNOME xremap extension
+      gnomeExtensions.xremap
+      
+      # Script to apply all macOS-like keybindings
+      (writeShellScriptBin "apply-macos-keybindings" ''
+        #!/usr/bin/env bash
+        
+        # Apply all macOS-like keybindings via gsettings
+        
+        # GNOME Mutter settings
+        gsettings set org.gnome.mutter overlay-key ""
+        
+        # WM keybindings
+        gsettings set org.gnome.desktop.wm.keybindings minimize "[]"
+        gsettings set org.gnome.desktop.wm.keybindings show-desktop "['<Control>d']"
+        gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Control>Tab']"
+        gsettings set org.gnome.desktop.wm.keybindings switch-applications-backward "['<Shift><Control>Tab']"
+        gsettings set org.gnome.desktop.wm.keybindings switch-group "['<Control>grave']"
+        gsettings set org.gnome.desktop.wm.keybindings switch-group-backward "['<Shift><Control>grave']"
+        gsettings set org.gnome.desktop.wm.keybindings switch-input-source "[]"
+        gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "[]"
+        gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "['<Super>Left']"
+        gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "['<Super>Right']"
+        
+        # Mutter keybindings
+        gsettings set org.gnome.mutter.keybindings toggle-tiled-left "[]"
+        gsettings set org.gnome.mutter.keybindings toggle-tiled-right "[]"
+        
+        # Shell keybindings
+        gsettings set org.gnome.shell.keybindings toggle-message-tray "[]"
+        gsettings set org.gnome.shell.keybindings screenshot "['<Shift><Control>3']"
+        gsettings set org.gnome.shell.keybindings show-screenshot-ui "['<Shift><Control>4']"
+        gsettings set org.gnome.shell.keybindings screenshot-window "['<Shift><Control>5']"
+        gsettings set org.gnome.shell.keybindings toggle-overview "['LaunchA']"
+        gsettings set org.gnome.shell.keybindings toggle-application-view "['<Primary>space', 'LaunchB']"
+        
+        # Media keys
+        gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver "[]"
+        
+        # Terminal keybindings
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ copy "<Shift><Super>c"
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ paste "<Shift><Super>v"
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ new-tab "<Shift><Super>t"
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ new-window "<Shift><Super>n"
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ close-tab "<Shift><Super>w"
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ close-window "<Shift><Super>q"
+        gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ find "<Shift><Super>f"
+      '')
     ];
 
     # Add user to input group to allow xremap to run without sudo
-    users.groups.input.members = [ config.users.users.${config.users.defaultUserName or "agucova"}.name ];
+    users.groups.input.members = [ 
+      (if config ? "users" && config.users ? "defaultUserName" then config.users.defaultUserName else "agucova") 
+    ];
     
     # Configure udev rules
     services.udev.extraRules = ''
       KERNEL=="uinput", GROUP="input", TAG+="uaccess"
     '';
 
-    # GNOME settings tweaks to enable macOS-like behavior
-    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
-      # Disable overview key (Super/Windows key)
-      [org.gnome.mutter]
-      overlay-key = ''
-
-      # Disable minimize (conflicts with show hidden files in Nautilus)
-      [org.gnome.desktop.wm.keybindings]
-      minimize = []
-
-      # Show desktop (minimize all windows)
-      [org.gnome.desktop.wm.keybindings]
-      show-desktop = ['<Control>d']
-
-      # Set switch applications to Cmd+Tab (Ctrl+Tab with xremap)
-      [org.gnome.desktop.wm.keybindings]
-      switch-applications = ['<Control>Tab']
-      switch-applications-backward = ['<Shift><Control>Tab']
-      switch-group = ['<Control>grave']
-      switch-group-backward = ['<Shift><Control>grave']
-
-      # Reset default input source shortcuts
-      [org.gnome.desktop.wm.keybindings]
-      switch-input-source = @as []
-      switch-input-source-backward = @as []
-
-      # Window tiling conflicts with workspace switching
-      [org.gnome.mutter.keybindings]
-      toggle-tiled-left = []
-      toggle-tiled-right = []
-
-      # Workspace switching with Super+Left/Right
-      [org.gnome.desktop.wm.keybindings]
-      switch-to-workspace-left = ['<Super>Left']
-      switch-to-workspace-right = ['<Super>Right']
-
-      # Fix paste in terminal interfering with notification panel
-      [org.gnome.shell.keybindings]
-      toggle-message-tray = []
-
-      # Screenshots macOS-style
-      [org.gnome.shell.keybindings]
-      screenshot = ['<Shift><Control>3']
-      show-screenshot-ui = ['<Shift><Control>4']
-      screenshot-window = ['<Shift><Control>5']
-
-      # Disable screensaver to avoid issues
-      [org.gnome.settings-daemon.plugins.media-keys]
-      screensaver = []
-      
-      # Toggle overview with F3
-      [org.gnome.shell.keybindings]
-      toggle-overview = ['LaunchA']
-      
-      # Show all applications (spotlight-like)
-      [org.gnome.shell.keybindings]
-      toggle-application-view = ['<Primary>space', 'LaunchB']
-    '';
-
-    # Configure terminal bindings if GNOME Terminal is installed
-    programs.gnome-terminal = {
+    # GNOME settings tweaks to enable macOS-like behavior - use Nix dconf
+    services.xserver.desktopManager.gnome = {
+      # We don't need to set any overrides here, all done via dconf
       enable = true;
-      settings = {
-        keybindings = {
-          copy = "<Shift><Super>c";
-          paste = "<Shift><Super>v";
-          new-tab = "<Shift><Super>t";
-          new-window = "<Shift><Super>n";
-          close-tab = "<Shift><Super>w";
-          close-window = "<Shift><Super>q";
-          find = "<Shift><Super>f";
-        };
-      };
     };
+    
+    # Enable dconf to store GNOME settings
+    programs.dconf.enable = true;
   };
 }

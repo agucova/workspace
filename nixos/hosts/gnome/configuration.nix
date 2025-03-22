@@ -64,6 +64,11 @@
   # Enable macOS-like keyboard remapping with xremap
   services.macos-remap.enable = true;
   
+  # Configure xremap
+  services.xremap = {
+    userName = "agucova"; # Use the default user
+  };
+  
   # Post-installation script to set up Julia packages
   system.activationScripts.setupJuliaEnv = ''
     # Create script to install Julia packages
@@ -81,7 +86,7 @@
       "BenchmarkTools"
     )
     
-    for pkg in "${JULIA_PACKAGES[@]}"; do
+    for pkg in ''${JULIA_PACKAGES[@]}; do
       echo "Installing Julia package: $pkg"
       julia -e "using Pkg; Pkg.add(\"$pkg\")"
     done
