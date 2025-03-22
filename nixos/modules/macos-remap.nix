@@ -44,7 +44,7 @@ let
         name = "Delete complete line";
         application.not = [ "org.gnome.Terminal" ];
         remap = {
-          "C-k" = "C-d";
+          "C-K" = "C-D";
         };
       }
       {
@@ -54,80 +54,81 @@ let
           "C-UP" = "Alt-UP";         # Go Up
           "C-DOWN" = "ENTER";        # Go Down
           "C-BACKSPACE" = "DELETE";  # Move to Trash
-          "Shift-C-DOT" = "C-h";     # Show/Hide Hidden Files (DOT instead of period)
-          "Shift-C-g" = "C-l";       # Enter Location
+          "Shift-C-DOT" = "C-H";     # Show/Hide Hidden Files
+          "Shift-C-G" = "C-L";       # Enter Location
         };
       }
       {
         name = "Terminal copy and paste and window management";
         application.only = [ "org.gnome.Terminal" ];
         remap = {
-          "C-c" = "Shift-Super-c";
-          "C-v" = "Shift-Super-v";
-          "C-t" = "Shift-Super-t";
-          "C-n" = "Shift-Super-n";
-          "C-w" = "Shift-Super-w";
-          "C-q" = "Shift-Super-q";
-          "C-f" = "Shift-Super-f";
+          "C-C" = "Shift-Super-C";
+          "C-V" = "Shift-Super-V";
+          "C-T" = "Shift-Super-T";
+          "C-N" = "Shift-Super-N";
+          "C-W" = "Shift-Super-W";
+          "C-Q" = "Shift-Super-Q";
+          "C-F" = "Shift-Super-F";
         };
       }
       {
         name = "Terminal and Console interrupt";
         application.only = [ "org.gnome.Terminal" "org.gnome.Console" "org.gnome.Ptyxis" ];
         remap = {
-          "Super-c" = "C-c";
+          "Super-C" = "C-C";
         };
       }
       {
         name = "Terminal and Console - make Ctrl work in nano editor";
         application.only = [ "org.gnome.Terminal" "org.gnome.Console" "org.gnome.Ptyxis" ];
         remap = {
-          "Super-q" = "C-q";
-          "Super-w" = "C-w";
-          "Super-e" = "C-e";
-          "Super-r" = "C-r";
-          "Super-t" = "C-t";
-          "Super-y" = "C-y";
-          "Super-u" = "C-u";
-          "Super-o" = "C-o";
-          "Super-p" = "C-p";
-          "Super-RIGHTBRACE" = "C-RIGHTBRACE";
-          "Super-a" = "C-a";
-          "Super-s" = "C-s";
-          "Super-d" = "C-d";
-          "Super-f" = "C-f";
-          "Super-g" = "C-g";
-          "Super-h" = "C-h";
-          "Super-j" = "C-j";
-          "Super-k" = "C-k";
-          "Super-l" = "C-l";
-          "Super-z" = "C-z";
-          "Super-x" = "C-x";
-          "Super-v" = "C-v";
-          "Super-b" = "C-b";
-          "Super-n" = "C-n";
-          "Super-SLASH" = "C-SLASH";
+          "Super-Q" = "C-Q";
+          "Super-W" = "C-W";
+          "Super-E" = "C-E";
+          "Super-R" = "C-R";
+          "Super-T" = "C-T";
+          "Super-Y" = "C-Y";
+          "Super-U" = "C-U";
+          "Super-O" = "C-O";
+          "Super-P" = "C-P";
+          "Super-KEY_RIGHTBRACE" = "C-KEY_RIGHTBRACE";
+          "Super-A" = "C-A";
+          "Super-S" = "C-S";
+          "Super-D" = "C-D";
+          "Super-F" = "C-F";
+          "Super-G" = "C-G";
+          "Super-H" = "C-H";
+          "Super-J" = "C-J";
+          "Super-K" = "C-K";
+          "Super-L" = "C-L";
+          "Super-Z" = "C-Z";
+          "Super-X" = "C-X";
+          "Super-V" = "C-V";
+          "Super-B" = "C-B";
+          "Super-N" = "C-N";
+          "Super-KEY_SLASH" = "C-KEY_SLASH";
+          "Super-KEY_BACKSPACE" = "C-KEY_BACKSPACE";
         };
       }
       {
         name = "Console and Ptyxis shortcuts";
         application.only = [ "org.gnome.Console" "org.gnome.Ptyxis" ];
         remap = {
-          "C-c" = "C-Shift-c"; # Copy text
-          "C-v" = "C-Shift-v"; # Paste text
-          "C-n" = "C-Shift-n"; # New window
-          "C-q" = "C-Shift-q"; # Close window
-          "C-t" = "C-Shift-t"; # New tab
-          "C-w" = "C-Shift-w"; # Close tab
-          "C-f" = "Shift-C-f"; # Find
+          "C-C" = "C-Shift-C"; # Copy text
+          "C-V" = "C-Shift-V"; # Paste text
+          "C-N" = "C-Shift-N"; # New window
+          "C-Q" = "C-Shift-Q"; # Close window
+          "C-T" = "C-Shift-T"; # New tab
+          "C-W" = "C-Shift-W"; # Close tab
+          "C-F" = "Shift-C-F"; # Find
         };
       }
       {
         name = "Eclipse context assist and switch header/source";
         application.only = [ "Eclipse" ];
         remap = {
-          "Super-SPACE" = "Alt-SPACE";
-          "Super-TAB" = "Alt-TAB";
+          "Super-KEY_SPACE" = "Alt-KEY_SPACE";
+          "Super-KEY_TAB" = "Alt-KEY_TAB";
         };
       }
     ];
