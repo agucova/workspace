@@ -88,8 +88,9 @@
   # Add fallback boot parameters for better hardware compatibility
   boot.kernelParams = lib.mkForce [
     # Generic options for better compatibility
+    "nomodeset" # Use nomodeset for better compatibility with QEMU
     "preempt=full"
-    "nomodeset.fallback=1" # Only use nomodeset if standard boot fails
+    "console=ttyS0" # Add serial console for debugging
   ];
   
   # GNOME-specific optimizations for live environment

@@ -40,6 +40,9 @@ cd ~/repos/workspace/nixos && nix run .#test-iso --impure
 # Test with persistent storage (useful for trying changes)
 cd ~/repos/workspace/nixos && nix run .#test-iso -- --persistent --impure
 
+# Test with diagnostic mode (basic QEMU options, better compatibility)
+cd ~/repos/workspace/nixos && nix run .#test-iso -- --diagnostic --impure
+
 # Show all test-iso options
 cd ~/repos/workspace/nixos && nix run .#test-iso -- --help --impure
 

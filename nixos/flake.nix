@@ -187,6 +187,9 @@
           PERSISTENT_FILE="nixos-live-persistence.qcow2"
           USE_PERSISTENCE=0
           
+          # Define variables
+          DIAGNOSTIC_MODE=0
+          
           # Parse command line arguments
           while [[ $# -gt 0 ]]; do
             case $1 in
@@ -199,12 +202,17 @@
                 USE_PERSISTENCE=1
                 shift
                 ;;
+              --diagnostic)
+                DIAGNOSTIC_MODE=1
+                shift
+                ;;
               --help)
                 echo "Usage: test-iso [OPTIONS]"
                 echo ""
                 echo "Options:"
                 echo "  --persistent         Create a persistent storage disk for the live environment"
                 echo "  --persistent-size=X  Set the size of the persistent storage (default: 8G)"
+                echo "  --diagnostic         Run in diagnostic mode with minimal QEMU options"
                 echo "  --help               Display this help message"
                 exit 0
                 ;;
@@ -254,24 +262,33 @@
           
           echo "Starting VM with $VM_MEM MB RAM and $VM_CORES CPU cores..."
           
-          # Launch QEMU with optimized settings
-          qemu-system-x86_64 \
-            -enable-kvm \
-            -m $VM_MEM \
-            -smp $VM_CORES \
-            -cpu host \
-            -device virtio-vga-gl \
-            -display gtk,gl=on,grab-on-hover=on \
-            -cdrom "$ISO_PATH" \
-            -boot d \
-            -usb \
-            -device usb-tablet \
-            -device intel-hda \
-            -device hda-duplex \
-            -device virtio-net-pci,netdev=net0 \
-            -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-            $PERSISTENCE_ARGS \
-            -no-reboot
+          if [ $DIAGNOSTIC_MODE -eq 1 ]; then
+            echo "Running in diagnostic mode with minimal options..."
+            # Super simple QEMU command for maximum compatibility
+            qemu-system-x86_64 \
+              -enable-kvm \
+              -m $VM_MEM \
+              -cdrom "$ISO_PATH" \
+              -boot d \
+              -serial stdio
+          else
+            # Launch QEMU with simpler settings for better compatibility
+            qemu-system-x86_64 \
+              -enable-kvm \
+              -m $VM_MEM \
+              -smp $VM_CORES \
+              -cpu host \
+              -vga std \
+              -display gtk,grab-on-hover=on \
+              -cdrom "$ISO_PATH" \
+              -boot d \
+              -serial stdio \
+              -usb \
+              -device usb-tablet \
+              -device virtio-net-pci,netdev=net0 \
+              -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+              $PERSISTENCE_ARGS
+          fi
             
           echo ""
           if [ $USE_PERSISTENCE -eq 1 ]; then
