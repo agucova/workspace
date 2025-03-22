@@ -69,31 +69,5 @@
     userName = "agucova"; # Use the default user
   };
   
-  # Post-installation script to set up Julia packages
-  system.activationScripts.setupJuliaEnv = ''
-    # Create script to install Julia packages
-    cat > /home/agucova/setup-julia-packages.sh << 'EOF'
-    #!/usr/bin/env bash
-    
-    # Install common Julia packages
-    JULIA_PACKAGES=(
-      "Plots"
-      "DifferentialEquations"
-      "Revise"
-      "OhMyREPL"
-      "Literate"
-      "Pluto"
-      "BenchmarkTools"
-    )
-    
-    for pkg in ''${JULIA_PACKAGES[@]}; do
-      echo "Installing Julia package: $pkg"
-      julia -e "using Pkg; Pkg.add(\"$pkg\")"
-    done
-    EOF
-    
-    # Make script executable
-    chmod +x /home/agucova/setup-julia-packages.sh
-    chown agucova:users /home/agucova/setup-julia-packages.sh
-  '';
+  # Julia packages are now managed declaratively through home-manager in home.nix
 }
