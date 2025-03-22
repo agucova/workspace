@@ -22,11 +22,9 @@
     fira-code-symbols
   ];
   
-  # RTX 4090 GPU Configuration
-  hardware.opengl = {
+  hardware.graphics = {
     enable = true;
-    driSupport = true;
-    driSupport32Bit = true;  # For 32-bit application support (e.g., Steam)
+    enable32Bit = true;
   };
 
   hardware.nvidia = {

@@ -4,7 +4,7 @@
 {
   imports = [
     # Import hardware configuration (will be auto-generated during install)
-    # Replace this comment with ./hardware-configuration.nix after install
+    ./hardware-configuration.nix
     
     # Import our modular configurations
     ../../modules/gnome.nix
@@ -57,8 +57,6 @@
   services.xserver.xkbVariant = "altgr-intl";
   services.xserver.xkbOptions = "lv3:ralt_alt,lv3:lalt_switch";
 
-  # Enable sound with pipewire
-  sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
