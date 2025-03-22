@@ -144,6 +144,7 @@
               };
             }
           ];
+          specialArgs = { inherit pkgs nix-mineral; };
         };
 
         # Script to build and run the VM with performance optimizations
