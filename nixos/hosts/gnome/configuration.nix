@@ -3,8 +3,8 @@
 
 {
   imports = [
-    # Import hardware configuration (will be auto-generated during install)
-    ./hardware-configuration.nix
+    # Import hardware configuration from system directory
+    /etc/nixos/hardware-configuration.nix
     
     # Import our modular configurations
     ../../modules/gnome.nix
