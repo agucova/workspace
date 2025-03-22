@@ -44,7 +44,7 @@
     wl-clipboard
     xdg-utils
     xdg-desktop-portal
-    gnome.adwaita-icon-theme
+    adwaita-icon-theme  # Moved to top-level package
     gnome.gnome-tweaks
     gnome.dconf-editor
     gnome.gnome-shell-extensions

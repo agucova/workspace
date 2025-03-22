@@ -53,11 +53,11 @@
   console.keyMap = "us";
   
   # Configure X11 and Wayland keyboard settings
-  services.xserver.layout = "us";
-  services.xserver.xkbVariant = "altgr-intl";
-  services.xserver.xkbOptions = "lv3:ralt_alt,lv3:lalt_switch";
+  services.xserver.xkb.layout = "us";
+  services.xserver.xkb.variant = "altgr-intl";
+  services.xserver.xkb.options = "lv3:ralt_alt,lv3:lalt_switch";
 
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
