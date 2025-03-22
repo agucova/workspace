@@ -2,11 +2,10 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Basic OpenGL configuration
-  hardware.opengl = {
-    enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
+  # Basic graphics configuration
+  hardware.graphics = {
+    enable = true;         # Renamed from hardware.opengl.enable
+    enable32Bit = true;    # Renamed from hardware.opengl.driSupport32Bit
   };
 
   # NVIDIA RTX 4090 configuration

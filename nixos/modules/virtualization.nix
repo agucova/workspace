@@ -3,15 +3,22 @@
 { config, pkgs, lib, ... }:
 
 {
-  # Enable OpenGL in VM
-  hardware.opengl = {
-    enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
+  # Enable graphics in VM
+  hardware.graphics = {
+    enable = true;         # Renamed from hardware.opengl.enable
+    enable32Bit = true;    # Renamed from hardware.opengl.driSupport32Bit
   };
 
   # Disable NVIDIA configuration when running in VM
-  hardware.nvidia.enable = lib.mkForce false;
+  hardware.nvidia = {
+    # Disable all NVIDIA options that are enabled in hardware.nix
+    modesetting.enable = lib.mkForce false;
+    powerManagement.enable = lib.mkForce false;
+    open = lib.mkForce false;
+    forceFullCompositionPipeline = lib.mkForce false;
+    nvidiaPersistenced = lib.mkForce false;
+    nvidiaSettings = lib.mkForce false;
+  };
 
   # QEMU/KVM/SPICE guest support
   services.spice-vdagentd.enable = true;
@@ -21,14 +28,15 @@
   boot.kernelModules = [ "kvm-intel" "kvm-amd" ];
 
   # Auto-resize display with QXL driver
-  services.xserver.videoDrivers = [ "qxl" ];
+  # Override the NVIDIA driver with QXL/VGA in VM
+  services.xserver.videoDrivers = lib.mkForce [ "qxl" "fbdev" "vesa" ];
 
   # VM performance optimizations
   nix.settings.max-jobs = lib.mkDefault 3;
-  hardware.video.hidpi.enable = false;
+  # hardware.video.hidpi.enable = false; # This option is now deprecated
 
-  # Reduce memory usage
-  zramSwap.memoryPercent = 25;  # Lower than on hardware
+  # Reduce memory usage (override the base.nix setting)
+  zramSwap.memoryPercent = lib.mkForce 25;  # Lower than on hardware
 
   # Use lighter versions of applications when possible
   environment.systemPackages = with pkgs; [
@@ -41,6 +49,13 @@
   environment.variables = {
     # Indicate we're in a VM (can be useful for scripts)
     RUNNING_IN_VM = "1";
+    
+    # Clear any NVIDIA-specific variables that might be set in hardware.nix
+    LIBVA_DRIVER_NAME = lib.mkForce "";
+    WLR_NO_HARDWARE_CURSORS = lib.mkForce "";
+    GBM_BACKEND = lib.mkForce "";
+    __GLX_VENDOR_LIBRARY_NAME = lib.mkForce "";
+    MOZ_DISABLE_RDD_SANDBOX = lib.mkForce "";
   };
 
   # Hint for users that this is a VM environment

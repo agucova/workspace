@@ -23,8 +23,8 @@
   };
 
   # Enable automatic login for testing
-  services.xserver.displayManager.autoLogin.enable = true;
-  services.xserver.displayManager.autoLogin.user = "agucova";
+  services.displayManager.autoLogin.enable = true;
+  services.displayManager.autoLogin.user = "agucova";
 
   # Disable some hardware-specific optimizations that don't make sense in VM
   boot.kernelParams = lib.mkForce [
@@ -36,13 +36,13 @@
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
-    timeout = 0;  # Fast boot for testing
+    timeout = lib.mkForce 0;  # Fast boot for testing (override base.nix)
   };
 
   # Add minimal set of packages for testing
   environment.systemPackages = with pkgs; [
     firefox
-    gnome.gnome-terminal
+    gnome-terminal  # Renamed from gnome.gnome-terminal
   ];
 
   # State version
