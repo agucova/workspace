@@ -137,6 +137,14 @@
     userName = "agucova"; # Use the default user
   };
   
+  # Fix for nixos user in VM builds
+  users.users.nixos = {
+    isNormalUser = true;
+    group = "nixos";
+  };
+  
+  users.groups.nixos = {};
+  
   # State version
   system.stateVersion = "23.11";
 }
