@@ -55,6 +55,32 @@ sudo nixos-rebuild switch --flake /path/to/workspace/nixos#gnome-nixos --experim
 
 The `--impure` flag is required because the configuration imports the system hardware configuration at `/etc/nixos/hardware-configuration.nix`.
 
+### Nix Code Linting
+Use statix to lint and fix common anti-patterns in Nix code:
+
+```bash
+# Run statix linter on all Nix files
+nix run nixpkgs#statix -- check nixos/
+
+# See proposed fixes without changing files
+nix run nixpkgs#statix -- fix --dry-run nixos/
+
+# Apply fixes (be careful!)
+nix run nixpkgs#statix -- fix nixos/
+
+# List all available lints
+nix run nixpkgs#statix -- list
+
+# Get explanation for a specific warning code
+nix run nixpkgs#statix -- explain W20
+```
+
+Key lints include:
+- W20: Repeated attribute keys
+- W03/W04: Manual inherit patterns
+- W07: Eta reductions
+- W08: Useless parentheses
+
 ### VM Testing
 ```bash
 # Standard build and run

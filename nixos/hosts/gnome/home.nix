@@ -13,25 +13,38 @@
     nix-index-database.hmModules.nix-index
   ];
 
-  # Enable nix-index with comprehensive shell integration
-  programs.nix-index = {
-    enable = true;
-    enableFishIntegration = true;
-    enableBashIntegration = true;
-    enableZshIntegration = true;  # Enable for all shells to be safe
-  };
-  
-  # Enable comma functionality from nix-index-database
-  # This also ensures the nix-index database is properly linked
-  programs.nix-index-database.comma.enable = true;
-  
-  # Configure shells
-  programs.fish = {
-    enable = true;
-  };
-  
-  programs.bash = {
-    enable = true;
+  # Configure programs and tools
+  programs = {
+    # Enable nix-index with comprehensive shell integration
+    nix-index = {
+      enable = true;
+      enableFishIntegration = true;
+      enableBashIntegration = true;
+      enableZshIntegration = true;  # Enable for all shells to be safe
+    };
+    
+    # Enable comma functionality from nix-index-database
+    # This also ensures the nix-index database is properly linked
+    nix-index-database.comma.enable = true;
+    
+    # Configure shells
+    fish = {
+      enable = true;
+    };
+    
+    bash = {
+      enable = true;
+    };
+
+    # Configure git
+    git = {
+      enable = true;
+      userName = "Agustin Covarrubias";
+      userEmail = "gh@agucova.dev";
+      extraConfig = {
+        init.defaultBranch = "main";
+      };
+    };
   };
 
   # Packages to install for this user
@@ -46,14 +59,4 @@
     gnome-disk-utility  # Moved to top-level packages
     gnome-system-monitor  # Moved to top-level packages
   ];
-
-  # Configure git
-  programs.git = {
-    enable = true;
-    userName = "Agustin Covarrubias";
-    userEmail = "gh@agucova.dev";
-    extraConfig = {
-      init.defaultBranch = "main";
-    };
-  };
 }

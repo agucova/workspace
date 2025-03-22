@@ -3,10 +3,12 @@
 
 {
   # Set ISO image configuration
-  isoImage.isoName = "nixos-cosmic-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}.iso";
-  isoImage.makeEfiBootable = true;
-  isoImage.makeUsbBootable = true;
-  isoImage.volumeID = "NIXOS_COSMIC";
+  isoImage = {
+    isoName = "nixos-cosmic-${config.system.nixos.label}-${pkgs.stdenv.hostPlatform.system}.iso";
+    makeEfiBootable = true;
+    makeUsbBootable = true;
+    volumeID = "NIXOS_COSMIC";
+  };
   
   # Include calamares for installation
   environment.systemPackages = with pkgs; [

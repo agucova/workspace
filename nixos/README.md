@@ -74,3 +74,27 @@ This configuration includes:
 - GNOME Tweaks, dconf-editor, and Shell Extensions
 - Ghostty terminal with GPU acceleration
 - Flatpak support for additional applications
+
+## Nix Code Linting (statix)
+
+To lint and improve your Nix code, you can use statix without installation:
+
+```bash
+# Run statix linter on all Nix files
+nix run nixpkgs#statix -- check .
+
+# See proposed fixes without changing files
+nix run nixpkgs#statix -- fix --dry-run .
+
+# Apply fixes
+nix run nixpkgs#statix -- fix .
+
+# List all available lints
+nix run nixpkgs#statix -- list
+
+# Get detailed explanation for a specific warning
+nix run nixpkgs#statix -- explain W20  # Replace W20 with warning code
+
+# Generate configuration file (to disable specific lints)
+nix run nixpkgs#statix -- dump > statix.toml
+```

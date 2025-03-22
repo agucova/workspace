@@ -20,16 +20,19 @@
     nvidiaSettings = lib.mkForce false;
   };
 
-  # QEMU/KVM/SPICE guest support
-  services.spice-vdagentd.enable = true;
-  services.qemuGuest.enable = true;
+  # QEMU/KVM/SPICE guest support and display settings
+  services = {
+    # SPICE agent for copy-paste and display resizing
+    spice-vdagentd.enable = true;
+    # QEMU guest tools
+    qemuGuest.enable = true;
+    # Auto-resize display with QXL driver
+    # Override the NVIDIA driver with QXL/VGA in VM
+    xserver.videoDrivers = lib.mkForce [ "qxl" "fbdev" "vesa" ];
+  };
 
   # Support both Intel and AMD virtualization
   boot.kernelModules = [ "kvm-intel" "kvm-amd" ];
-
-  # Auto-resize display with QXL driver
-  # Override the NVIDIA driver with QXL/VGA in VM
-  services.xserver.videoDrivers = lib.mkForce [ "qxl" "fbdev" "vesa" ];
 
   # VM performance optimizations
   nix.settings = {
@@ -45,31 +48,34 @@
   # Reduce memory usage (override the base.nix setting)
   zramSwap.memoryPercent = lib.mkForce 25;  # Lower than on hardware
 
-  # Use lighter versions of applications when possible
-  environment.systemPackages = with pkgs; [
-    # Add VM specific utilities
-    spice-gtk  # For spice client integration
-    xorg.xf86inputvmmouse  # VM mouse driver
-  ];
+  # Environment configuration for VM
+  environment = {
+    # Use lighter versions of applications when possible
+    systemPackages = with pkgs; [
+      # Add VM specific utilities
+      spice-gtk  # For spice client integration
+      xorg.xf86inputvmmouse  # VM mouse driver
+    ];
 
-  # Test specific environment variables
-  environment.variables = {
-    # Indicate we're in a VM (can be useful for scripts)
-    RUNNING_IN_VM = "1";
-    
-    # Clear any NVIDIA-specific variables that might be set in hardware.nix
-    LIBVA_DRIVER_NAME = lib.mkForce "";
-    WLR_NO_HARDWARE_CURSORS = lib.mkForce "";
-    GBM_BACKEND = lib.mkForce "";
-    __GLX_VENDOR_LIBRARY_NAME = lib.mkForce "";
-    MOZ_DISABLE_RDD_SANDBOX = lib.mkForce "";
+    # Test specific environment variables
+    variables = {
+      # Indicate we're in a VM (can be useful for scripts)
+      RUNNING_IN_VM = "1";
+      
+      # Clear any NVIDIA-specific variables that might be set in hardware.nix
+      LIBVA_DRIVER_NAME = lib.mkForce "";
+      WLR_NO_HARDWARE_CURSORS = lib.mkForce "";
+      GBM_BACKEND = lib.mkForce "";
+      __GLX_VENDOR_LIBRARY_NAME = lib.mkForce "";
+      MOZ_DISABLE_RDD_SANDBOX = lib.mkForce "";
+    };
+
+    # Hint for users that this is a VM environment
+    etc."issue".text = ''
+      NixOS VM Test Environment - \n \l
+
+      This is a virtual machine test environment.
+      Login with username: agucova and password: nixos
+    '';
   };
-
-  # Hint for users that this is a VM environment
-  environment.etc."issue".text = ''
-    NixOS VM Test Environment - \n \l
-
-    This is a virtual machine test environment.
-    Login with username: agucova and password: nixos
-  '';
 }

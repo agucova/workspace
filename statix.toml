@@ -1,0 +1,8 @@
+# Statix configuration file
+# See all available lints with: statix list
+
+# Uncomment to disable specific lints
+# disabled = [
+#   "empty_pattern",
+#   "useless_parens"
+# ]

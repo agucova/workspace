@@ -74,33 +74,40 @@
   # Configure console keymap
   console.keyMap = "us";
 
-  # Configure keyboard in X11 - US international as requested
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "alt-intl";
-  };
+  # Configure keyboard in X11 and audio services
+  services = {
+    # X11 keyboard settings - US international as requested
+    xserver.xkb = {
+      layout = "us";
+      variant = "alt-intl";
+    };
 
-  # Enable sound with pipewire and low-latency settings
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # Low-latency settings for better audio experience
-    extraConfig.pipewire."92-low-latency" = {
-      "context.properties" = {
-        "default.clock.rate" = 48000;
-        "default.clock.quantum" = 32;
-        "default.clock.min-quantum" = 32;
-        "default.clock.max-quantum" = 32;
+    # Disable PulseAudio in favor of PipeWire
+    pulseaudio.enable = false;
+    
+    # Enable PipeWire with low-latency settings
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      # Low-latency settings for better audio experience
+      extraConfig.pipewire."92-low-latency" = {
+        "context.properties" = {
+          "default.clock.rate" = 48000;
+          "default.clock.quantum" = 32;
+          "default.clock.min-quantum" = 32;
+          "default.clock.max-quantum" = 32;
+        };
       };
     };
+    
+    # Enable CUPS to print documents
+    printing.enable = true;
   };
-
-  # Enable CUPS to print documents
-  services.printing.enable = true;
+  
+  # Enable RTKIT for PipeWire
+  security.rtkit.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;

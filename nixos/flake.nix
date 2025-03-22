@@ -47,24 +47,27 @@
         # Home Manager as a NixOS module
         home-manager.nixosModules.home-manager
         {
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          # Pass additional arguments to home-manager modules if needed
-          home-manager.extraSpecialArgs = { inherit nix-index-database; };
-          
-          # Make Home Manager activate properly with debug settings
-          home-manager.sharedModules = [
-            {
-              # Enable a consistent state version across configurations
-              home.stateVersion = "24.11";
-              # Add debugging capabilities
-              home.enableDebugInfo = true;
-              home.sessionVariables = {
-                HM_DEBUG = "1";
-              };
-            }
-          ];
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            backupFileExtension = "backup";
+            # Pass additional arguments to home-manager modules if needed
+            extraSpecialArgs = { inherit nix-index-database; };
+            
+            # Make Home Manager activate properly with debug settings
+            sharedModules = [
+              {
+                # Enable a consistent state version and debugging
+                home = {
+                  stateVersion = "24.11";
+                  enableDebugInfo = true;
+                  sessionVariables = {
+                    HM_DEBUG = "1";
+                  };
+                };
+              }
+            ];
+          };
         }
         
         # IMPORTANT: We're now using Home Manager for nix-index-database, 
@@ -100,18 +103,18 @@
           ];
           specialArgs = { inherit pkgs; };
         };
-      };
-
-      # Additional configurations for special builds (e.g., ISO)
-      nixosConfigurations.iso = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          # Base modules
-          ./modules/base.nix
-          ./modules/gnome.nix
-          # ISO-specific configuration
-          ./iso/iso-image.nix
-        ];
+        
+        # ISO image configuration
+        "iso" = nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [
+            # Base modules
+            ./modules/base.nix
+            ./modules/gnome.nix
+            # ISO-specific configuration
+            ./iso/iso-image.nix
+          ];
+        };
       };
 
       # VM image that can be built from non-NixOS systems
