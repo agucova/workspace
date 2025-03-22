@@ -10,7 +10,8 @@
     vscode
     ghostty  # From flake overlay
     zed-editor.fhs  # Modern code editor with FHS env for better compatibility
-    claude-desktop-with-fhs  # Claude AI desktop app with FHS env for MCP
+    # Only include Claude Desktop if we're not in a live ISO environment
+    (lib.mkIf (!config.isoImage.enable or false) claude-desktop-with-fhs)  # Claude AI desktop app with FHS env for MCP
     firefox-devedition-bin
     gitkraken  # Migrated from Flatpak
     

@@ -29,7 +29,7 @@
     # GPU monitoring tools
     glxinfo
     vulkan-tools
-    nvtop
+    nvtopPackages.full  # renamed from nvtop
 
     # Graphics driver utilities
     libva

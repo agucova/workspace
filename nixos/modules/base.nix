@@ -84,7 +84,7 @@
 
     # Disable PulseAudio in favor of PipeWire
     pulseaudio.enable = false;
-    
+
     # Enable PipeWire with low-latency settings
     pipewire = {
       enable = true;
@@ -101,11 +101,11 @@
         };
       };
     };
-    
+
     # Enable CUPS to print documents
     printing.enable = true;
   };
-  
+
   # Enable RTKIT for PipeWire
   security.rtkit.enable = true;
 
@@ -152,7 +152,7 @@
     # Fun tools
     cowsay
     lolcat
-    
+
     # Development tools
     gcc
     cmake
@@ -162,11 +162,11 @@
     pkg-config
     gnumake
     clang
-    
+
     # File transfer
     aria2
     # magic-wormhole
-    
+
     # Network tools
     nmap
     traceroute
@@ -176,7 +176,7 @@
 
   # Enable fish shell
   programs.fish.enable = true;
-  
+
   # Note: Firefox is configured in specific host configurations
 
   # Enable nix flakes
@@ -210,7 +210,7 @@
     memoryPercent = 100;    # Increased to account for compression ratio
     priority = 100;         # Higher priority than disk-based swap
   };
-  
+
   # Use preload for faster application launching
   services.preload.enable = true;
 
@@ -221,8 +221,6 @@
       Defaults timestamp_timeout=300
     '';
 
-    # Process hardening
-    lockKernelModules = false; # Set to true for higher security, may cause compatibility issues
     protectKernelImage = true;
   };
 

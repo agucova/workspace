@@ -26,6 +26,19 @@ sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
 # Clean up old generations (keep last 5)
 sudo nix-env --delete-generations old --profile /nix/var/nix/profiles/system
 sudo nix-collect-garbage -d
+
+# Build VM for testing
+cd ~/repos/workspace/nixos && nix run .#run-vm --impure
+
+# Build ISO image (takes time)
+cd ~/repos/workspace/nixos && nix run .#fast-build -- iso
+# The ISO will be available at: ./result/iso/nixos-gnome-*.iso
+
+# Write ISO to USB drive with dd (replace sdX with your USB device, be careful!)
+sudo dd if=./result/iso/nixos-gnome-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
+
+# Alternative: Write ISO using a safer tool like Popsicle (if installed)
+popsicle ./result/iso/nixos-gnome-*.iso
 ```
 
 ## Package Management

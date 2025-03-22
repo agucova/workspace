@@ -122,16 +122,31 @@
           specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
         
-        # ISO image configuration
+        # ISO image configuration - simplified
         "iso" = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
             # Base modules
             ./modules/base.nix
             ./modules/gnome.nix
-            # ISO-specific configuration
+            ./modules/gui-apps.nix
+            ./modules/hardware.nix
+            
+            # ISO-specific configuration - contains all ISO customizations
             ./iso/iso-image.nix
+            
+            # Standard NixOS ISO module
+            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+            
+            # Simple config for ISO compatibility
+            {
+              nixpkgs.config.allowUnfree = true;
+              hardware.enableAllFirmware = true;
+            }
           ];
+          specialArgs = { 
+            inherit pkgs claude-desktop; 
+          };
         };
       };
 
@@ -158,6 +173,9 @@
           ];
           specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
+        
+        # ISO image build target
+        iso = self.nixosConfigurations.iso.config.system.build.isoImage;
 
         # Script to build and run the VM with performance optimizations
         run-vm = pkgs.writeShellScriptBin "run-vm" ''

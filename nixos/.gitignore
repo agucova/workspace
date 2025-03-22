@@ -23,3 +23,14 @@ result-*
 # Common build directories
 build/
 dist/
+
+# ISO images
+*.iso
+*.ISO
+nixos-*.iso
+
+# VM disk images
+*.qcow2
+*.img
+*.vdi
+*.vmdk
