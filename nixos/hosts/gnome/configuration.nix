@@ -96,8 +96,8 @@
     vim
     micro
     htop
-    # Use ghostty from the direct flake reference for the latest version
-    ghostty.packages.${pkgs.stdenv.hostPlatform.system}.default
+    # Ghostty terminal emulator
+    ghostty
 
     # GUI applications
     firefox

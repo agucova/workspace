@@ -20,7 +20,15 @@
   outputs = { self, nixpkgs, home-manager, ghostty, ... }:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [
+          # Make ghostty available as a regular package
+          (final: prev: {
+            ghostty = ghostty.packages.${system}.default;
+          })
+        ];
+      };
       
       # Common NixOS module imports
       commonModules = [
