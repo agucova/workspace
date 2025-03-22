@@ -54,7 +54,7 @@ let
           "C-Up" = "Alt-Up";         # Go Up
           "C-Down" = "Enter";        # Go Down
           "C-BackSpace" = "Delete";  # Move to Trash
-          "Shift-C-." = "C-h";      # Show/Hide Hidden Files (. instead of period)
+          "Shift-C-DOT" = "C-h";     # Show/Hide Hidden Files (DOT instead of period)
           "Shift-C-g" = "C-l";       # Enter Location
         };
       }
