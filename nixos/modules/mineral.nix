@@ -6,6 +6,9 @@
     # Import the main nix-mineral module
     "${nix-mineral}/nix-mineral.nix"
   ];
+  
+  # Fix conflicting issue file
+  environment.etc.issue.source = lib.mkForce (pkgs.writeText "issue" "\\n \\l");
 
   # Enable nix-mineral
   nix-mineral.enable = true;
