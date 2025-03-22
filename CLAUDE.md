@@ -19,6 +19,57 @@
 - IMPORTANT: When testing modules that require apt-fast, always run packages.setup_repositories first
   (e.g., `uv run docker_test.py run packages.setup_repositories packages.install_1password`)
 
+## NixOS Configuration
+
+The `nixos/` directory contains a Nix Flake-based configuration for NixOS with GNOME Desktop:
+
+### Directory Structure
+- `flake.nix` - Main entry point defining inputs and outputs for the configuration
+- `modules/` - Modular NixOS configuration files:
+  - `base.nix` - Core system configuration with AMD 7800X3D optimizations
+  - `gnome.nix` - GNOME desktop environment setup with optimizations
+  - `hardware.nix` - RTX 4090 GPU configuration with proprietary drivers
+  - `virtualization.nix` - VM-specific configuration (used instead of hardware.nix)
+- `hosts/` - Host-specific configurations:
+  - `gnome/` - Main workstation configuration
+  - `vm-test/` - VM testing configuration
+- `iso/` - ISO image building configuration
+- `COMMANDS.md` - Quick reference for common NixOS commands
+
+### Key Features
+- Flake-based configuration with modular design
+- Optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware
+- GNOME desktop with minimal customization and dark theme
+- VM testing configuration for verifying changes
+- ISO image building support
+- Hardware configuration separating general optimizations from specific hardware details
+- Home-manager integration for user-specific configuration
+
+### NixOS Rebuild Command
+```bash
+# Apply configuration changes
+sudo nixos-rebuild switch --flake /path/to/workspace/nixos#gnome-nixos --experimental-features 'nix-command flakes' --impure
+```
+
+The `--impure` flag is required because the configuration imports the system hardware configuration at `/etc/nixos/hardware-configuration.nix`.
+
+### VM Testing
+```bash
+# Build and run a test VM
+cd /path/to/workspace/nixos
+nix build .#vm --impure
+./result/bin/run-nixos-vm
+```
+
+### Notable Implementation Details
+- Uses open-source NVIDIA drivers with proper Wayland support
+- Includes Ghostty terminal with GPU acceleration
+- Sets up optimized swapping with zram and a backup swapfile
+- Configures PipeWire audio with low-latency settings
+- Enables automatic Nix garbage collection
+- Uses flakes for reproducible builds and dependencies
+- Configures Flatpak with proper font and icon integration
+
 ## Linting and Type Checking
 - Check types with pyright: `uv run pyright`
 - Check a specific file: `uv run pyright <file.py>`
