@@ -191,6 +191,8 @@
                   "-vga virtio"
                   "-display gtk,grab-on-hover=on"
                   "-cpu host"
+                  # Improved keyboard handling to properly pass through modifier keys
+                  "-device virtio-keyboard-pci"
                 ];
               };
             }

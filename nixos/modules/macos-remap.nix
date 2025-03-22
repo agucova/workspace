@@ -73,14 +73,14 @@ let
       }
       {
         name = "Terminal and Console interrupt";
-        application.only = [ "org.gnome.Terminal" "org.gnome.Console" "org.gnome.Ptyxis" ];
+        application.only = [ "org.gnome.Terminal" "org.gnome.Console" "org.gnome.Ptyxis" "dev.mitchellh.ghostty" ];
         remap = {
           "Super-C" = "C-C";
         };
       }
       {
         name = "Terminal and Console - make Ctrl work in nano editor";
-        application.only = [ "org.gnome.Terminal" "org.gnome.Console" "org.gnome.Ptyxis" ];
+        application.only = [ "org.gnome.Terminal" "org.gnome.Console" "org.gnome.Ptyxis" "dev.mitchellh.ghostty" ];
         remap = {
           "Super-Q" = "C-Q";
           "Super-W" = "C-W";
@@ -111,6 +111,23 @@ let
         };
       }
       {
+        name = "VS Code basic shortcuts";
+        application.only = [ "com.visualstudio.code" ];
+        remap = {
+          # macOS-style word navigation with Alt
+          "Alt-LEFT" = { launch = ["xdotool" "key" "Home"]; };
+          "Alt-RIGHT" = { launch = ["xdotool" "key" "End"]; };
+          "Shift-Alt-LEFT" = { launch = ["xdotool" "key" "shift+Home"]; };
+          "Shift-Alt-RIGHT" = { launch = ["xdotool" "key" "shift+End"]; };
+          
+          # Make terminal interrupt work inside VS Code's integrated terminal
+          "Super-C" = "C-C";
+          
+          # Common shortcuts that differ from general system
+          "C-COMMA" = { launch = ["xdotool" "key" "ctrl+comma"]; }; # Preferences
+        };
+      }
+      {
         name = "Console and Ptyxis shortcuts";
         application.only = [ "org.gnome.Console" "org.gnome.Ptyxis" ];
         remap = {
@@ -121,6 +138,19 @@ let
           "C-T" = "C-Shift-T"; # New tab
           "C-W" = "C-Shift-W"; # Close tab
           "C-F" = "Shift-C-F"; # Find
+        };
+      }
+      {
+        name = "Ghostty terminal shortcuts";
+        application.only = [ "dev.mitchellh.ghostty" ];
+        remap = {
+          "C-C" = "C-Shift-C"; # Copy text
+          "C-V" = "C-Shift-V"; # Paste text
+          "C-N" = "C-Shift-N"; # New window
+          "C-Q" = "C-Shift-Q"; # Close window
+          "C-T" = "C-Shift-T"; # New tab
+          "C-W" = "C-Shift-W"; # Close tab
+          "C-F" = "C-Shift-F"; # Find
         };
       }
       {
@@ -156,8 +186,14 @@ in {
       serviceMode = "user";
       withGnome = true;
       config = lib.recursiveUpdate xremapConfig cfg.additionalConfig;
-      debug = false; # Set to true to enable debug logging
+      debug = true; # Enable debug logging for troubleshooting
     };
+    
+    # Enable xremap GNOME shell extension system-wide
+    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+      [org.gnome.shell]
+      enabled-extensions=['xremap@k0kubun.com']
+    '';
     
     # Set up packages and tools
     environment.systemPackages = with pkgs; [
@@ -220,6 +256,8 @@ in {
       
       # Define macOS dconf settings for any user
       macOSdconfSettings = {
+        home.stateVersion = "24.11";
+        
         dconf.settings = {
           # GNOME Mutter settings
           "org.gnome.mutter" = {
@@ -272,6 +310,60 @@ in {
             find = "<Shift><Super>f";
           };
         };
+        
+        # VSCode keybindings.json configuration
+        programs.vscode.profiles.default.keybindings = [
+          # Terminal focus and management
+          {
+            key = "ctrl+`";
+            command = "workbench.action.terminal.toggleTerminal";
+            when = "terminal.active";
+          }
+          {
+            key = "ctrl+`";
+            command = "workbench.action.terminal.toggleTerminal";
+          }
+          
+          # Integrated terminal key bindings
+          {
+            key = "ctrl+c";
+            command = "workbench.action.terminal.sendSequence";
+            when = "terminalFocus";
+            args = {
+              text = "\u0003"; # Ctrl+C character
+            };
+          }
+          {
+            key = "ctrl+v";
+            command = "workbench.action.terminal.paste";
+            when = "terminalFocus";
+          }
+          
+          # macOS-style navigation in terminal
+          {
+            key = "alt+left";
+            command = "workbench.action.terminal.sendSequence";
+            when = "terminalFocus";
+            args = {
+              text = "\u001b[1;5D"; # Ctrl+Left arrow (word back)
+            };
+          }
+          {
+            key = "alt+right";
+            command = "workbench.action.terminal.sendSequence";
+            when = "terminalFocus";
+            args = {
+              text = "\u001b[1;5C"; # Ctrl+Right arrow (word forward)
+            };
+          }
+          
+          # macOS-style text editing
+          {
+            key = "alt+backspace";
+            command = "deleteWordLeft";
+            when = "textInputFocus && !editorReadonly";
+          }
+        ];
       };
       
       # Create a set of username → configuration pairs
