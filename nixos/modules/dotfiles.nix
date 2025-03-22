@@ -7,6 +7,7 @@
     # Core tools needed for dotfiles
     chezmoi
     _1password-cli
+    _1password-gui  # 1Password desktop application
     git
     gh  # GitHub CLI
     uv   # Modern Python package installer
