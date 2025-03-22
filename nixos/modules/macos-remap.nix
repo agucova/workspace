@@ -28,16 +28,16 @@ let
       {
         name = "Make ⌘← and ⌘→ work as Home and End";
         remap = {
-          "C-Left" = "Home";
-          "C-Right" = "End";
-          "Shift-C-Left" = "Shift-Home";
-          "Shift-C-Right" = "Shift-End";
+          "C-LEFT" = "HOME";
+          "C-RIGHT" = "END";
+          "Shift-C-LEFT" = "Shift-HOME";
+          "Shift-C-RIGHT" = "Shift-END";
         };
       }
       {
         name = "Delete word";
         remap = {
-          "Alt-BackSpace" = "C-BackSpace";
+          "Alt-BACKSPACE" = "C-BACKSPACE";
         };
       }
       {
@@ -51,9 +51,9 @@ let
         name = "Nautilus (Files) shortcuts";
         application.only = [ "org.gnome.Nautilus" ];
         remap = {
-          "C-Up" = "Alt-Up";         # Go Up
-          "C-Down" = "Enter";        # Go Down
-          "C-BackSpace" = "Delete";  # Move to Trash
+          "C-UP" = "Alt-UP";         # Go Up
+          "C-DOWN" = "ENTER";        # Go Down
+          "C-BACKSPACE" = "DELETE";  # Move to Trash
           "Shift-C-DOT" = "C-h";     # Show/Hide Hidden Files (DOT instead of period)
           "Shift-C-g" = "C-l";       # Enter Location
         };
@@ -91,7 +91,7 @@ let
           "Super-u" = "C-u";
           "Super-o" = "C-o";
           "Super-p" = "C-p";
-          "Super-bracketright" = "C-bracketright";
+          "Super-RIGHTBRACE" = "C-RIGHTBRACE";
           "Super-a" = "C-a";
           "Super-s" = "C-s";
           "Super-d" = "C-d";
@@ -106,7 +106,7 @@ let
           "Super-v" = "C-v";
           "Super-b" = "C-b";
           "Super-n" = "C-n";
-          "Super-slash" = "C-slash";
+          "Super-SLASH" = "C-SLASH";
         };
       }
       {
@@ -126,8 +126,8 @@ let
         name = "Eclipse context assist and switch header/source";
         application.only = [ "Eclipse" ];
         remap = {
-          "Super-space" = "Alt-space";
-          "Super-Tab" = "Alt-Tab";
+          "Super-SPACE" = "Alt-SPACE";
+          "Super-TAB" = "Alt-TAB";
         };
       }
     ];
