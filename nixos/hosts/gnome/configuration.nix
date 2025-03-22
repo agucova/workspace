@@ -14,6 +14,7 @@
     ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
     ../../modules/ssh.nix       # SSH server configuration
     ../../modules/mineral.nix   # System hardening with gaming optimizations
+    ../../modules/macos-remap.nix # macOS-like keyboard remapping with xremap
   ];
 
   # Set hostname
@@ -59,6 +60,9 @@
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing
   system.stateVersion = "24.11"; # This should match your initial install version
+  
+  # Enable macOS-like keyboard remapping with xremap
+  services.macos-remap.enable = true;
   
   # Post-installation script to set up Julia packages
   system.activationScripts.setupJuliaEnv = ''

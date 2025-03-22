@@ -12,6 +12,7 @@
     ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
     ../../modules/ssh.nix       # SSH server configuration
     ../../modules/mineral.nix   # System hardening with gaming optimizations
+    ../../modules/macos-remap.nix # macOS-like keyboard remapping (disabled by default)
   ];
 
   # Set hostname for VM
@@ -128,6 +129,9 @@
     '')
   ];
 
+  # Enable macOS-like keyboard remapping with xremap
+  services.macos-remap.enable = true;
+  
   # State version
   system.stateVersion = "23.11";
 }

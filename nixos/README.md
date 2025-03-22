@@ -86,6 +86,25 @@ This configuration includes:
 - Ghostty terminal with GPU acceleration
 - Flatpak support for additional applications
 - SSH server with secure defaults (key-based authentication only)
+- Optional macOS-like keyboard remapping with xremap
+
+## macOS-like Keyboard Remapping
+
+This configuration includes a module for macOS-like keyboard remapping, making it easier to transition between macOS and Linux:
+
+- Swaps Ctrl and Command keys (⌘) for familiar macOS shortcuts
+- Provides macOS-style keyboard shortcuts (⌘C for copy, ⌘V for paste, etc.)
+- Configures GNOME settings to match macOS behavior
+- Works with both Wayland and X11
+
+The feature is enabled by default across all configurations (main system, VM, and live ISO). To disable it:
+
+```nix
+# In your configuration.nix or home.nix
+services.macos-remap.enable = false;
+```
+
+For detailed documentation, see the [modules README](/modules/README.md).
 
 ## Dotfiles Integration
 

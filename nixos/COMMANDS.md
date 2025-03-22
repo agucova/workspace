@@ -160,6 +160,35 @@ czupdate
 op whoami
 ```
 
+## macOS-like Keyboard Remapping
+
+```bash
+# Check status of the xremap service
+systemctl --user status xremap-macos
+
+# Restart the xremap service after configuration changes
+systemctl --user restart xremap-macos
+
+# Temporarily disable the service
+systemctl --user stop xremap-macos
+
+# Re-enable the service
+systemctl --user start xremap-macos
+
+# Create a backup of the current GNOME keybindings
+dconf dump /org/gnome/desktop/wm/keybindings/ > ~/keybindings-backup.dconf
+dconf dump /org/gnome/shell/keybindings/ > ~/shell-keybindings-backup.dconf
+dconf dump /org/gnome/mutter/keybindings/ > ~/mutter-keybindings-backup.dconf
+
+# Restore GNOME keybindings from backup
+cat ~/keybindings-backup.dconf | dconf load /org/gnome/desktop/wm/keybindings/
+cat ~/shell-keybindings-backup.dconf | dconf load /org/gnome/shell/keybindings/
+cat ~/mutter-keybindings-backup.dconf | dconf load /org/gnome/mutter/keybindings/
+
+# In live ISO environment, toggle macOS-like keybindings
+toggle-macos-keybindings
+```
+
 ## Troubleshooting
 
 ```bash
@@ -176,6 +205,9 @@ journalctl -b | grep gnome-shell
 # Check if services are running
 systemctl status display-manager
 systemctl --user status gnome-shell
+
+# Check xremap logs for keyboard remapping issues
+journalctl --user -u xremap-macos -f
 
 # Check nix-mineral security settings
 cat /proc/cmdline  # View kernel parameters set by nix-mineral
