@@ -35,16 +35,16 @@ cd ~/repos/workspace/nixos && nix run .#fast-build -- iso
 # The ISO will be available at: ./result/iso/nixos-gnome-*.iso
 
 # Test the ISO in a VM before writing to USB
-cd ~/repos/workspace/nixos && nix run .#test-iso --impure
+cd ~/repos/workspace/nixos && nix run --impure .#test-iso
 
 # Test with persistent storage (useful for trying changes)
-cd ~/repos/workspace/nixos && nix run .#test-iso -- --persistent --impure
+cd ~/repos/workspace/nixos && nix run --impure .#test-iso -- --persistent
 
 # Test with diagnostic mode (basic QEMU options, better compatibility)
-cd ~/repos/workspace/nixos && nix run .#test-iso -- --diagnostic --impure
+cd ~/repos/workspace/nixos && nix run --impure .#test-iso -- --diagnostic
 
 # Show all test-iso options
-cd ~/repos/workspace/nixos && nix run .#test-iso -- --help --impure
+cd ~/repos/workspace/nixos && nix run --impure .#test-iso -- --help
 
 # Write ISO to USB drive with dd (replace sdX with your USB device, be careful!)
 sudo dd if=./result/iso/nixos-gnome-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
