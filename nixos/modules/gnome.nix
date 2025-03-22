@@ -10,6 +10,10 @@
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
   
+  # Enable required services for GNOME
+  programs.dconf.enable = true;
+  services.udev.packages = with pkgs; [ gnome-settings-daemon ];
+  
   # Enable flatpak for extra applications
   services.flatpak.enable = true;
   
@@ -56,8 +60,17 @@
     gnome-system-monitor
     nautilus          # File manager
     
+    # GNOME Shell Extensions
+    gnomeExtensions.appindicator  # System tray icons support
+    
     # Graphics utilities
     vulkan-tools      # For Vulkan support checking
     glxinfo           # For checking OpenGL
+    
+    # System profiling
+    sysprof           # For system performance profiling
   ];
+  
+  # Enable sysprof service for system profiling
+  services.sysprof.enable = true;
 }
