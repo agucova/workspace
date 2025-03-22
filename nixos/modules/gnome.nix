@@ -44,11 +44,20 @@
     wl-clipboard
     xdg-utils
     xdg-desktop-portal
-    adwaita-icon-theme  # Moved to top-level package
-    gnome.gnome-tweaks
-    gnome.dconf-editor
-    gnome.gnome-shell-extensions
-    vulkan-tools  # For Vulkan support checking
-    glxinfo       # For checking OpenGL
+    
+    # GNOME packages - all moved to top-level
+    adwaita-icon-theme
+    gnome-tweaks
+    dconf-editor
+    gnome-shell-extensions
+    baobab            # Disk usage analyzer
+    gnome-console     # Terminal
+    gnome-characters  # Character map
+    gnome-system-monitor
+    nautilus          # File manager
+    
+    # Graphics utilities
+    vulkan-tools      # For Vulkan support checking
+    glxinfo           # For checking OpenGL
   ];
 }
