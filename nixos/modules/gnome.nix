@@ -35,26 +35,6 @@
     ];
   };
 
-  # Graphics hardware setup
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;  # Support for 32-bit applications (mainly for steam)
-  };
-
-  # NVIDIA configuration
-  hardware.nvidia = {
-    modesetting.enable = true;
-    powerManagement.enable = true;
-    open = false;  # Proprietary drivers work better for RTX 4090
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
-    forceFullCompositionPipeline = true;
-    nvidiaPersistenced = true;  # Keeps the NVIDIA driver persistent, improving performance
-    nvidiaSettings = true;  # Enable nvidia-settings utility
-  };
-
-  # Enable NVIDIA driver
-  services.xserver.videoDrivers = [ "nvidia" ];
-
   # Add GNOME-related packages
   environment.systemPackages = with pkgs; [
     # Wayland utilities
@@ -75,10 +55,6 @@
 
     # GNOME Shell Extensions
     gnomeExtensions.appindicator  # System tray icons support
-
-    # Graphics utilities
-    vulkan-tools      # For Vulkan support checking
-    glxinfo           # For checking OpenGL
 
     # System profiling
     sysprof           # For system performance profiling
@@ -114,5 +90,28 @@
   in {
     "/usr/share/icons" = mkRoSymBind "${aggregatedIcons}/share/icons";
     "/usr/local/share/fonts" = mkRoSymBind "${aggregatedFonts}/share/fonts";
+  };
+
+  # GNOME specific tweaks for better performance/experience
+  services.xserver.displayManager.gdm.wayland = true;  # Prefer Wayland
+  services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+    [org.gnome.desktop.interface]
+    enable-animations=true
+    gtk-theme='Adwaita-dark'
+    color-scheme='prefer-dark'
+
+    [org.gnome.desktop.wm.preferences]
+    button-layout=':minimize,maximize,close'
+
+    [org.gnome.shell]
+    favorite-apps=['org.gnome.Nautilus.desktop', 'firefox.desktop', 'code.desktop', 'ghostty.desktop']
+  '';
+
+  # Improve GNOME Wayland session with NVIDIA
+  hardware.nvidia.powerManagement.finegrained = false;
+
+  # Set environment variable for better GNOME-NVIDIA compatibility
+  environment.variables = {
+    MUTTER_DEBUG_ENABLE_EGL_KMSMODE = "1";
   };
 }
