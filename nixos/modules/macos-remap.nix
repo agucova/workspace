@@ -158,10 +158,44 @@ in {
       debug = false; # Set to true to enable debug logging
     };
     
-    # Enable the GNOME Shell extension for xremap
+    # Set up packages and tools
     environment.systemPackages = with pkgs; [
       # GNOME xremap extension
       gnomeExtensions.xremap
+      
+      # Toggle script for enabling/disabling macOS keybindings
+      (writeShellScriptBin "toggle-macos-keybindings" ''
+        #!/usr/bin/env bash
+        
+        XREMAP_SERVICE="xremap"
+        
+        if systemctl --user is-active ''${XREMAP_SERVICE} >/dev/null 2>&1; then
+          echo "Disabling macOS-like keybindings..."
+          systemctl --user stop ''${XREMAP_SERVICE}
+          systemctl --user disable ''${XREMAP_SERVICE}
+          
+          # Reset GNOME settings
+          dconf reset -f /org/gnome/mutter/overlay-key
+          dconf reset -f /org/gnome/desktop/wm/keybindings/
+          dconf reset -f /org/gnome/mutter/keybindings/
+          dconf reset -f /org/gnome/shell/keybindings/
+          dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/screensaver
+          dconf reset -f /org/gnome/terminal/legacy/keybindings/
+          
+          echo "macOS-like keybindings disabled. Restart GNOME Shell with Alt+F2, r, Enter for full effect."
+        else
+          echo "Enabling macOS-like keybindings..."
+          
+          # Start service
+          systemctl --user daemon-reload
+          systemctl --user enable ''${XREMAP_SERVICE}
+          systemctl --user start ''${XREMAP_SERVICE}
+          
+          echo "macOS-like keybindings enabled! ⌘ now acts as Ctrl and vice versa."
+          echo "Try ⌘C to copy, ⌘V to paste, ⌘Tab to switch applications."
+          echo "To disable, run this command again."
+        fi
+      '')
     ];
 
     # Add user to input group to allow xremap to run without sudo
@@ -246,41 +280,5 @@ in {
       }) usernames);
       
     in userConfigs;
-
-    # Create toggle script for ISO environment
-    environment.systemPackages = with pkgs; [
-      (writeShellScriptBin "toggle-macos-keybindings" ''
-        #!/usr/bin/env bash
-        
-        XREMAP_SERVICE="xremap"
-        
-        if systemctl --user is-active ''${XREMAP_SERVICE} >/dev/null 2>&1; then
-          echo "Disabling macOS-like keybindings..."
-          systemctl --user stop ''${XREMAP_SERVICE}
-          systemctl --user disable ''${XREMAP_SERVICE}
-          
-          # Reset GNOME settings
-          dconf reset -f /org/gnome/mutter/overlay-key
-          dconf reset -f /org/gnome/desktop/wm/keybindings/
-          dconf reset -f /org/gnome/mutter/keybindings/
-          dconf reset -f /org/gnome/shell/keybindings/
-          dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/screensaver
-          dconf reset -f /org/gnome/terminal/legacy/keybindings/
-          
-          echo "macOS-like keybindings disabled. Restart GNOME Shell with Alt+F2, r, Enter for full effect."
-        else
-          echo "Enabling macOS-like keybindings..."
-          
-          # Start service
-          systemctl --user daemon-reload
-          systemctl --user enable ''${XREMAP_SERVICE}
-          systemctl --user start ''${XREMAP_SERVICE}
-          
-          echo "macOS-like keybindings enabled! ⌘ now acts as Ctrl and vice versa."
-          echo "Try ⌘C to copy, ⌘V to paste, ⌘Tab to switch applications."
-          echo "To disable, run this command again."
-        fi
-      '')
-    ];
   };
 }
