@@ -9,6 +9,7 @@
     ../../modules/gui-apps.nix  # Include GUI applications for testing
     # Import VM-specific configuration INSTEAD OF hardware.nix
     ../../modules/virtualization.nix
+    ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
   ];
 
   # Set hostname for VM

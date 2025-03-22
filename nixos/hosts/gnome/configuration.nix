@@ -11,6 +11,7 @@
     ../../modules/hardware.nix  # RTX 4090 specific configuration
     ../../modules/gnome.nix     # GNOME desktop environment
     ../../modules/gui-apps.nix  # GUI applications
+    ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
   ];
 
   # Set hostname

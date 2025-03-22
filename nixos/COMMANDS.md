@@ -1,21 +1,21 @@
-# NixOS + COSMIC Command Reference
+# NixOS + GNOME Command Reference
 
-A quick reference for common commands you'll use with your NixOS + COSMIC setup.
+A quick reference for common commands you'll use with your NixOS + GNOME setup.
 
 ## System Management
 
 ```bash
 # Apply system configuration changes
-sudo nixos-rebuild switch --flake ~/.nixos#hostname
+sudo nixos-rebuild switch --flake ~/repos/workspace/nixos#gnome-nixos --impure
 
 # Test changes without making them permanent
-sudo nixos-rebuild test --flake ~/.nixos#hostname
+sudo nixos-rebuild test --flake ~/repos/workspace/nixos#gnome-nixos --impure
 
 # Build but don't apply (check for errors)
-sudo nixos-rebuild dry-build --flake ~/.nixos#hostname
+sudo nixos-rebuild dry-build --flake ~/repos/workspace/nixos#gnome-nixos --impure
 
 # Update all packages (pulls latest from nixpkgs)
-cd ~/.nixos && nix flake update
+cd ~/repos/workspace/nixos && nix flake update
 
 # Roll back to previous generation
 sudo nixos-rebuild switch --rollback
@@ -64,13 +64,16 @@ flatpak update
 
 ```bash
 # Edit main system configuration
-nano ~/.nixos/hosts/cosmic/configuration.nix
+nano ~/repos/workspace/nixos/hosts/gnome/configuration.nix
 
-# Edit COSMIC desktop settings
-nano ~/.nixos/modules/cosmic.nix
+# Edit GNOME desktop settings
+nano ~/repos/workspace/nixos/modules/gnome.nix
 
 # Edit user-specific settings
-nano ~/.nixos/hosts/cosmic/home.nix
+nano ~/repos/workspace/nixos/hosts/gnome/home.nix
+
+# Edit dotfiles integration
+nano ~/repos/workspace/nixos/modules/dotfiles.nix
 
 # Show current hardware configuration
 nixos-generate-config --show-hardware-config
@@ -92,6 +95,31 @@ vulkaninfo --summary
 echo $XDG_SESSION_TYPE
 ```
 
+## Dotfiles Management (chezmoi)
+
+```bash
+# Apply dotfiles
+chezmoi apply --no-tty
+
+# Check status of dotfiles
+chezmoi status --no-tty
+
+# View differences
+chezmoi diff --no-tty
+
+# Add a file to dotfiles
+chezmoi add --no-tty ~/.config/some-file
+
+# Edit a file in dotfiles
+chezmoi edit ~/.config/some-file
+
+# Update dotfiles repository from remote
+chezmoi update --no-tty
+
+# Initialize chezmoi with existing dotfiles repo
+chezmoi init --source=/home/agucova/repos/dotfiles --no-tty
+```
+
 ## Troubleshooting
 
 ```bash
@@ -103,11 +131,11 @@ journalctl --user -b
 
 # Check X11/Wayland logs
 nano ~/.local/share/xorg/Xorg.0.log
-journalctl -b | grep cosmic-comp
+journalctl -b | grep gnome-shell
 
 # Check if services are running
 systemctl status display-manager
-systemctl --user status cosmic-comp
+systemctl --user status gnome-shell
 ```
 
 ## Working with Nix Flakes

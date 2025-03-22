@@ -75,6 +75,24 @@ This configuration includes:
 - Ghostty terminal with GPU acceleration
 - Flatpak support for additional applications
 
+## Dotfiles Integration
+
+This configuration integrates with the dotfiles repository at `/home/agucova/repos/dotfiles` using chezmoi:
+
+- Automatic dotfiles application during Home Manager activation
+- Shell aliases for common chezmoi commands
+- Cross-platform configuration using chezmoi templates
+
+If you need to manually apply dotfiles, use:
+```bash
+chezmoi apply --no-tty
+```
+
+To add new dotfiles to the repository:
+```bash
+chezmoi add --no-tty ~/.config/some-file
+```
+
 ## Nix Code Linting (statix)
 
 To lint and improve your Nix code, you can use statix without installation:
