@@ -176,6 +176,117 @@
         
         # ISO image build target
         iso = self.nixosConfigurations.iso.config.system.build.isoImage;
+        
+        # Script to test the ISO in a VM with advanced options
+        test-iso = pkgs.writeShellScriptBin "test-iso" ''
+          #!/usr/bin/env bash
+          set -e
+          
+          # Define variables
+          PERSISTENT_SIZE="8G"
+          PERSISTENT_FILE="nixos-live-persistence.qcow2"
+          USE_PERSISTENCE=0
+          
+          # Parse command line arguments
+          while [[ $# -gt 0 ]]; do
+            case $1 in
+              --persistent)
+                USE_PERSISTENCE=1
+                shift
+                ;;
+              --persistent-size=*)
+                PERSISTENT_SIZE="''${1#*=}"
+                USE_PERSISTENCE=1
+                shift
+                ;;
+              --help)
+                echo "Usage: test-iso [OPTIONS]"
+                echo ""
+                echo "Options:"
+                echo "  --persistent         Create a persistent storage disk for the live environment"
+                echo "  --persistent-size=X  Set the size of the persistent storage (default: 8G)"
+                echo "  --help               Display this help message"
+                exit 0
+                ;;
+              *)
+                echo "Unknown option: $1"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+            esac
+          done
+          
+          echo "Building NixOS ISO..."
+          nix build .#iso --impure
+          
+          ISO_PATH=$(find ./result/iso -name "*.iso" | head -n 1)
+          
+          if [ -z "$ISO_PATH" ]; then
+            echo "Error: ISO not found in ./result/iso/"
+            exit 1
+          fi
+          
+          echo "Found ISO at: $ISO_PATH"
+          
+          # Detect system memory and use 1/4 for the VM, with min 2GB and max 8GB
+          TOTAL_MEM=$(free -m | grep Mem | awk '{print $2}')
+          VM_MEM=$(($TOTAL_MEM / 4))
+          VM_MEM=$(($VM_MEM < 2048 ? 2048 : $VM_MEM))
+          VM_MEM=$(($VM_MEM > 8192 ? 8192 : $VM_MEM))
+          
+          # Detect CPU cores and use half for the VM, with min 2 and max 8
+          TOTAL_CORES=$(nproc)
+          VM_CORES=$(($TOTAL_CORES / 2))
+          VM_CORES=$(($VM_CORES < 2 ? 2 : $VM_CORES))
+          VM_CORES=$(($VM_CORES > 8 ? 8 : $VM_CORES))
+          
+          # Create a persistent storage if requested
+          PERSISTENCE_ARGS=""
+          if [ $USE_PERSISTENCE -eq 1 ]; then
+            if [ ! -f "$PERSISTENT_FILE" ]; then
+              echo "Creating persistent storage ($PERSISTENT_SIZE)..."
+              qemu-img create -f qcow2 "$PERSISTENT_FILE" "$PERSISTENT_SIZE"
+            else
+              echo "Using existing persistent storage: $PERSISTENT_FILE"
+            fi
+            PERSISTENCE_ARGS="-drive file=$PERSISTENT_FILE,format=qcow2,if=virtio,discard=unmap"
+          fi
+          
+          echo "Starting VM with $VM_MEM MB RAM and $VM_CORES CPU cores..."
+          
+          # Launch QEMU with optimized settings
+          qemu-system-x86_64 \
+            -enable-kvm \
+            -m $VM_MEM \
+            -smp $VM_CORES \
+            -cpu host \
+            -device virtio-vga-gl \
+            -display gtk,gl=on,grab-on-hover=on \
+            -cdrom "$ISO_PATH" \
+            -boot d \
+            -usb \
+            -device usb-tablet \
+            -device intel-hda \
+            -device hda-duplex \
+            -device virtio-net-pci,netdev=net0 \
+            -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+            $PERSISTENCE_ARGS \
+            -no-reboot
+            
+          echo ""
+          if [ $USE_PERSISTENCE -eq 1 ]; then
+            echo "Note: If you want to use persistent storage in the ISO,"
+            echo "you need to mount it manually inside the live environment:"
+            echo ""
+            echo "1. Open a terminal in the live environment"
+            echo "2. Run: sudo fdisk -l"
+            echo "3. Find the virtio disk (usually /dev/vda)"
+            echo "4. Create a partition: sudo fdisk /dev/vda"
+            echo "5. Format it: sudo mkfs.ext4 /dev/vda1"
+            echo "6. Mount it: sudo mount /dev/vda1 /mnt"
+            echo ""
+          fi
+        '';
 
         # Script to build and run the VM with performance optimizations
         run-vm = pkgs.writeShellScriptBin "run-vm" ''
