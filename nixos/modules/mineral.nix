@@ -1,4 +1,4 @@
-# nix-mineral configuration with gaming and performance-friendly overrides
+# nix-mineral configuration with minimal gaming-friendly overrides
 { config, lib, pkgs, nix-mineral, ... }:
 
 {
@@ -7,55 +7,30 @@
     "${nix-mineral}/nix-mineral.nix"
   ];
   
-  # Fix conflicting issue file
-  environment.etc.issue.source = lib.mkForce (pkgs.writeText "issue" "\\n \\l");
-
   # Enable nix-mineral
   nix-mineral.enable = true;
-
-  # Gaming and Performance Overrides
+  
+  # Fix conflict with issue file
+  environment.etc.issue.source = lib.mkForce (pkgs.writeText "issue" "\\n \\l");
+  
+  # Minimal required overrides for gaming compatibility
   nix-mineral.overrides = {
-    # Compatibility - necessary for gaming and general system functionality
-    compatibility = {
-      # Allow loading unsigned kernel modules (needed for some drivers)
-      allow-unsigned-modules = true;
-      # Disable kernel lockdown (necessary for unsigned modules)
-      no-lockdown = true;
-      # Enable io_uring for better I/O performance
-      allow-io-uring = true;
-    };
-
-    # Desktop - required for gaming
+    # Gaming requires execution capabilities
     desktop = {
-      # Enable multilib (necessary for Steam and many games)
-      allow-multilib = true;
-      # Allow unprivileged user namespaces (needed for Flatpak, Steam, and browser sandboxing)
-      allow-unprivileged-userns = true;
-      # Allow execution in home directory (most games run from here)
+      # Allow execution in home directory (required for most games)
       home-exec = true;
-      # Allow execution in /tmp (various games and launchers need this)
+      # Allow execution in /tmp (needed by launchers and installers)
       tmp-exec = true;
-      # Allow execution in /var/lib (for system-wide Flatpaks and other applications)
-      var-lib-exec = true;
-      # Use relaxed ptrace settings (needed for some anti-cheat systems)
-      yama-relaxed = true;
-      # Use relaxed process hiding (better compatibility)
-      hideproc-ptraceable = true;
-      # Auto-allow USB devices at boot (for controllers and peripherals)
-      usbguard-allow-at-boot = true;
+      # Allow multilib for Steam and 32-bit games
+      allow-multilib = true;
+      # Allow unprivileged user namespaces for Flatpak and browser sandboxing
+      allow-unprivileged-userns = true;
     };
-
-    # Performance - optimize for gaming performance
+    
+    # Performance is critical for gaming
     performance = {
       # Enable SMT for better multi-threaded performance
       allow-smt = true;
-      # Enable IOMMU passthrough for improved I/O performance
-      iommu-passthrough = true;
-      # Keep basic mitigations but avoid the most performance-impacting ones
-      # Specifically NOT enabling no-mitigations as that would be too extreme
     };
-
-    # Security - leave most defaults but adjust as needed for gaming
-    # Some options were removed or renamed in nix-mineral
   };
 }

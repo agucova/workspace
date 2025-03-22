@@ -30,12 +30,20 @@
     
     # nix-mineral for system hardening
     nix-mineral = {
-      url = "github:cynicsketch/nix-mineral";
+      url = "github:cynicsketch/nix-mineral";  # Use the main branch
       flake = false;
     };
+    
+    # Claude Desktop for Linux
+    claude-desktop = {
+      url = "github:k3d3/claude-desktop-linux-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # We no longer need nyx as Zed already has FHS support in nixpkgs
   };
 
-  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, nix-mineral, ... }:
+  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, nix-mineral, claude-desktop, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -44,9 +52,10 @@
           allowUnfree = true;
         };
         overlays = [
-          # Make ghostty available as a regular package
+          # Make packages available from flakes
           (final: prev: {
             ghostty = ghostty.packages.${system}.default;
+            claude-desktop-with-fhs = claude-desktop.packages.${system}.claude-desktop-with-fhs;
           })
         ];
       };
@@ -97,7 +106,7 @@
               home-manager.users.agucova = import ./hosts/gnome/home.nix;
             }
           ];
-          specialArgs = { inherit pkgs nix-mineral; };
+          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
 
         # VM test configuration
@@ -110,7 +119,7 @@
               home-manager.users.agucova = import ./hosts/gnome/home.nix;
             }
           ];
-          specialArgs = { inherit pkgs nix-mineral; };
+          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
         
         # ISO image configuration
@@ -147,7 +156,7 @@
               };
             }
           ];
-          specialArgs = { inherit pkgs nix-mineral; };
+          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
 
         # Script to build and run the VM with performance optimizations
