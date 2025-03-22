@@ -95,29 +95,49 @@ vulkaninfo --summary
 echo $XDG_SESSION_TYPE
 ```
 
-## Dotfiles Management (chezmoi)
+## Dotfiles Management (chezmoi with 1Password)
 
 ```bash
-# Apply dotfiles
+# Login to 1Password
+op signin
+
+# Initialize and apply dotfiles (first time)
+chezmoi init --source=/home/agucova/repos/dotfiles --apply --no-tty
+# Or use the alias
+czinit
+
+# Apply dotfiles (after initialization)
 chezmoi apply --no-tty
+# Or use the alias
+cza
 
 # Check status of dotfiles
 chezmoi status --no-tty
+# Or use the alias
+czs
 
 # View differences
 chezmoi diff --no-tty
+# Or use the alias
+czd
 
 # Add a file to dotfiles
 chezmoi add --no-tty ~/.config/some-file
+# Or use the alias
+czadd ~/.config/some-file
 
 # Edit a file in dotfiles
 chezmoi edit ~/.config/some-file
+# Or use the alias
+cze ~/.config/some-file
 
 # Update dotfiles repository from remote
 chezmoi update --no-tty
+# Or use the alias
+czupdate
 
-# Initialize chezmoi with existing dotfiles repo
-chezmoi init --source=/home/agucova/repos/dotfiles --no-tty
+# Check 1Password status
+op whoami
 ```
 
 ## Troubleshooting

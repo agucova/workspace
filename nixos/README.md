@@ -77,15 +77,29 @@ This configuration includes:
 
 ## Dotfiles Integration
 
-This configuration integrates with the dotfiles repository at `/home/agucova/repos/dotfiles` using chezmoi:
+This configuration integrates with the dotfiles repository at `https://github.com/agucova/dotfiles.git` using chezmoi and 1Password:
 
-- Automatic dotfiles application during Home Manager activation
+- Automatic cloning of the dotfiles repository during Home Manager activation
 - Shell aliases for common chezmoi commands
-- Cross-platform configuration using chezmoi templates
+- Cross-platform configuration using chezmoi templates and 1Password secrets
 
-If you need to manually apply dotfiles, use:
+To apply dotfiles after installation (requires 1Password login):
+```bash
+# Login to 1Password first
+op signin
+
+# Then initialize and apply 
+chezmoi init --source=/home/agucova/repos/dotfiles --apply --no-tty
+
+# Or use the convenience alias
+czinit
+```
+
+For subsequent updates after login:
 ```bash
 chezmoi apply --no-tty
+# Or use the alias
+cza
 ```
 
 To add new dotfiles to the repository:
