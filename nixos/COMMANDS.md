@@ -151,6 +151,11 @@ journalctl -b | grep gnome-shell
 # Check if services are running
 systemctl status display-manager
 systemctl --user status gnome-shell
+
+# Check nix-mineral security settings
+cat /proc/cmdline  # View kernel parameters set by nix-mineral
+sysctl -a | grep kernel  # Check hardened kernel settings
+systemctl status apparmor # Check AppArmor status
 ```
 
 ## Working with Nix Flakes

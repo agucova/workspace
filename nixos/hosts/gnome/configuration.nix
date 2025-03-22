@@ -13,6 +13,7 @@
     ../../modules/gui-apps.nix  # GUI applications
     ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
     ../../modules/ssh.nix       # SSH server configuration
+    ../../modules/mineral.nix   # System hardening with gaming optimizations
   ];
 
   # Set hostname

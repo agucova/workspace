@@ -27,9 +27,15 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    
+    # nix-mineral for system hardening
+    nix-mineral = {
+      url = "github:cynicsketch/nix-mineral";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, ... }:
+  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, nix-mineral, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -88,7 +94,7 @@
               home-manager.users.agucova = import ./hosts/gnome/home.nix;
             }
           ];
-          specialArgs = { inherit pkgs; };
+          specialArgs = { inherit pkgs nix-mineral; };
         };
 
         # VM test configuration
@@ -101,7 +107,7 @@
               home-manager.users.agucova = import ./hosts/gnome/home.nix;
             }
           ];
-          specialArgs = { inherit pkgs; };
+          specialArgs = { inherit pkgs nix-mineral; };
         };
         
         # ISO image configuration

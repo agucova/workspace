@@ -67,6 +67,17 @@ This configuration includes optimizations for:
 - **AMD Ryzen 7 7800X3D** - Performance governor and microcode updates
 - **Ultrawide monitors** - Default scaling that works well with 2K/3K ultrawides
 
+## Security Hardening
+
+This configuration uses nix-mineral for system hardening with gaming-friendly overrides:
+
+- Secure kernel settings balanced with performance optimizations
+- Firewall enabled but configured for gaming compatibility
+- Hardened mount options and sysctl settings
+- Enhanced privacy with MAC address randomization
+- Security features tuned to minimize gaming performance impact
+- System hardening that doesn't interfere with GPU drivers or anti-cheat systems
+
 ## GNOME Features
 
 This configuration includes:
