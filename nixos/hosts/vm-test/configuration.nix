@@ -6,6 +6,7 @@
     # Import base and generic modules
     ../../modules/base.nix
     ../../modules/gnome.nix
+    ../../modules/gui-apps.nix  # Include GUI applications for testing
     # Import VM-specific configuration INSTEAD OF hardware.nix
     ../../modules/virtualization.nix
   ];
@@ -44,14 +45,17 @@
   # Disable system-wide nix-index since we're using Home Manager module instead
   programs.nix-index.enable = false;
   
+  
   # Home Manager configuration
   home-manager.users.agucova = import ../gnome/home.nix;
   
-  # Add minimal packages for testing
+  # Add minimal GUI packages for VM testing
   environment.systemPackages = with pkgs; [
+    # Basic GUI applications for testing
     firefox
     gnome-terminal
     home-manager
+    
     # Debug tools
     strace
     lsof

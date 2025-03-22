@@ -30,10 +30,51 @@
     # Configure shells
     fish = {
       enable = true;
+      
+      # Initialize starship prompt
+      interactiveShellInit = ''
+        # Use starship prompt
+        starship init fish | source
+        
+        # Set batcat as man pager if available
+        if command -v bat > /dev/null
+          set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
+        end
+      '';
+      
+      # Shell aliases
+      shellAliases = {
+        # Better ls using lsd
+        ls = "lsd";
+        ll = "lsd -l";
+        la = "lsd -la";
+        lt = "lsd --tree";
+        
+        # Git shortcuts
+        g = "git";
+        gc = "git commit";
+        gs = "git status";
+        gp = "git push";
+        gpl = "git pull";
+        
+        # Use bat instead of cat
+        cat = "bat";
+        
+        # Better directory navigation
+        ".." = "cd ..";
+        "..." = "cd ../..";
+        "...." = "cd ../../..";
+      };
     };
     
     bash = {
       enable = true;
+      
+      # Initialize starship prompt
+      initExtra = ''
+        # Use starship prompt
+        eval "$(starship init bash)"
+      '';
     };
 
     # Configure git
@@ -49,14 +90,55 @@
 
   # Packages to install for this user
   home.packages = with pkgs; [
-    # Development tools
-    vscode
-
-    # Media and entertainment
-    vlc
-
-    # Utilities
-    gnome-disk-utility  # Moved to top-level packages
-    gnome-system-monitor  # Moved to top-level packages
+    # Development tools (CLI)
+    gh
+    bat
+    ripgrep
+    fd
+    fzf
+    jq
+    httpie
+    shellcheck
+    delta
+    hyperfine
+    glow
+    chezmoi
+    
+    # Shell enhancements (CLI)
+    lsd
+    starship
+    btop
+    fastfetch
+    gdu
+    navi
+    
+    # Programming languages and tools (CLI)
+    rustup
+    go_1_22
+    bun
+    julia_110
+    (python3.withPackages(ps: with ps; [
+      pip
+      ipython
+      numpy
+      pandas
+      matplotlib
+      seaborn
+      scikit-learn
+      black
+      flake8
+      mypy
+    ]))
+    
+    # Network utilities (CLI)
+    nmap
+    whois
+    iperf
+    aria2
+    
+    # CLI utilities
+    tree
+    unrar
+    p7zip
   ];
 }

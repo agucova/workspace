@@ -5,7 +5,7 @@
   programs = {
     # Enable XWayland for X11 application compatibility
     xwayland.enable = true;
-    
+
     # Enable dconf (required for GNOME settings)
     dconf.enable = true;
   };
@@ -21,13 +21,13 @@
       };
       desktopManager.gnome.enable = true;
     };
-    
+
     # Enable udev for GNOME
     udev.packages = with pkgs; [ gnome-settings-daemon ];
-    
+
     # Enable flatpak for extra applications
     flatpak.enable = true;
-    
+
     # Enable sysprof service for system profiling - moved from below
     sysprof.enable = true;
   };
@@ -48,7 +48,25 @@
       liberation_ttf
       fira-code
       fira-code-symbols
+      inter
+      roboto
+      dejavu_fonts
+      ubuntu_font_family
+      source-code-pro
+      jetbrains-mono
+      hack-font
+      font-awesome
     ];
+
+    # Font configuration settings
+    fontconfig = {
+      defaultFonts = {
+        serif = [ "DejaVu Serif" "Noto Serif" ];
+        sansSerif = [ "Inter" "Roboto" "DejaVu Sans" ];
+        monospace = [ "JetBrains Mono" "Fira Code" "Hack" ];
+        emoji = [ "Noto Color Emoji" ];
+      };
+    };
   };
 
   # Configure environment
@@ -59,7 +77,7 @@
       wl-clipboard
       xdg-utils
       xdg-desktop-portal
-  
+
       # GNOME packages
       adwaita-icon-theme
       gnome-tweaks
@@ -70,19 +88,25 @@
       gnome-characters        # Character map
       gnome-system-monitor
       nautilus                # File manager
-  
-      # GNOME Shell Extensions
-      gnomeExtensions.appindicator  # System tray icons support
-  
+      gnome-boxes             # Virtual machine manager
+      celluloid               # Video player
+      transmission_4-gtk        # Torrent client
+      flameshot               # Screenshot tool
+      sushi                   # File previewer
+
+      # Graphics tools
+      inkscape
+      imagemagick
+
       # System profiling
       sysprof           # For system performance profiling
     ];
-  
+
     # Enable Ozone Wayland support for Chromium/Electron apps
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
     };
-  
+
     # Set environment variable for better GNOME compatibility
     variables = {
       # Only set NVIDIA-specific variable when not in a VM

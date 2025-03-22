@@ -121,28 +121,63 @@
     htop
     micro
     vim
+    nano
+    fish
 
     # Security tools
     gnupg
     keepassxc
+    # ufw (enable as a service instead)
 
     # System utilities
     pciutils
     usbutils
     inxi
     lm_sensors
+    # nvtop
+    # timeshift
+    dnsutils
+    iperf
+    whois
+    tree
+    sqlite
 
     # Compression tools
     zip
     unzip
     p7zip
+    gzip
+    xz
+
+    # Fun tools
+    cowsay
+    lolcat
+    
+    # Development tools
+    gcc
+    cmake
+    autoconf
+    automake
+    libtool
+    pkg-config
+    gnumake
+    clang
+    
+    # File transfer
+    aria2
+    # magic-wormhole
+    
+    # Network tools
+    nmap
+    traceroute
+    netcat
+    openvpn
   ];
 
   # Enable fish shell
   programs.fish.enable = true;
-
-  # Firefox (using the cleaner program approach)
-  programs.firefox.enable = true;
+  
+  # Note: Firefox is configured in specific host configurations
 
   # Enable nix flakes
   nix.settings = {
@@ -172,9 +207,12 @@
   zramSwap = {
     enable = true;
     algorithm = "zstd";     # Best compression/performance ratio
-    memoryPercent = 60;     # Increased to account for compression ratio
+    memoryPercent = 100;    # Increased to account for compression ratio
     priority = 100;         # Higher priority than disk-based swap
   };
+  
+  # Use preload for faster application launching
+  services.preload.enable = true;
 
   # Security hardening options
   security = {
