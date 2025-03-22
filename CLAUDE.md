@@ -57,11 +57,26 @@ The `--impure` flag is required because the configuration imports the system har
 
 ### VM Testing
 ```bash
-# Build and run a test VM
+# Standard build and run
 cd /path/to/workspace/nixos
 nix build .#vm --impure
 ./result/bin/run-nixos-vm
+
+# For high-performance build
+cd /path/to/workspace/nixos
+nix run .#run-vm  # Uses auto CPU core detection
+# OR
+nix run .#fast-build -- vm  # Uses optimized job settings
+
+# Fast-build can be used for any output:
+nix run .#fast-build -- [output-name]
 ```
+
+The VM configuration includes performance optimizations:
+- Uses 12 CPU cores for the VM
+- Allocates 8GB of RAM for better performance
+- Uses CPU host passthrough for better performance
+- Optimized Nix build settings to leverage your 7800X3D
 
 ### Notable Implementation Details
 - Uses open-source NVIDIA drivers with proper Wayland support

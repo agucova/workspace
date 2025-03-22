@@ -32,7 +32,15 @@
   services.xserver.videoDrivers = lib.mkForce [ "qxl" "fbdev" "vesa" ];
 
   # VM performance optimizations
-  nix.settings.max-jobs = lib.mkDefault 3;
+  nix.settings = {
+    max-jobs = lib.mkDefault "auto";  # Utilize all available cores for builds
+    cores = 0;                        # Use all cores for each build job
+  };
+  
+  # CPU optimizations for better responsiveness
+  boot.kernelParams = lib.mkForce [
+    "preempt=full"     # Better desktop responsiveness
+  ];
 
   # Reduce memory usage (override the base.nix setting)
   zramSwap.memoryPercent = lib.mkForce 25;  # Lower than on hardware

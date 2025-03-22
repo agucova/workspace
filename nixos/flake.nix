@@ -92,29 +92,50 @@
             # Simplify for VM usage
             {
               virtualisation = {
-                cores = 4;
-                memorySize = 4096;
-                diskSize = 40960;  # 40GB in MB
+                cores = 12;         # Increased from 4 to utilize your 7800X3D better
+                memorySize = 8192;  # Increased from 4GB to 8GB for better performance
+                diskSize = 40960;   # 40GB in MB
                 qemu.options = [
                   "-vga virtio"
                   "-display gtk,grab-on-hover=on"
+                  "-cpu host" # Pass through CPU features for best performance
                 ];
               };
             }
           ];
         };
 
-        # Script to build and run the VM
+        # Script to build and run the VM with performance optimizations
         run-vm = pkgs.writeShellScriptBin "run-vm" ''
           #!/usr/bin/env bash
           set -e
 
-          echo "Building NixOS VM..."
-          nix build .#vm --impure
+          CORES=$(nproc)
+
+          echo "Building NixOS VM with optimized settings..."
+          # Increase build parallelism for faster builds
+          nix build .#vm --impure --max-jobs auto --cores $CORES 
 
           echo "Starting VM..."
           ./result/bin/run-nixos-vm
         '';
+        
+        # Fast build script that uses all CPU cores for maximum build performance
+        fast-build = pkgs.writeShellScriptBin "fast-build" ''
+          #!/usr/bin/env bash
+          set -e
+          
+          CORES=$(nproc)
+          JOBS=$((CORES + 2)) # Slightly more jobs than cores for optimal CPU utilization
+          
+          echo "Building $1 with optimized settings (jobs: $JOBS)..."
+          nix build .#$1 --impure \
+            --log-format bar-with-logs \
+            --max-jobs $JOBS \
+            --cores $CORES \
+            --option keep-going true
+        '';
+        
       };
     };
 }
