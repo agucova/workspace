@@ -40,10 +40,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     
+    # xremap for keyboard remapping
+    xremap-flake = {
+      url = "github:xremap/nix-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     # We no longer need nyx as Zed already has FHS support in nixpkgs
   };
 
-  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, nix-mineral, claude-desktop, ... }:
+  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, nix-mineral, claude-desktop, xremap-flake, ... }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -64,6 +70,10 @@
       commonModules = [
         # Home Manager as a NixOS module
         home-manager.nixosModules.home-manager
+        
+        # xremap module for keyboard remapping
+        xremap-flake.nixosModules.default
+        
         {
           home-manager = {
             useGlobalPkgs = true;
@@ -131,6 +141,7 @@
             ./modules/gnome.nix
             ./modules/gui-apps.nix
             ./modules/hardware.nix
+            ./modules/macos-remap.nix
             
             # ISO-specific configuration - contains all ISO customizations
             ./iso/iso-image.nix
