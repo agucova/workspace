@@ -117,7 +117,24 @@
           nix build .#vm --impure --max-jobs auto --cores $CORES 
 
           echo "Starting VM..."
-          ./result/bin/run-nixos-vm
+          # Check for the specifically named script we know exists
+          if [ -f ./result/bin/run-nixos-vm-test-vm ]; then
+            ./result/bin/run-nixos-vm-test-vm
+          elif [ -f ./result/bin/run-nixos-vm ]; then
+            ./result/bin/run-nixos-vm
+          else
+            echo "Listing available VM scripts:"
+            ls -la ./result/bin/
+            
+            # Use first available VM script
+            VM_SCRIPT=$(find ./result/bin -name "run-*-vm" | head -n 1)
+            if [ -n "$VM_SCRIPT" ]; then
+              echo "Found VM script at: $VM_SCRIPT"
+              $VM_SCRIPT
+            else
+              echo "Error: Could not find VM execution script."
+            fi
+          fi
         '';
         
         # Fast build script that uses all CPU cores for maximum build performance

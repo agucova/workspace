@@ -64,7 +64,7 @@ nix build .#vm --impure
 
 # For high-performance build
 cd /path/to/workspace/nixos
-nix run .#run-vm  # Uses auto CPU core detection
+nix run .#run-vm --impure  # Uses auto CPU core detection, auto-detects VM script
 # OR
 nix run .#fast-build -- vm  # Uses optimized job settings
 
