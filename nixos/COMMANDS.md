@@ -95,18 +95,13 @@ vulkaninfo --summary
 echo $XDG_SESSION_TYPE
 ```
 
-## Dotfiles Management (chezmoi with 1Password)
+## Dotfiles Management
 
 ```bash
-# Login to 1Password
-op signin
+# Set up dotfiles from scratch (handles GitHub auth, 1Password and repo cloning)
+setup-dotfiles
 
-# Initialize and apply dotfiles (first time)
-chezmoi init --source=/home/agucova/repos/dotfiles --apply --no-tty
-# Or use the alias
-czinit
-
-# Apply dotfiles (after initialization)
+# Apply dotfiles after setup
 chezmoi apply --no-tty
 # Or use the alias
 cza

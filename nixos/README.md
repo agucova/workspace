@@ -77,25 +77,20 @@ This configuration includes:
 
 ## Dotfiles Integration
 
-This configuration integrates with the dotfiles repository at `https://github.com/agucova/dotfiles.git` using chezmoi and 1Password:
+This configuration integrates with your private dotfiles repository using chezmoi and 1Password:
 
-- Automatic cloning of the dotfiles repository during Home Manager activation
-- Shell aliases for common chezmoi commands
-- Cross-platform configuration using chezmoi templates and 1Password secrets
+- Installs all needed tools (chezmoi, 1Password CLI, GitHub CLI, uv)
+- Provides convenience aliases for common operations
+- Uses your existing `dotfiles_setup.py` script for full setup
 
-To apply dotfiles after installation (requires 1Password login):
+To set up your dotfiles:
 ```bash
-# Login to 1Password first
-op signin
-
-# Then initialize and apply 
-chezmoi init --source=/home/agucova/repos/dotfiles --apply --no-tty
-
-# Or use the convenience alias
-czinit
+setup-dotfiles
 ```
 
-For subsequent updates after login:
+This will run your existing setup script that handles GitHub authentication, 1Password integration, cloning your private repository, and applying configurations.
+
+For regular dotfiles updates:
 ```bash
 chezmoi apply --no-tty
 # Or use the alias
@@ -105,6 +100,8 @@ cza
 To add new dotfiles to the repository:
 ```bash
 chezmoi add --no-tty ~/.config/some-file
+# Or use the alias
+czadd ~/.config/some-file
 ```
 
 ## Nix Code Linting (statix)
