@@ -1,0 +1,25 @@
+# NixOS hardware configuration
+hardware-configuration.nix
+
+# Nix build results
+result
+result-*
+
+# Direnv
+.direnv/
+
+# Flake lock (uncomment if you want to avoid committing the lock file)
+# flake.lock
+
+# Nix store paths - sometimes accidentally included
+/nix/store
+
+# Editor/IDE specific files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Common build directories
+build/
+dist/
