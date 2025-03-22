@@ -7,7 +7,7 @@
     # Replace this comment with ./hardware-configuration.nix after install
     
     # Import our modular configurations
-    ../../modules/cosmic.nix
+    ../../modules/gnome.nix
   ];
 
   # Bootloader
@@ -27,7 +27,7 @@
   hardware.enableRedistributableFirmware = true;
 
   # Hostname - change this to your preferred name
-  networking.hostName = "cosmic-nixos";
+  networking.hostName = "gnome-nixos";
   
   # Enable NetworkManager
   networking.networkmanager.enable = true;
@@ -37,9 +37,25 @@
 
   # Localization
   i18n.defaultLocale = "en_US.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_NUMERIC = "es_CL.UTF-8";
+    LC_TIME = "es_CL.UTF-8";
+    LC_MONETARY = "es_CL.UTF-8";
+    LC_PAPER = "es_CL.UTF-8";
+    LC_NAME = "es_CL.UTF-8";
+    LC_ADDRESS = "es_CL.UTF-8";
+    LC_TELEPHONE = "es_CL.UTF-8";
+    LC_MEASUREMENT = "es_CL.UTF-8";
+    LC_IDENTIFICATION = "es_CL.UTF-8";
+  };
 
   # Configure console keymap
   console.keyMap = "us";
+  
+  # Configure X11 and Wayland keyboard settings
+  services.xserver.layout = "us";
+  services.xserver.xkbVariant = "altgr-intl";
+  services.xserver.xkbOptions = "lv3:ralt_alt,lv3:lalt_switch";
 
   # Enable sound with pipewire
   sound.enable = true;
