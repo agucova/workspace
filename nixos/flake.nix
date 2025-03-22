@@ -40,7 +40,7 @@
         "gnome-nixos" = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = commonModules ++ [
-            ./hosts/cosmic/configuration.nix
+            ./hosts/gnome/configuration.nix
           ];
         };
       };

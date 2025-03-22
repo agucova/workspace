@@ -15,7 +15,7 @@ A NixOS configuration for running a clean, optimized GNOME Desktop environment.
 
 2. **Copy your hardware configuration**:
    ```bash
-   sudo cp /etc/nixos/hardware-configuration.nix nixos/hosts/cosmic/
+   sudo cp /etc/nixos/hardware-configuration.nix nixos/hosts/gnome/
    ```
 
 3. **Apply the configuration**:
@@ -35,7 +35,7 @@ This configuration includes optimizations for:
 
 ## Customization
 
-- Edit `hosts/cosmic/configuration.nix` for system-wide settings
+- Edit `hosts/gnome/configuration.nix` for system-wide settings
 - Edit `modules/gnome.nix` for GNOME-specific settings
 
 ## Updating Your System
@@ -69,6 +69,6 @@ For installation from a live USB environment:
 2. Mount your target partitions to /mnt
 3. Clone this repo: `git clone https://github.com/yourusername/nixos-config.git /tmp/config`
 4. Generate hardware config: `nixos-generate-config --root /mnt`
-5. Copy hardware config: `cp /mnt/etc/nixos/hardware-configuration.nix /tmp/config/nixos/hosts/cosmic/`
+5. Copy hardware config: `cp /mnt/etc/nixos/hardware-configuration.nix /tmp/config/nixos/hosts/gnome/`
 6. Install NixOS: `nixos-install --flake /tmp/config#gnome-nixos --experimental-features 'nix-command flakes'`
 7. Reboot and enjoy!
