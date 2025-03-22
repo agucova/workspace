@@ -1,10 +1,10 @@
 # nix-mineral configuration with gaming and performance-friendly overrides
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, nix-mineral, ... }:
 
 {
   imports = [
     # Import the main nix-mineral module
-    "${config._module.args.nix-mineral}/nix-mineral.nix"
+    "${nix-mineral}/nix-mineral.nix"
   ];
 
   # Gaming and Performance Overrides
