@@ -10,6 +10,7 @@
     # Import VM-specific configuration INSTEAD OF hardware.nix
     ../../modules/virtualization.nix
     ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
+    ../../modules/ssh.nix       # SSH server configuration
   ];
 
   # Set hostname for VM

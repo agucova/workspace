@@ -74,6 +74,7 @@ This configuration includes:
 - GNOME Tweaks, dconf-editor, and Shell Extensions
 - Ghostty terminal with GPU acceleration
 - Flatpak support for additional applications
+- SSH server with secure defaults (key-based authentication only)
 
 ## Dotfiles Integration
 

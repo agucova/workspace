@@ -12,6 +12,7 @@
     ../../modules/gnome.nix     # GNOME desktop environment
     ../../modules/gui-apps.nix  # GUI applications
     ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
+    ../../modules/ssh.nix       # SSH server configuration
   ];
 
   # Set hostname
