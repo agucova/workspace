@@ -104,6 +104,11 @@
     glow
     chezmoi
     
+    # Nix development tools
+    nil  # Nix language server
+    nixd # Alternative Nix language server with better performance
+    statix # Lints for common Nix anti-patterns
+    
     # Shell enhancements (CLI)
     lsd
     starship
@@ -136,7 +141,12 @@
       black
       flake8
       mypy
+      # ruff and pyright moved to standalone packages
     ]))
+    
+    # Standalone Python tools with proper dependencies
+    ruff
+    pyright
     
     # Network utilities (CLI)
     nmap

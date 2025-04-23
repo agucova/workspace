@@ -1,23 +1,43 @@
 # CLAUDE.md - Development Guide
 
-## Build/Run Commands
-- Setup environment: `uv run pyinfra @local main.py`
-- Bootstrap (Ubuntu): `bash bootstrap.bash`
-- Run specific tasks: `uv run pyinfra @local -v <module>.<function>`
-- Test individual function: `echo 'from <module> import <function>; <function>()' | uv run -`
-- Execute arbitrary Python: `echo '<python_code>' | uv run -`
+## Repository Structure
 
-## Docker Testing
-- Run full setup (skipping GUI modules): `uv run docker_test.py run`
-- List available modules: `uv run docker_test.py list_modules`
-- Run specific function: `uv run docker_test.py run <module>.<function>`
-- Run multiple functions in sequence: `uv run docker_test.py run packages.setup_repositories <module>.<function>`
-- Rebuild Docker image: `uv run docker_test.py run --build`
+This repository contains multiple approaches to configure Linux and macOS environments:
+
+- `ansible/` - Ansible playbook for Ubuntu-based distributions
+- `pyinfra/` - PyInfra v3 scripts for Debian-based distributions and macOS
+- `nixos/` - NixOS flake-based configuration for both VM testing and bare-metal GNOME setup
+
+## PyInfra Configuration
+
+The `pyinfra/` directory contains PyInfra v3 scripts for setting up development machines:
+
+### Build/Run Commands
+- Setup environment: `cd pyinfra && uv run pyinfra @local main.py`
+- Bootstrap (Ubuntu): `cd pyinfra && bash bootstrap.bash`
+- Run specific tasks: `cd pyinfra && uv run pyinfra @local -v <module>.<function>`
+- Test individual function: `cd pyinfra && echo 'from <module> import <function>; <function>()' | uv run -`
+- Execute arbitrary Python: `cd pyinfra && echo '<python_code>' | uv run -`
+
+### Docker Testing
+- Run full setup (skipping GUI modules): `cd pyinfra && uv run docker_test.py run`
+- List available modules: `cd pyinfra && uv run docker_test.py list_modules`
+- Run specific function: `cd pyinfra && uv run docker_test.py run <module>.<function>`
+- Run multiple functions in sequence: `cd pyinfra && uv run docker_test.py run packages.setup_repositories <module>.<function>`
+- Rebuild Docker image: `cd pyinfra && uv run docker_test.py run --build`
 - IMPORTANT: Always use `uv run` instead of `python` or `python3` for all Python commands
 - Docker testing automatically skips GUI modules using config.has_display() checks
 - The Dockerfile uses bootstrap.bash to set up the environment
 - IMPORTANT: When testing modules that require apt-fast, always run packages.setup_repositories first
-  (e.g., `uv run docker_test.py run packages.setup_repositories packages.install_1password`)
+  (e.g., `cd pyinfra && uv run docker_test.py run packages.setup_repositories packages.install_1password`)
+
+### PyInfra Features
+- Supports both macOS and Debian-based distributions (Ubuntu/Pop_OS!)
+- Rewrite of older Ansible playbook with better performance and macOS support
+- Idempotent operations that skip actions on already-configured environments
+- Modular design with separate Python modules for different setup aspects
+- Platform detection with config.is_linux() and config.is_macos()
+- UI detection with config.has_display() for GUI-related operations
 
 ## NixOS Configuration
 
@@ -113,22 +133,30 @@ The VM configuration includes performance optimizations:
 - Uses flakes for reproducible builds and dependencies
 - Configures Flatpak with proper font and icon integration
 
+## Ansible Configuration
+
+The `ansible/` directory contains the original Ansible playbook for Ubuntu-based distributions:
+
+- Primarily designed for Ubuntu/Pop_OS! configurations
+- Predates the PyInfra implementation with similar functionality
+- Contains tasks for package installation, desktop environment setup, and development tools
+
 ## Linting and Type Checking
-- Check types with pyright: `uv run pyright`
-- Check a specific file: `uv run pyright <file.py>`
-- Run ruff linter: `uv run ruff check .`
-- Run ruff formatter: `uv run ruff format .`
-- Fix auto-fixable issues: `uv run ruff check --fix .`
-- Run complete checks: `uv run ruff check . && uv run ruff format --check . && uv run pyright`
+- Check types with pyright: `cd pyinfra && uv run pyright`
+- Check a specific file: `cd pyinfra && uv run pyright <file.py>`
+- Run ruff linter: `cd pyinfra && uv run ruff check .`
+- Run ruff formatter: `cd pyinfra && uv run ruff format .`
+- Fix auto-fixable issues: `cd pyinfra && uv run ruff check --fix .`
+- Run complete checks: `cd pyinfra && uv run ruff check . && uv run ruff format --check . && uv run pyright`
 
 ## Recommended Workflow
 1. Make changes to the codebase
-2. Run formatter: `uv run ruff format .`
-3. Run linter and fix issues: `uv run ruff check --fix .`
-4. Run type checker: `uv run pyright`
+2. Run formatter: `cd pyinfra && uv run ruff format .`
+3. Run linter and fix issues: `cd pyinfra && uv run ruff check --fix .`
+4. Run type checker: `cd pyinfra && uv run pyright`
 5. Test the changes:
-   - On local machine: `uv run pyinfra @local -v <module>.<function>`
-   - In Docker (for headless modules): `uv run docker_test.py run <module>.<function>`
+   - On local machine: `cd pyinfra && uv run pyinfra @local -v <module>.<function>`
+   - In Docker (for headless modules): `cd pyinfra && uv run docker_test.py run <module>.<function>`
 6. IMPORTANT: Never commit changes until they've been fully tested. Commit only after verifying functionality.
 7. IMPORTANT: NEVER commit changes unless explicitly requested by the user. Always wait for confirmation before creating any git commits.
 8. Use conventional commit messages
@@ -145,16 +173,9 @@ The VM configuration includes performance optimizations:
 - **UI checks**: Use config.has_display() to check for graphical environment
 - **Documentation**: Docstrings for modules and functions explaining purpose
 
-## Project Context
-- This is a PyInfra v3 script for setting up development machines
-- Supports both macOS and Ubuntu/Pop_OS! as targets
-- Rewrite of older Ansible playbook (in `ansible/`) with better performance aimed at achieving better performance than Ansible, as well as adding macOS support
-- PyInfra v3 documentation is available locally in `.claude/docs/pyinfra/`
-- Be aware of differences between PyInfra v3 and v2 syntax, as you're likely to hallucinate constructs only present in PyInfra v2 by default
-
 ## Development Environment
 - The local development environment is a fully set up Pop_OS! machine
-- PyInfra operations are idempotent and will skip actions on an already-configured environment
+- PyInfra operations are idempotent and will skip actions on already-configured environment
 - When making changes, assume the local machine represents the desired state by default
 - Only diverge from the local machine configuration when explicitly needed
 - Testing locally should be safe as operations will detect existing configurations and skip redundant actions
