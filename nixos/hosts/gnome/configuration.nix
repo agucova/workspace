@@ -3,10 +3,7 @@
 
 {
   imports = [
-    # Import hardware configuration from system directory
-    /etc/nixos/hardware-configuration.nix
-
-    # Import our modular configurations
+    ../common/minimal-hardware.nix
     ../../modules/base.nix
     ../../modules/hardware.nix  # RTX 4090 specific configuration
     ../../modules/gnome.nix     # GNOME desktop environment
@@ -30,14 +27,14 @@
     # changing it after installation or using hashedPassword instead
     initialPassword = "nixos";
   };
-  
+
   # Enable Docker
   virtualisation = {
     docker = {
       enable = true;
       enableNvidia = true;  # Enable NVIDIA runtime for Docker containers
     };
-    
+
     # Enable Podman as alternative container runtime
     podman = {
       enable = true;
@@ -60,14 +57,14 @@
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing
   system.stateVersion = "24.11"; # This should match your initial install version
-  
+
   # Enable macOS-like keyboard remapping with xremap
   services.macos-remap.enable = true;
-  
+
   # Configure xremap
   services.xremap = {
     userName = "agucova"; # Use the default user
   };
-  
+
   # Julia packages are now managed declaratively through home-manager in home.nix
 }

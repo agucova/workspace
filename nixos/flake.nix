@@ -27,29 +27,39 @@
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     # nix-mineral for system hardening
     nix-mineral = {
-      url = "github:cynicsketch/nix-mineral";  # Use the main branch
+      url = "github:cynicsketch/nix-mineral"; # Use the main branch
       flake = false;
     };
-    
+
     # Claude Desktop for Linux
     claude-desktop = {
       url = "github:k3d3/claude-desktop-linux-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     # xremap for keyboard remapping
     xremap-flake = {
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
-    # We no longer need nyx as Zed already has FHS support in nixpkgs
   };
 
-  outputs = { self, nixpkgs, home-manager, ghostty, nixos-generators, nix-index-database, nix-mineral, claude-desktop, xremap-flake, ... }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      ghostty,
+      nixos-generators,
+      nix-index-database,
+      nix-mineral,
+      claude-desktop,
+      xremap-flake,
+      ...
+    }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs {
@@ -70,10 +80,10 @@
       commonModules = [
         # Home Manager as a NixOS module
         home-manager.nixosModules.home-manager
-        
+
         # xremap module for keyboard remapping
         xremap-flake.nixosModules.default
-        
+
         {
           home-manager = {
             useGlobalPkgs = true;
@@ -81,7 +91,7 @@
             backupFileExtension = "backup";
             # Pass additional arguments to home-manager modules if needed
             extraSpecialArgs = { inherit nix-index-database; };
-            
+
             # Make Home Manager activate properly with debug settings
             sharedModules = [
               {
@@ -97,8 +107,8 @@
             ];
           };
         }
-        
-        # IMPORTANT: We're now using Home Manager for nix-index-database, 
+
+        # IMPORTANT: We're now using Home Manager for nix-index-database,
         # so we don't include the NixOS module to avoid conflicts
         # nix-index-database.nixosModules.nix-index
       ];
@@ -131,254 +141,146 @@
           ];
           specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
-        
-        # ISO image configuration - simplified
-        "iso" = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = [
-            # Include Home Manager module
-            home-manager.nixosModules.home-manager
-            {
-              home-manager = {
-                useGlobalPkgs = true;
-                useUserPackages = true;
-                backupFileExtension = "backup";
-              };
-            }
-            
-            # Include xremap module
-            xremap-flake.nixosModules.default
-            
-            # Base modules
-            ./modules/base.nix
-            ./modules/gnome.nix
-            ./modules/gui-apps.nix
-            ./modules/hardware.nix
-            ./modules/macos-remap.nix
-            
-            # ISO-specific configuration - contains all ISO customizations
-            ./iso/iso-image.nix
-            
-            # Standard NixOS ISO module
-            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix"
-            
-            # Simple config for ISO compatibility
-            {
-              nixpkgs.config.allowUnfree = true;
-              hardware.enableAllFirmware = true;
-            }
-          ];
-          specialArgs = { 
-            inherit pkgs claude-desktop; 
-          };
-        };
       };
 
-      # VM image that can be built from non-NixOS systems
+      # Build artifacts and helper scripts
       packages.${system} = {
-        # Create a QEMU VM image for testing
-        vm = nixos-generators.nixosGenerate {
+        # --- Build Targets ---
+
+        # Build a QEMU VM image (.qcow2) based on the vm-test configuration
+        # This is efficient for directly running the VM.
+        vm-image = nixos-generators.nixosGenerate {
           inherit system;
           format = "vm";
           modules = commonModules ++ [
             ./hosts/vm-test/configuration.nix
-            {
-              virtualisation = {
-                cores = 12;
-                memorySize = 8192;
-                diskSize = 40960;   # 40GB in MB
-                qemu.options = [
-                  "-vga virtio"
-                  "-display gtk,grab-on-hover=on"
-                  "-cpu host"
-                  # Improved keyboard handling to properly pass through modifier keys
-                  "-device virtio-keyboard-pci"
-                ];
-              };
-            }
+            (
+              { lib, ... }:
+              {
+                virtualisation = {
+                  cores = lib.mkDefault 12;
+                  memorySize = lib.mkDefault 8192;
+                  diskSize = 40960;
+                  qemu.options = [
+                    "-vga virtio"
+                    "-display gtk,grab-on-hover=on"
+                    "-cpu host"
+                    "-device virtio-keyboard-pci"
+                    "-usb"
+                    "-device usb-tablet"
+                  ];
+                };
+              }
+            )
           ];
           specialArgs = { inherit pkgs nix-mineral claude-desktop; };
         };
-        
-        # ISO image build target
-        iso = self.nixosConfigurations.iso.config.system.build.isoImage;
-        
-        # Script to test the ISO in a VM with advanced options
-        test-iso = pkgs.writeShellScriptBin "test-iso" ''
-          #!/usr/bin/env bash
-          set -e
-          
-          # Define variables
-          PERSISTENT_SIZE="8G"
-          PERSISTENT_FILE="nixos-live-persistence.qcow2"
-          USE_PERSISTENCE=0
-          
-          # Define variables
-          DIAGNOSTIC_MODE=0
-          
-          # Parse command line arguments
-          while [[ $# -gt 0 ]]; do
-            case $1 in
-              --persistent)
-                USE_PERSISTENCE=1
-                shift
-                ;;
-              --persistent-size=*)
-                PERSISTENT_SIZE="''${1#*=}"
-                USE_PERSISTENCE=1
-                shift
-                ;;
-              --diagnostic)
-                DIAGNOSTIC_MODE=1
-                shift
-                ;;
-              --help)
-                echo "Usage: test-iso [OPTIONS]"
-                echo ""
-                echo "Options:"
-                echo "  --persistent         Create a persistent storage disk for the live environment"
-                echo "  --persistent-size=X  Set the size of the persistent storage (default: 8G)"
-                echo "  --diagnostic         Run in diagnostic mode with minimal QEMU options"
-                echo "  --help               Display this help message"
-                exit 0
-                ;;
-              *)
-                echo "Unknown option: $1"
-                echo "Use --help for usage information"
-                exit 1
-                ;;
-            esac
-          done
-          
-          echo "Building NixOS ISO..."
-          nix build .#iso --impure
-          
-          ISO_PATH=$(find ./result/iso -name "*.iso" | head -n 1)
-          
-          if [ -z "$ISO_PATH" ]; then
-            echo "Error: ISO not found in ./result/iso/"
-            exit 1
-          fi
-          
-          echo "Found ISO at: $ISO_PATH"
-          
-          # Detect system memory and use 1/4 for the VM, with min 2GB and max 8GB
-          TOTAL_MEM=$(free -m | grep Mem | awk '{print $2}')
-          VM_MEM=$(($TOTAL_MEM / 4))
-          VM_MEM=$(($VM_MEM < 2048 ? 2048 : $VM_MEM))
-          VM_MEM=$(($VM_MEM > 8192 ? 8192 : $VM_MEM))
-          
-          # Detect CPU cores and use half for the VM, with min 2 and max 8
-          TOTAL_CORES=$(nproc)
-          VM_CORES=$(($TOTAL_CORES / 2))
-          VM_CORES=$(($VM_CORES < 2 ? 2 : $VM_CORES))
-          VM_CORES=$(($VM_CORES > 8 ? 8 : $VM_CORES))
-          
-          # Create a persistent storage if requested
-          PERSISTENCE_ARGS=""
-          if [ $USE_PERSISTENCE -eq 1 ]; then
-            if [ ! -f "$PERSISTENT_FILE" ]; then
-              echo "Creating persistent storage ($PERSISTENT_SIZE)..."
-              qemu-img create -f qcow2 "$PERSISTENT_FILE" "$PERSISTENT_SIZE"
-            else
-              echo "Using existing persistent storage: $PERSISTENT_FILE"
-            fi
-            PERSISTENCE_ARGS="-drive file=$PERSISTENT_FILE,format=qcow2,if=virtio,discard=unmap"
-          fi
-          
-          echo "Starting VM with $VM_MEM MB RAM and $VM_CORES CPU cores..."
-          
-          if [ $DIAGNOSTIC_MODE -eq 1 ]; then
-            echo "Running in diagnostic mode with minimal options..."
-            # Super simple QEMU command for maximum compatibility
-            qemu-system-x86_64 \
-              -enable-kvm \
-              -m $VM_MEM \
-              -cdrom "$ISO_PATH" \
-              -boot d \
-              -serial stdio
-          else
-            # Launch QEMU with simpler settings for better compatibility
-            qemu-system-x86_64 \
-              -enable-kvm \
-              -m $VM_MEM \
-              -smp $VM_CORES \
-              -cpu host \
-              -vga std \
-              -display gtk,grab-on-hover=on \
-              -cdrom "$ISO_PATH" \
-              -boot d \
-              -serial stdio \
-              -usb \
-              -device usb-tablet \
-              -device virtio-net-pci,netdev=net0 \
-              -netdev user,id=net0,hostfwd=tcp::2222-:22 \
-              $PERSISTENCE_ARGS
-          fi
-            
-          echo ""
-          if [ $USE_PERSISTENCE -eq 1 ]; then
-            echo "Note: If you want to use persistent storage in the ISO,"
-            echo "you need to mount it manually inside the live environment:"
-            echo ""
-            echo "1. Open a terminal in the live environment"
-            echo "2. Run: sudo fdisk -l"
-            echo "3. Find the virtio disk (usually /dev/vda)"
-            echo "4. Create a partition: sudo fdisk /dev/vda"
-            echo "5. Format it: sudo mkfs.ext4 /dev/vda1"
-            echo "6. Mount it: sudo mount /dev/vda1 /mnt"
-            echo ""
-          fi
-        '';
 
-        # Script to build and run the VM with performance optimizations
+        # Build an ISO image based on the gnome-nixos (hardware) configuration
+        # Useful for installing on real hardware.
+        iso-gnome = nixos-generators.nixosGenerate {
+          inherit system;
+          format = "iso";
+          modules = commonModules ++ [
+            ./hosts/gnome/configuration.nix
+            (
+              { lib, pkgs, ... }:
+              {
+                imports = [ "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix" ];
+                isoImage.isoName = "nixos-gnome-hardware-${pkgs.stdenv.hostPlatform.system}.iso";
+                isoImage.volumeID = "NIXOS_GNOME_HW";
+                boot.loader.timeout = 10;
+                users.users.nixos = {
+                  isNormalUser = true;
+                  extraGroups = [
+                    "wheel"
+                    "networkmanager"
+                    "video"
+                    "audio"
+                    "input"
+                  ];
+                  initialPassword = "nixos";
+                };
+                services.displayManager.autoLogin = {
+                  enable = true;
+                  user = "nixos";
+                };
+                security.sudo.wheelNeedsPassword = false;
+                environment.systemPackages = with pkgs; [ gparted ];
+                hardware.enableAllFirmware = true;
+                services.macos-remap.enable = lib.mkDefault true; # Now lib is available
+                services.xremap.userName = lib.mkDefault "nixos"; # Now lib is available
+              }
+            )
+          ];
+          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
+        };
+
+        # Build an ISO image based on the vm-test configuration
+        # Useful for testing the VM setup in an ISO/live environment.
+        iso-vm = nixos-generators.nixosGenerate {
+          inherit system;
+          format = "iso";
+          modules = commonModules ++ [
+            ./hosts/vm-test/configuration.nix
+            (
+              { lib, pkgs, ... }:
+              {
+                # <--- Added function wrapper
+                imports = [ "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix" ];
+                isoImage.isoName = "nixos-vm-test-${pkgs.stdenv.hostPlatform.system}.iso";
+                isoImage.volumeID = "NIXOS_VM_TEST";
+                boot.loader.timeout = 5;
+                users.users.nixos = {
+                  isNormalUser = true;
+                  extraGroups = [
+                    "wheel"
+                    "networkmanager"
+                    "video"
+                    "audio"
+                    "input"
+                  ];
+                  initialPassword = "nixos";
+                };
+                services.displayManager.autoLogin = {
+                  enable = true;
+                  user = "nixos";
+                };
+                security.sudo.wheelNeedsPassword = false;
+                hardware.enableAllFirmware = true;
+                services.macos-remap.enable = lib.mkDefault true; # Now lib is available
+                services.xremap.userName = lib.mkDefault "nixos"; # Now lib is available
+              }
+            ) # <--- Close the function wrapper
+          ];
+          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
+        };
+
+        # --- Runner Script ---
+
+        # Script to run the VM defined by `vm-image`
+        # `nix run .#run-vm` will build vm-image if needed, then execute this.
         run-vm = pkgs.writeShellScriptBin "run-vm" ''
           #!/usr/bin/env bash
-          set -e
+          set -e # Exit on error
 
-          CORES=$(nproc)
+          # Build the VM image first. This path assumes 'run-vm' is run via `nix run`
+          # which puts dependencies in the environment.
+          VM_IMAGE_PATH="${self.packages.${system}.vm-image}"
 
-          echo "Building NixOS VM with optimized settings..."
-          # Increase build parallelism for faster builds
-          nix build .#vm --impure --max-jobs auto --cores $CORES 
+          # Find the actual run script generated by nixos-generators inside the built derivation
+          # It's usually named run-<hostname>-vm or similar.
+          VM_RUN_SCRIPT=$(find "$VM_IMAGE_PATH/bin" -type f -name "run-*-vm" | head -n 1)
 
-          echo "Starting VM..."
-          # Check for the specifically named script we know exists
-          if [ -f ./result/bin/run-nixos-vm-test-vm ]; then
-            ./result/bin/run-nixos-vm-test-vm
-          elif [ -f ./result/bin/run-nixos-vm ]; then
-            ./result/bin/run-nixos-vm
-          else
-            echo "Listing available VM scripts:"
-            ls -la ./result/bin/
-            
-            # Use first available VM script
-            VM_SCRIPT=$(find ./result/bin -name "run-*-vm" | head -n 1)
-            if [ -n "$VM_SCRIPT" ]; then
-              echo "Found VM script at: $VM_SCRIPT"
-              $VM_SCRIPT
-            else
-              echo "Error: Could not find VM execution script."
-            fi
+          if [ -z "$VM_RUN_SCRIPT" ]; then
+          echo "Error: Could not find the VM run script in $VM_IMAGE_PATH/bin" >&2
+          exit 1
           fi
+
+          echo "Starting NixOS VM using script: $VM_RUN_SCRIPT"
+          # Execute the found script, passing any extra arguments along
+          exec "$VM_RUN_SCRIPT" "$@"
         '';
-        
-        # Fast build script that uses all CPU cores for maximum build performance
-        fast-build = pkgs.writeShellScriptBin "fast-build" ''
-          #!/usr/bin/env bash
-          set -e
-          
-          CORES=$(nproc)
-          JOBS=$((CORES + 2)) # Slightly more jobs than cores for optimal CPU utilization
-          
-          echo "Building $1 with optimized settings (jobs: $JOBS)..."
-          nix build .#$1 --impure \
-            --log-format bar-with-logs \
-            --max-jobs $JOBS \
-            --cores $CORES \
-            --option keep-going true
-        '';
-        
       };
     };
 }
