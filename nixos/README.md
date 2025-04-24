@@ -7,16 +7,16 @@ A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized f
 - `flake.nix` - Main entry point defining inputs and outputs for the configuration
 - `modules/` - Modular NixOS configuration files (described in detail below)
 - `hosts/` - Host-specific configurations:
-  - `gnome/` - Main workstation configuration
-  - `vm-test/` - VM testing configuration
-- `iso/` - ISO image building configuration
+  - `gnome/` - Main workstation configuration with full hardware support
+  - `vm-test/` - VM testing configuration for development
+  - `common/` - Shared configuration files like minimal-hardware.nix
 - `COMMANDS.md` - Quick reference for common NixOS commands
 
 ## Quick Setup Guide
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/workspace.git ~/repos/workspace
+   git clone https://github.com/agucova/workspace.git ~/repos/workspace
    cd ~/repos/workspace/nixos
    ```
 
@@ -109,18 +109,19 @@ This configuration is built with modularity in mind, separating functionality in
 Test configuration changes in a VM before applying to your main system:
 
 ```bash
-# Build and run the VM with all optimizations (recommended)
+# Build and run the VM with all optimizations (recommended approach)
 nix run .#run-vm --impure
 
-# Alternative: fast build with optimized job settings
-nix run .#fast-build -- vm
-
-# After VM boots, you can test your configuration in the VM environment
+# Alternative: Standard build and run
+cd /path/to/workspace/nixos
+nix build .#vm-image --impure
+./result/bin/run-*-vm
 ```
 
 The VM configuration:
 - Uses 12 CPU cores and 8GB RAM for better performance
 - Includes CPU host passthrough for optimal performance
+- Features virtio-keyboard-pci and virtio-serial-pci for better input support
 - Automatically logs in with the same user config as your main system
 - Has the same GNOME setup and macOS-like keyboard remapping
 
@@ -129,14 +130,11 @@ The VM configuration:
 Create a bootable ISO with your configuration to install on new machines:
 
 ```bash
-# Build the ISO (uses the fast-build script for optimal performance)
-nix run .#fast-build -- iso
+# Build the GNOME hardware ISO
+nix build .#iso-gnome --impure
 
-# Test the ISO in a VM before writing to a USB drive
-nix run --impure .#test-iso
-
-# For persistent storage testing
-nix run --impure .#test-iso -- --persistent
+# Build the VM test ISO (for testing the VM config in a live environment)
+nix build .#iso-vm --impure
 
 # Write to USB drive (replace sdX with your USB device, be careful!)
 sudo dd if=./result/iso/nixos-gnome-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
@@ -164,12 +162,20 @@ This configuration embodies several core design principles:
 
 The configuration uses Home Manager for user-specific settings:
 
-- Shell configuration and aliases
-- Development tools and programming languages
-- Git and SSH configuration
-- Declarative Julia package management
-- Custom command-not-found handler with nix-index-database
-- Consistent environment across all user accounts
+- Shell configuration (Fish shell) with aliases and utilities
+- Development tools and programming languages (Go, Rust, Python, Node.js, Julia)
+- Git, GitHub CLI, and SSH configuration
+- Modern CLI tools (lsd, starship, bat, fastfetch)
+- Custom command-not-found handler with nix-index-database and comma
+- Editor configuration with Helix, NvChad, and VS Code
+- Consistent environment across user accounts
+
+Home Manager can also be used standalone:
+
+```bash
+# Apply home configuration without changing system
+nix run home-manager/master -- switch --flake .#agucova
+```
 
 ## Updating Your System
 
@@ -179,6 +185,9 @@ nix flake update
 
 # Apply the updated configuration
 sudo nixos-rebuild switch --flake .#gnome-nixos --experimental-features 'nix-command flakes' --impure
+
+# Or only update a specific input
+nix flake lock --update-input nixpkgs
 ```
 
 ## Nix Code Linting
@@ -187,14 +196,26 @@ Use statix to lint and fix common anti-patterns in Nix code:
 
 ```bash
 # Run statix linter on all Nix files
-nix run nixpkgs#statix -- check .
+nix run nixpkgs#statix -- check nixos/
 
 # See proposed fixes without changing files
-nix run nixpkgs#statix -- fix --dry-run .
+nix run nixpkgs#statix -- fix --dry-run nixos/
 
-# Apply fixes
-nix run nixpkgs#statix -- fix .
+# Apply fixes (be careful!)
+nix run nixpkgs#statix -- fix nixos/
+
+# List all available lints
+nix run nixpkgs#statix -- list
+
+# Get explanation for a specific warning code
+nix run nixpkgs#statix -- explain W20
 ```
+
+Key lints include:
+- W20: Repeated attribute keys
+- W03/W04: Manual inherit patterns
+- W07: Eta reductions
+- W08: Useless parentheses
 
 ## Performance Tuning
 
