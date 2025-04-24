@@ -22,26 +22,26 @@
       enableBashIntegration = true;
       enableZshIntegration = true;  # Enable for all shells to be safe
     };
-    
+
     # Enable comma functionality from nix-index-database
     # This also ensures the nix-index database is properly linked
     nix-index-database.comma.enable = true;
-    
+
     # Configure shells
     fish = {
       enable = true;
-      
+
       # Initialize starship prompt
       interactiveShellInit = ''
         # Use starship prompt
         starship init fish | source
-        
+
         # Set batcat as man pager if available
         if command -v bat > /dev/null
           set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
         end
       '';
-      
+
       # Shell aliases
       shellAliases = {
         # Better ls using lsd
@@ -49,27 +49,27 @@
         ll = "lsd -l";
         la = "lsd -la";
         lt = "lsd --tree";
-        
+
         # Git shortcuts
         g = "git";
         gc = "git commit";
         gs = "git status";
         gp = "git push";
         gpl = "git pull";
-        
+
         # Use bat instead of cat
         cat = "bat";
-        
+
         # Better directory navigation
         ".." = "cd ..";
         "..." = "cd ../..";
         "...." = "cd ../../..";
       };
     };
-    
+
     bash = {
       enable = true;
-      
+
       # Initialize starship prompt
       initExtra = ''
         # Use starship prompt
@@ -103,12 +103,12 @@
     hyperfine
     glow
     chezmoi
-    
+
     # Nix development tools
-    nil  # Nix language server
-    nixd # Alternative Nix language server with better performance
-    statix # Lints for common Nix anti-patterns
-    
+    nil
+    nixd
+    statix
+
     # Shell enhancements (CLI)
     lsd
     starship
@@ -116,7 +116,7 @@
     fastfetch
     gdu
     navi
-    
+
     # Programming languages and tools (CLI)
     rustup
     go_1_22
@@ -143,17 +143,17 @@
       mypy
       # ruff and pyright moved to standalone packages
     ]))
-    
+
     # Standalone Python tools with proper dependencies
     ruff
     pyright
-    
+
     # Network utilities (CLI)
     nmap
     whois
     iperf
     aria2
-    
+
     # CLI utilities
     tree
     unrar

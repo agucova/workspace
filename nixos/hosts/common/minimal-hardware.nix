@@ -42,7 +42,4 @@
 
   # Basic power management, often overridden by specific modules
   powerManagement.cpuFreqGovernor = lib.mkDefault "ondemand";
-
-  # Set a reasonable default hardware platform profile
-  hardware.platform = lib.mkDefault "generic";
 }

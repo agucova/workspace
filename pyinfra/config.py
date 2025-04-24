@@ -66,6 +66,29 @@ def is_linux() -> bool:
     return platform.system() == "Linux"
 
 
+def is_nixos() -> bool:
+    """
+    Check if the current system is NixOS.
+    
+    First checks /etc/os-release for ID=nixos, then falls back to checking if
+    /run/current-system exists, which is a NixOS-specific path.
+    """
+    if not is_linux():
+        return False
+        
+    # Check /etc/os-release first (most reliable)
+    try:
+        with open("/etc/os-release", "r") as f:
+            for line in f:
+                if line.strip() == 'ID=nixos':
+                    return True
+    except (FileNotFoundError, PermissionError):
+        pass
+        
+    # Fallback to checking if /run/current-system exists (NixOS-specific)
+    return Path("/run/current-system").exists()
+
+
 def has_display() -> bool:
     """
     Check if there's a graphical display available.

@@ -18,7 +18,7 @@
     # Add shell integration for chezmoi
     programs.fish.shellAliases = {
       # Dotfiles setup using uv
-      setup-dotfiles = "uv run /home/agucova/repos/workspace/dotfiles_setup.py";
+      setup-dotfiles = "mkdir repos && cd repos && git clone https://github.com/agucova/workspace && cd workspace/pyinfra/ && uv run dotfiles_setup.py";
     };
   };
 }

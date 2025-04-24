@@ -28,19 +28,13 @@
     initialPassword = "nixos";
   };
 
-  # Enable Docker
+  # Enable Docker and NvCT
   virtualisation = {
     docker = {
       enable = true;
-      enableNvidia = true;  # Enable NVIDIA runtime for Docker containers
-    };
-
-    # Enable Podman as alternative container runtime
-    podman = {
-      enable = true;
-      dockerCompat = true;  # Docker compatibility mode
     };
   };
+  hardware.nvidia-container-toolkit.enable = true;
 
   # Enable automatic login if desired
   # services.xserver.displayManager.autoLogin.enable = true;

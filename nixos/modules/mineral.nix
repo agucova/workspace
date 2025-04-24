@@ -6,13 +6,14 @@
     # Import the main nix-mineral module
     "${nix-mineral}/nix-mineral.nix"
   ];
-  
+
   # Enable nix-mineral
   nix-mineral.enable = true;
-  
-  # Fix conflict with issue file
+
+  # Fix source conflicts
   environment.etc.issue.source = lib.mkForce (pkgs.writeText "issue" "\\n \\l");
-  
+  environment.etc.gitconfig.source = lib.mkForce (pkgs.writeText "empty-gitconfig" ""); # <-- ADD FIX HERE
+
   # Minimal required overrides for gaming compatibility
   nix-mineral.overrides = {
     # Gaming requires execution capabilities
@@ -26,7 +27,7 @@
       # Allow unprivileged user namespaces for Flatpak and browser sandboxing
       allow-unprivileged-userns = true;
     };
-    
+
     # Performance is critical for gaming
     performance = {
       # Enable SMT for better multi-threaded performance

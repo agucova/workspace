@@ -28,7 +28,7 @@
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
-    timeout = 3;
+    timeout = lib.mkDefault 3;
   };
 
   # Enable CPU microcode updates

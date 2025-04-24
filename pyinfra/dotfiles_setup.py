@@ -41,29 +41,29 @@ def run_command(command, check=True, capture_output=True):
 
 def check_prerequisites():
     """Check if required tools are installed."""
-    # Check for GitHub CLI
+    # Check for GitHub CLI using PATH (works in any environment including NixOS)
     gh_result = run_command("which gh", check=False)
-    # Check for homebrew GitHub CLI path as a fallback
-    gh_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/gh"
-    homebrew_gh_exists = Path(gh_homebrew_path).exists()
-    
-    if gh_result.returncode != 0 and not homebrew_gh_exists:
-        print("GitHub CLI (gh) is not installed.")
-        print("Please run the main PyInfra deployment first or install it manually:")
-        print("    brew install gh")
-        sys.exit(1)
+    if gh_result.returncode != 0:
+        # Only check for Homebrew path as a fallback (for non-NixOS systems)
+        gh_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/gh"
+        if not Path(gh_homebrew_path).exists():
+            print("GitHub CLI (gh) is not installed.")
+            print("Please install it using one of the following methods:")
+            print("    brew install gh           # For Homebrew")
+            print("    nix-shell -p gitAndTools.gh  # For NixOS/Nix")
+            sys.exit(1)
 
-    # Check for chezmoi
+    # Check for chezmoi using PATH (works in any environment including NixOS)
     chezmoi_result = run_command("which chezmoi", check=False)
-    # Check for homebrew chezmoi path as a fallback
-    chezmoi_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/chezmoi"
-    homebrew_chezmoi_exists = Path(chezmoi_homebrew_path).exists()
-    
-    if chezmoi_result.returncode != 0 and not homebrew_chezmoi_exists:
-        print("chezmoi is not installed.")
-        print("Please run the main PyInfra deployment first or install it manually:")
-        print("    brew install chezmoi")
-        sys.exit(1)
+    if chezmoi_result.returncode != 0:
+        # Only check for Homebrew path as a fallback (for non-NixOS systems)
+        chezmoi_homebrew_path = "/home/linuxbrew/.linuxbrew/bin/chezmoi"
+        if not Path(chezmoi_homebrew_path).exists():
+            print("chezmoi is not installed.")
+            print("Please install it using one of the following methods:")
+            print("    brew install chezmoi     # For Homebrew")
+            print("    nix-shell -p chezmoi     # For NixOS/Nix")
+            sys.exit(1)
         
     # Check for 1Password CLI
     op_result = run_command("which op", check=False)
@@ -107,6 +107,7 @@ def get_gh_command():
     """Return the appropriate gh command path."""
     gh_result = run_command("which gh", check=False)
     if gh_result.returncode == 0:
+        # Use gh from PATH (works for NixOS, standard Linux, macOS)
         return "gh"
     
     # Use Homebrew path as fallback
@@ -122,6 +123,7 @@ def get_chezmoi_command():
     """Return the appropriate chezmoi command path."""
     chezmoi_result = run_command("which chezmoi", check=False)
     if chezmoi_result.returncode == 0:
+        # Use chezmoi from PATH (works for NixOS, standard Linux, macOS)
         return "chezmoi"
     
     # Use Homebrew path as fallback
