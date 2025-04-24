@@ -59,6 +59,4 @@
   services.xremap = {
     userName = "agucova"; # Use the default user
   };
-
-  # Julia packages are now managed declaratively through home-manager in home.nix
 }

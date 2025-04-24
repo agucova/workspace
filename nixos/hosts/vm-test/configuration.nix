@@ -49,9 +49,6 @@
   programs.nix-index.enable = false;
 
 
-  # Home Manager configuration
-  home-manager.users.agucova = import ../gnome/home.nix;
-
   # Add minimal GUI packages for VM testing
   environment.systemPackages = with pkgs; [
     # Basic GUI applications for testing

@@ -123,7 +123,7 @@
             ./hosts/gnome/configuration.nix
             {
               # User-specific Home Manager configuration
-              home-manager.users.agucova = import ./hosts/gnome/home.nix;
+              home-manager.users.agucova = import ./hosts/common/home.nix;
             }
           ];
           specialArgs = { inherit pkgs nix-mineral claude-desktop; };
@@ -135,8 +135,7 @@
           modules = commonModules ++ [
             ./hosts/vm-test/configuration.nix
             {
-              # User-specific Home Manager configuration (reuse the same home.nix)
-              home-manager.users.agucova = import ./hosts/gnome/home.nix;
+              home-manager.users.agucova = import ./hosts/common/home.nix;
             }
           ];
           specialArgs = { inherit pkgs nix-mineral claude-desktop; };
