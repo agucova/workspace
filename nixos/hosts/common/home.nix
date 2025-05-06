@@ -50,13 +50,6 @@
         la = "lsd -la";
         lt = "lsd --tree";
 
-        # Git shortcuts
-        g = "git";
-        gc = "git commit";
-        gs = "git status";
-        gp = "git push";
-        gpl = "git pull";
-
         # Use bat instead of cat
         cat = "bat";
 
@@ -87,6 +80,7 @@
       };
     };
   };
+
 
   # Packages to install for this user
   home.packages = with pkgs; [

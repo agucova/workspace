@@ -119,10 +119,10 @@ let
           "Alt-RIGHT" = { launch = ["xdotool" "key" "End"]; };
           "Shift-Alt-LEFT" = { launch = ["xdotool" "key" "shift+Home"]; };
           "Shift-Alt-RIGHT" = { launch = ["xdotool" "key" "shift+End"]; };
-          
+
           # Make terminal interrupt work inside VS Code's integrated terminal
           "Super-C" = "C-C";
-          
+
           # Common shortcuts that differ from general system
           "C-COMMA" = { launch = ["xdotool" "key" "ctrl+comma"]; }; # Preferences
         };
@@ -166,7 +166,7 @@ let
 in {
   options.services.macos-remap = {
     enable = mkEnableOption "macOS-like keyboard remapping with xremap";
-    
+
     additionalConfig = mkOption {
       type = types.attrs;
       default = {};
@@ -188,29 +188,29 @@ in {
       config = lib.recursiveUpdate xremapConfig cfg.additionalConfig;
       debug = true; # Enable debug logging for troubleshooting
     };
-    
+
     # Enable xremap GNOME shell extension system-wide
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
       [org.gnome.shell]
       enabled-extensions=['xremap@k0kubun.com']
     '';
-    
+
     # Set up packages and tools
     environment.systemPackages = with pkgs; [
       # GNOME xremap extension
       gnomeExtensions.xremap
-      
+
       # Toggle script for enabling/disabling macOS keybindings
       (writeShellScriptBin "toggle-macos-keybindings" ''
         #!/usr/bin/env bash
-        
+
         XREMAP_SERVICE="xremap"
-        
+
         if systemctl --user is-active ''${XREMAP_SERVICE} >/dev/null 2>&1; then
           echo "Disabling macOS-like keybindings..."
           systemctl --user stop ''${XREMAP_SERVICE}
           systemctl --user disable ''${XREMAP_SERVICE}
-          
+
           # Reset GNOME settings
           dconf reset -f /org/gnome/mutter/overlay-key
           dconf reset -f /org/gnome/desktop/wm/keybindings/
@@ -218,16 +218,16 @@ in {
           dconf reset -f /org/gnome/shell/keybindings/
           dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/screensaver
           dconf reset -f /org/gnome/terminal/legacy/keybindings/
-          
+
           echo "macOS-like keybindings disabled. Restart GNOME Shell with Alt+F2, r, Enter for full effect."
         else
           echo "Enabling macOS-like keybindings..."
-          
+
           # Start service
           systemctl --user daemon-reload
           systemctl --user enable ''${XREMAP_SERVICE}
           systemctl --user start ''${XREMAP_SERVICE}
-          
+
           echo "macOS-like keybindings enabled! ⌘ now acts as Ctrl and vice versa."
           echo "Try ⌘C to copy, ⌘V to paste, ⌘Tab to switch applications."
           echo "To disable, run this command again."
@@ -236,10 +236,10 @@ in {
     ];
 
     # Add user to input group to allow xremap to run without sudo
-    users.groups.input.members = [ 
-      (if config ? "users" && config.users ? "defaultUserName" then config.users.defaultUserName else "agucova") 
+    users.groups.input.members = [
+      (if config ? "users" && config.users ? "defaultUserName" then config.users.defaultUserName else "agucova")
     ];
-    
+
     # Configure udev rules
     services.udev.extraRules = ''
       KERNEL=="uinput", GROUP="input", TAG+="uaccess"
@@ -247,23 +247,23 @@ in {
 
     # Enable dconf for GNOME settings
     programs.dconf.enable = true;
-    
+
     # Configure macOS-like dconf settings for all users
     home-manager.users = let
-      usernames = if config ? "users" && config.users ? "defaultUserName" 
-                 then [ config.users.defaultUserName ] 
+      usernames = if config ? "users" && config.users ? "defaultUserName"
+                 then [ config.users.defaultUserName ]
                  else [ "agucova" "nixos" ];
-      
+
       # Define macOS dconf settings for any user
       macOSdconfSettings = {
         home.stateVersion = "24.11";
-        
+
         dconf.settings = {
           # GNOME Mutter settings
           "org.gnome.mutter" = {
             overlay-key = "";
           };
-          
+
           # Window Manager keybindings
           "org.gnome.desktop.wm.keybindings" = {
             minimize = [];
@@ -277,13 +277,13 @@ in {
             switch-to-workspace-left = ["<Super>Left"];
             switch-to-workspace-right = ["<Super>Right"];
           };
-          
+
           # Mutter keybindings
           "org.gnome.mutter.keybindings" = {
             toggle-tiled-left = [];
             toggle-tiled-right = [];
           };
-          
+
           # Shell keybindings
           "org.gnome.shell.keybindings" = {
             toggle-message-tray = [];
@@ -293,14 +293,14 @@ in {
             toggle-overview = ["LaunchA"];
             toggle-application-view = ["<Primary>space" "LaunchB"];
           };
-          
+
           # Media keys
           "org.gnome.settings-daemon.plugins.media-keys" = {
             screensaver = [];
           };
-          
+
           # Terminal keybindings
-          "org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/" = {
+          "org.gnome.Terminal.Legacy.Keybindings" = {
             copy = "<Shift><Super>c";
             paste = "<Shift><Super>v";
             new-tab = "<Shift><Super>t";
@@ -310,7 +310,7 @@ in {
             find = "<Shift><Super>f";
           };
         };
-        
+
         # VSCode keybindings.json configuration
         programs.vscode.profiles.default.keybindings = [
           # Terminal focus and management
@@ -323,7 +323,7 @@ in {
             key = "ctrl+`";
             command = "workbench.action.terminal.toggleTerminal";
           }
-          
+
           # Integrated terminal key bindings
           {
             key = "ctrl+c";
@@ -338,7 +338,7 @@ in {
             command = "workbench.action.terminal.paste";
             when = "terminalFocus";
           }
-          
+
           # macOS-style navigation in terminal
           {
             key = "alt+left";
@@ -356,7 +356,7 @@ in {
               text = "\u001b[1;5C"; # Ctrl+Right arrow (word forward)
             };
           }
-          
+
           # macOS-style text editing
           {
             key = "alt+backspace";
@@ -365,13 +365,13 @@ in {
           }
         ];
       };
-      
+
       # Create a set of username → configuration pairs
       userConfigs = builtins.listToAttrs (map (username: {
         name = username;
         value = macOSdconfSettings;
       }) usernames);
-      
+
     in userConfigs;
   };
 }

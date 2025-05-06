@@ -84,7 +84,7 @@
         # xremap module for keyboard remapping
         xremap-flake.nixosModules.default
 
-        {
+        ({ lib, ... }: {
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
@@ -106,7 +106,7 @@
               }
             ];
           };
-        }
+        })
 
         # IMPORTANT: We're now using Home Manager for nix-index-database,
         # so we don't include the NixOS module to avoid conflicts
@@ -285,6 +285,23 @@
           echo "Starting NixOS VM using script: $VM_RUN_SCRIPT"
           exec "$VM_RUN_SCRIPT" "$@"
         '';
+      };
+
+      homeConfigurations = {
+        "agucova" = home-manager.lib.homeManagerConfiguration {
+           inherit pkgs;
+           # Pass modules as a list: your main file + inline settings
+           modules = [
+             ./hosts/common/home.nix
+             # Add this inline module to define username and stateVersion
+             {
+               home.username = "agucova";
+               home.homeDirectory = "/home/agucova"; # Also good practice to set this
+               home.stateVersion = "24.11"; # Ensure consistency with home.nix
+             }
+           ];
+           extraSpecialArgs = { inherit nix-index-database; };
+        };
       };
     };
 }

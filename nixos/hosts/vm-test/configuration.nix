@@ -48,13 +48,23 @@
   # Disable system-wide nix-index since we're using Home Manager module instead
   programs.nix-index.enable = false;
 
+  # Filesystem
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/nixos"; # Standard label used by many NixOS VM tools
+    fsType = "ext4";                   # Common filesystem type for VMs
+  };
+
+  # Boot partition
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-label/boot";
+    fsType = "vfat";
+  };
 
   # Add minimal GUI packages for VM testing
   environment.systemPackages = with pkgs; [
     # Basic GUI applications for testing
     firefox
     gnome-terminal
-    home-manager
 
     # Debug tools
     strace
@@ -140,6 +150,21 @@
   };
 
   users.groups.nixos = {};
+
+  home-manager.users.agucova = { config, lib, ... }: {
+    imports = [ ../common/home.nix ];
+
+    # Add home activation script to ensure proper symlinks
+    home.activation = {
+      fixProfileLinks = lib.hm.dag.entryAfter ["writeBoundary"] ''
+        # Create necessary directories with proper ownership
+        $DRY_RUN_CMD mkdir -p $VERBOSE_ARG ~/.local/state/nix/profiles
+
+        # Create the symlink with proper ownership
+        $DRY_RUN_CMD ln -sfn ~/.local/state/nix/profiles/profile ~/.nix-profile
+      '';
+    };
+  };
 
   # State version
   system.stateVersion = "24.11";

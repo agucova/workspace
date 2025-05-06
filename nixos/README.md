@@ -10,7 +10,6 @@ A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized f
   - `gnome/` - Main workstation configuration with full hardware support
   - `vm-test/` - VM testing configuration for development
   - `common/` - Shared configuration files like minimal-hardware.nix
-- `COMMANDS.md` - Quick reference for common NixOS commands
 
 ## Quick Setup Guide
 
@@ -27,7 +26,7 @@ A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized f
    ```bash
    sudo nixos-rebuild switch --flake .#gnome-nixos --experimental-features 'nix-command flakes' --impure
    ```
-   
+
    > The `--impure` flag is required because the configuration imports `/etc/nixos/hardware-configuration.nix`.
 
 ## Module Design
