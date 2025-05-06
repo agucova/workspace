@@ -2,14 +2,68 @@
 
 A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware.
 
+This configuration uses the Snowfall Lib structure for organized, modular development.
+
+## Repository Organization
+
+This repository follows the Snowfall Lib structure for organized Nix configurations:
+
+### Directory Structure
+- `flake.nix` - Main entry point defining inputs and outputs with inline VM and ISO build configurations
+- `modules/` - Modular NixOS and Home Manager configurations
+  - `nixos/` - NixOS-specific modules for system configuration
+  - `home/` - Home Manager modules for user environment
+- `systems/` - System-specific configurations
+  - `x86_64-linux/` - Linux systems for x86_64 architecture
+    - `gnome-nixos/` - Main workstation configuration 
+    - `vm-test/` - VM testing configuration
+- `homes/` - Home Manager configurations
+  - `x86_64-linux/` - Linux home configurations
+    - `agucova/` - User-specific home configuration
+
+## Implementation Notes
+
+The configuration uses a direct approach with standard Nix flake outputs while maintaining the Snowfall directory structure. This provides several benefits:
+
+1. **Clean Organization**: All configurations are organized in a logical, consistent structure
+2. **Modular Design**: Each aspect of the system is separated into its own module
+3. **Explicit Control**: Direct definition of outputs allows fine-grained control
+4. **Easy Path Resolution**: Relative paths between components simplify maintenance
+5. **VM Testing Support**: Built-in configuration for testing in a virtual machine
+
 ## Repository Structure
 
+This repository follows a structured approach based on Snowfall Lib conventions:
+
+### Current Working Structure
 - `flake.nix` - Main entry point defining inputs and outputs for the configuration
-- `modules/` - Modular NixOS configuration files (described in detail below)
-- `hosts/` - Host-specific configurations:
-  - `gnome/` - Main workstation configuration with full hardware support
-  - `vm-test/` - VM testing configuration for development
-  - `common/` - Shared configuration files like minimal-hardware.nix
+- `modules/` - Modular NixOS configuration files with namespaces
+  - `nixos/` - NixOS-specific modules
+    - `base/` - Core system configuration
+    - `gnome/` - GNOME desktop environment
+    - `hardware/` - RTX 4090 specific configuration
+    - `gui-apps/` - GUI application configurations
+    - `virtualization/` - VM-specific configuration
+    - `dotfiles/` - Chezmoi and dotfiles integration
+    - `ssh/` - SSH configuration
+    - `mineral/` - System hardening settings
+    - `macos-remap/` - macOS keyboard remapping
+  - `home/` - Home Manager modules
+    - `base/` - Core home configuration
+- `systems/` - System-specific configurations
+  - `x86_64-linux/` - Linux systems for x86_64 architecture
+    - `gnome-nixos/` - Main workstation configuration
+    - `vm-test/` - VM testing configuration
+- `homes/` - Home Manager configurations
+  - `x86_64-linux/` - Linux home configurations
+    - `agucova/` - User-specific home configuration
+- `packages/` - Custom package definitions
+  - `run-vm/` - VM runner script
+  - `vm-image/` - VM image generator
+  - `iso-gnome/` - ISO installer for GNOME
+  - `iso-vm/` - ISO installer for VM test
+
+The configuration now follows a pure Snowfall structure, with all legacy paths removed.
 
 ## Quick Setup Guide
 
@@ -19,21 +73,21 @@ A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized f
    cd ~/repos/workspace/nixos
    ```
 
-2. **The configuration uses your system's hardware configuration**:
-   No need to copy hardware-configuration.nix files, as the setup imports `/etc/nixos/hardware-configuration.nix` directly.
+2. **Hardware Configuration**:
+   The setup intelligently imports your system's hardware configuration from `/etc/nixos/hardware-configuration.nix` when available, and falls back to a minimal configuration for testing when it's not present.
 
 3. **Apply the configuration**:
    ```bash
-   sudo nixos-rebuild switch --flake .#gnome-nixos --experimental-features 'nix-command flakes' --impure
+   sudo nixos-rebuild switch --flake /path/to/workspace/nixos#gnome-nixos --experimental-features 'nix-command flakes'
    ```
 
-   > The `--impure` flag is required because the configuration imports `/etc/nixos/hardware-configuration.nix`.
+   > You can also use the `--impure` flag for more flexible evaluation.
 
 ## Module Design
 
-This configuration is built with modularity in mind, separating functionality into distinct Nix modules:
+This configuration is built with modularity in mind, now organized with Snowfall Lib's structure:
 
-### Core System (`base.nix`)
+### Core System (`modules/nixos/base`)
 - Optimized kernel and CPU settings for AMD Ryzen 7800X3D
 - Enhanced memory and swap configuration with zram and backup swapfile
 - PipeWire audio with low-latency settings
@@ -41,7 +95,7 @@ This configuration is built with modularity in mind, separating functionality in
 - Core CLI tools and shell setup
 - Optimized system-wide build settings to leverage 7800X3D performance
 
-### Hardware Configuration (`hardware.nix`)
+### Hardware Configuration (`modules/nixos/hardware`)
 - NVIDIA RTX 4090 drivers with Wayland support
 - Open-source NVIDIA drivers with proper Wayland configuration
 - Hardware acceleration for video decoding/encoding
@@ -49,7 +103,7 @@ This configuration is built with modularity in mind, separating functionality in
 - TPM and secure boot integration
 - Multi-monitor support optimized for ultrawide displays
 
-### GNOME Desktop (`gnome.nix`)
+### GNOME Desktop (`modules/nixos/gnome`)
 - Clean, minimal GNOME desktop environment
 - Performance tuning for GNOME on Wayland
 - Optimized compositor settings for gaming
@@ -58,7 +112,7 @@ This configuration is built with modularity in mind, separating functionality in
 - Ghostty terminal with GPU acceleration
 - Carefully tuned desktop experience with minimal customization
 
-### Virtualization (`virtualization.nix`)
+### Virtualization (`modules/nixos/virtualization`)
 - VM-specific configuration for testing
 - QEMU optimization with 12 CPU cores and 8GB RAM
 - CPU host passthrough for better VM performance
@@ -66,7 +120,7 @@ This configuration is built with modularity in mind, separating functionality in
 - Simplified boot configuration for VM environments
 - Debugging tools for diagnosing configuration issues
 
-### macOS-like Keyboard Remapping (`macos-remap.nix`)
+### macOS-like Keyboard Remapping (`modules/nixos/macos-remap`)
 - Swaps Ctrl and Command keys for familiar macOS feel
 - Implements macOS keyboard shortcuts (⌘C, ⌘V, etc.)
 - Terminal and application-specific remappings
@@ -74,7 +128,7 @@ This configuration is built with modularity in mind, separating functionality in
 - Based on xremap with GNOME integration
 - Designed to make transition between macOS and Linux seamless
 
-### System Hardening (`mineral.nix`)
+### System Hardening (`modules/nixos/mineral`)
 - Security hardening with nix-mineral
 - Firewall configuration with gaming compatibility
 - Hardened mount options and sysctl settings
@@ -82,21 +136,21 @@ This configuration is built with modularity in mind, separating functionality in
 - Security features tuned to minimize gaming performance impact
 - System hardening that doesn't interfere with GPU drivers or anti-cheat systems
 
-### Dotfiles Integration (`dotfiles.nix`)
+### Dotfiles Integration (`modules/nixos/dotfiles`)
 - Chezmoi and 1Password integration
 - GitHub CLI and authentication setup
 - Convenience aliases for dotfiles management
 - Automatic dotfiles application through Home Manager
 - Integration with your existing dotfiles setup
 
-### SSH Configuration (`ssh.nix`)
+### SSH Configuration (`modules/nixos/ssh`)
 - Secure SSH server configuration
 - Key-based authentication only
 - Optimized cipher selection
 - Rate limiting and hardening
 - Proper service setup with firewall rules
 
-### GUI Applications (`gui-apps.nix`)
+### GUI Applications (`modules/nixos/gui-apps`)
 - Curated set of GUI applications
 - Flatpak support with proper font/icon integration
 - Development tools and productivity software
@@ -108,13 +162,8 @@ This configuration is built with modularity in mind, separating functionality in
 Test configuration changes in a VM before applying to your main system:
 
 ```bash
-# Build and run the VM with all optimizations (recommended approach)
+# Build and run the VM (using Snowfall Lib structure)
 nix run .#run-vm --impure
-
-# Alternative: Standard build and run
-cd /path/to/workspace/nixos
-nix build .#vm-image --impure
-./result/bin/run-*-vm
 ```
 
 The VM configuration:
@@ -143,7 +192,7 @@ sudo dd if=./result/iso/nixos-gnome-*.iso of=/dev/sdX bs=4M status=progress conv
 
 This configuration embodies several core design principles:
 
-1. **Modularity**: Each aspect of the system is in its own module, making changes easier to understand and maintain.
+1. **Modularity**: Using Snowfall Lib's organizational structure makes each aspect of the system easier to understand and maintain.
 
 2. **Hardware Optimization**: Specifically tuned for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware, with fallbacks for VM testing.
 
@@ -159,7 +208,7 @@ This configuration embodies several core design principles:
 
 ## Home Manager Integration
 
-The configuration uses Home Manager for user-specific settings:
+The configuration uses Home Manager for user-specific settings, now structured using Snowfall Lib:
 
 - Shell configuration (Fish shell) with aliases and utilities
 - Development tools and programming languages (Go, Rust, Python, Node.js, Julia)
@@ -227,5 +276,3 @@ The configuration includes several performance optimizations:
 - Low-latency audio configuration
 - Wayland optimization for reduced input lag
 - Game-friendly security settings
-
-For more detailed commands and usage examples, see [COMMANDS.md](COMMANDS.md).

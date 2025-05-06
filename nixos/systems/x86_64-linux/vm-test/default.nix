@@ -1,17 +1,29 @@
 # VM testing configuration for NixOS
-{ config, pkgs, lib, ... }:
+{ 
+  lib, 
+  pkgs, 
+  config, 
+  inputs, 
+  namespace, 
+  system, 
+  target, 
+  format, 
+  virtual, 
+  systems, 
+  ...
+}:
 
 {
   imports = [
-    # Import base and generic modules
-    ../../modules/base.nix
-    ../../modules/gnome.nix
-    ../../modules/gui-apps.nix  # Include GUI applications for testing
-    ../../modules/virtualization.nix
-    ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
-    ../../modules/ssh.nix       # SSH server configuration
-    ../../modules/mineral.nix   # System hardening with gaming optimizations
-    ../../modules/macos-remap.nix # macOS-like keyboard remapping (disabled by default)
+    # Import modules with relative paths
+    ../../../modules/nixos/base
+    ../../../modules/nixos/gnome
+    ../../../modules/nixos/gui-apps
+    ../../../modules/nixos/virtualization  # Use VM-specific configuration instead of hardware.nix
+    ../../../modules/nixos/dotfiles
+    ../../../modules/nixos/ssh
+    ../../../modules/nixos/mineral
+    ../../../modules/nixos/macos-remap
   ];
 
   # Set hostname for VM
@@ -148,12 +160,17 @@
     isNormalUser = true;
     group = "nixos";
   };
-
   users.groups.nixos = {};
 
-  home-manager.users.agucova = { config, lib, ... }: {
-    imports = [ ../common/home.nix ];
+  # Configure home-manager for this user
+  home-manager.users.agucova = { ... }: {
+    imports = [ 
+      ../../../modules/home/base 
+    ];
 
+    home.username = "agucova";
+    home.homeDirectory = "/home/agucova";
+    
     # Add home activation script to ensure proper symlinks
     home.activation = {
       fixProfileLinks = lib.hm.dag.entryAfter ["writeBoundary"] ''

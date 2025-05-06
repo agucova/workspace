@@ -1,5 +1,6 @@
 # GNOME Desktop configuration
-{ config, pkgs, lib, ... }:
+{ lib, pkgs, config, ... }:
+
 {
   # Configure programs and services
   programs = {

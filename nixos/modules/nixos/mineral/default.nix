@@ -1,10 +1,10 @@
 # nix-mineral configuration with minimal gaming-friendly overrides
-{ config, lib, pkgs, nix-mineral, ... }:
+{ config, lib, pkgs, inputs, ... }:
 
 {
   imports = [
-    # Import the main nix-mineral module
-    "${nix-mineral}/nix-mineral.nix"
+    # Import the main nix-mineral module from inputs
+    "${inputs.nix-mineral}/nix-mineral.nix"
   ];
 
   # Enable nix-mineral
@@ -12,7 +12,7 @@
 
   # Fix source conflicts
   environment.etc.issue.source = lib.mkForce (pkgs.writeText "issue" "\\n \\l");
-  environment.etc.gitconfig.source = lib.mkForce (pkgs.writeText "empty-gitconfig" ""); # <-- ADD FIX HERE
+  environment.etc.gitconfig.source = lib.mkForce (pkgs.writeText "empty-gitconfig" "");
 
   # Minimal required overrides for gaming compatibility
   nix-mineral.overrides = {

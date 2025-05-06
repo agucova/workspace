@@ -1,5 +1,5 @@
 # Base NixOS Configuration for 7800X3D + RTX 4090 Workstation
-{ config, pkgs, lib, ... }:
+{ lib, pkgs, config, inputs, ... }:
 
 {
   # Boot configuration

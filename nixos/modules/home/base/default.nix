@@ -1,5 +1,5 @@
-# Home Manager configuration for agucova
-{ config, pkgs, lib, nix-index-database, ... }:
+# Home Manager base configuration
+{ config, pkgs, lib, inputs, ... }:
 
 {
   # Home Manager version
@@ -10,7 +10,7 @@
 
   # Import the nix-index-database module
   imports = [
-    nix-index-database.hmModules.nix-index
+    inputs.nix-index-database.hmModules.nix-index
   ];
 
   # Configure programs and tools
@@ -80,7 +80,6 @@
       };
     };
   };
-
 
   # Packages to install for this user
   home.packages = with pkgs; [

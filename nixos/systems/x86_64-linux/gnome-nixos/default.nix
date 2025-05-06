@@ -1,17 +1,44 @@
 # Main NixOS configuration file for 7800X3D + RTX 4090 Workstation
-{ config, pkgs, lib, ... }:
+{ 
+  lib, 
+  pkgs, 
+  config, 
+  inputs, 
+  namespace, 
+  system, 
+  target, 
+  format, 
+  virtual, 
+  systems, 
+  ...
+}:
 
 {
   imports = [
-    ../common/minimal-hardware.nix
-    ../../modules/base.nix
-    ../../modules/hardware.nix  # RTX 4090 specific configuration
-    ../../modules/gnome.nix     # GNOME desktop environment
-    ../../modules/gui-apps.nix  # GUI applications
-    ../../modules/dotfiles.nix  # Chezmoi dotfiles integration
-    ../../modules/ssh.nix       # SSH server configuration
-    ../../modules/mineral.nix   # System hardening with gaming optimizations
-    ../../modules/macos-remap.nix # macOS-like keyboard remapping with xremap
+    # Import hardware configuration if available, otherwise use minimal config
+    (if builtins.pathExists /etc/nixos/hardware-configuration.nix 
+     then /etc/nixos/hardware-configuration.nix 
+     else ({ lib, ... }: {
+       # Fallback minimal hardware configuration for testing
+       fileSystems."/" = lib.mkDefault {
+         device = "/dev/disk/by-label/nixos";
+         fsType = "ext4";
+       };
+       fileSystems."/boot" = lib.mkDefault {
+         device = "/dev/disk/by-label/boot";
+         fsType = "vfat";
+       };
+     }))
+    
+    # Import Snowfall modules with relative paths
+    ../../../modules/nixos/base
+    ../../../modules/nixos/hardware
+    ../../../modules/nixos/gnome
+    ../../../modules/nixos/gui-apps
+    ../../../modules/nixos/dotfiles
+    ../../../modules/nixos/ssh
+    ../../../modules/nixos/mineral
+    ../../../modules/nixos/macos-remap
   ];
 
   # Set hostname
@@ -36,10 +63,6 @@
   };
   hardware.nvidia-container-toolkit.enable = true;
 
-  # Enable automatic login if desired
-  # services.xserver.displayManager.autoLogin.enable = true;
-  # services.xserver.displayManager.autoLogin.user = "agucova";
-
   # Additional host-specific packages
   environment.systemPackages = with pkgs; [
     # Container tools
@@ -58,5 +81,15 @@
   # Configure xremap
   services.xremap = {
     userName = "agucova"; # Use the default user
+  };
+
+  # Configure home-manager for this user
+  home-manager.users.agucova = { ... }: {
+    imports = [ 
+      ../../../modules/home/base
+    ];
+
+    home.username = "agucova";
+    home.homeDirectory = "/home/agucova";
   };
 }

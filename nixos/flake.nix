@@ -11,6 +11,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Snowfall Lib for structured flake management
+    snowfall-lib = {
+      url = "github:snowfallorg/lib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Ghostty terminal
     ghostty = {
       url = "github:ghostty-org/ghostty";
@@ -47,260 +53,380 @@
     };
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      home-manager,
-      ghostty,
-      nixos-generators,
-      nix-index-database,
-      nix-mineral,
-      claude-desktop,
-      xremap-flake,
-      ...
-    }:
+  outputs = inputs:
     let
-      system = "x86_64-linux";
-      pkgs = import nixpkgs {
-        inherit system;
+      # System packages for x86_64-linux
+      systemPkgs = import inputs.nixpkgs {
+        system = "x86_64-linux";
         config = {
           allowUnfree = true;
+          permittedInsecurePackages = [ "electron-25.9.0" ];
         };
-        overlays = [
-          # Make packages available from flakes
-          (final: prev: {
-            ghostty = ghostty.packages.${system}.default;
-            claude-desktop-with-fhs = claude-desktop.packages.${system}.claude-desktop-with-fhs;
-          })
+      };
+      
+      # Common Home Manager configuration for all systems
+      hmCommonConfig = { lib, ... }: {
+        home-manager = {
+          useGlobalPkgs = true;
+          useUserPackages = true;
+          backupFileExtension = "backup";
+          extraSpecialArgs = { inherit (inputs) nix-index-database; };
+          sharedModules = [
+            {
+              home = {
+                stateVersion = "24.11";
+                enableDebugInfo = true;
+                sessionVariables = {
+                  HM_DEBUG = "1";
+                };
+              };
+            }
+          ];
+        };
+      };
+
+    in {
+      # NixOS configurations
+      nixosConfigurations = {
+        "gnome-nixos" = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            # Import Home Manager
+            inputs.home-manager.nixosModules.home-manager
+            inputs.xremap-flake.nixosModules.default
+            
+            # Import common home manager config
+            hmCommonConfig
+            
+            # Import our system configuration
+            ./systems/x86_64-linux/gnome-nixos/default.nix
+          ];
+          specialArgs = { 
+            pkgs = systemPkgs;
+            inherit inputs;
+          };
+        };
+        
+        "vm-test" = inputs.nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            # Import Home Manager
+            inputs.home-manager.nixosModules.home-manager
+            inputs.xremap-flake.nixosModules.default
+            
+            # Import common home manager config
+            hmCommonConfig
+            
+            # Import our system configuration
+            ./systems/x86_64-linux/vm-test/default.nix
+          ];
+          specialArgs = { 
+            pkgs = systemPkgs;
+            inherit inputs;
+          };
+        };
+      };
+      
+      # Define channel config
+      nixConfig = {
+        extra-substituters = [
+          "https://xremap.cachix.org"
+        ];
+        extra-trusted-public-keys = [
+          "xremap.cachix.org-1:Vz8Xjjai+6Wc0JJaJLEWu7QveZV3hQzVL5GnqQ7rlmo="
         ];
       };
-
-      # Common NixOS module imports
-      commonModules = [
-        # Home Manager as a NixOS module
-        home-manager.nixosModules.home-manager
-
-        # xremap module for keyboard remapping
-        xremap-flake.nixosModules.default
-
-        ({ lib, ... }: {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            backupFileExtension = "backup";
-            # Pass additional arguments to home-manager modules if needed
-            extraSpecialArgs = { inherit nix-index-database; };
-
-            # Make Home Manager activate properly with debug settings
-            sharedModules = [
-              {
-                # Enable a consistent state version and debugging
-                home = {
-                  stateVersion = "24.11";
-                  enableDebugInfo = true;
-                  sessionVariables = {
-                    HM_DEBUG = "1";
-                  };
-                };
-              }
-            ];
-          };
-        })
-
-        # IMPORTANT: We're now using Home Manager for nix-index-database,
-        # so we don't include the NixOS module to avoid conflicts
-        # nix-index-database.nixosModules.nix-index
-      ];
-    in
-    {
-      # NixOS Configurations
-      nixosConfigurations = {
-        # Main workstation configuration
-        "gnome-nixos" = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = commonModules ++ [
-            ./hosts/gnome/configuration.nix
-            {
-              # User-specific Home Manager configuration
-              home-manager.users.agucova = import ./hosts/common/home.nix;
-            }
-          ];
-          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
-        };
-
-        # VM test configuration
-        "vm-test" = nixpkgs.lib.nixosSystem {
-          inherit system;
-          modules = commonModules ++ [
-            ./hosts/vm-test/configuration.nix
-            {
-              home-manager.users.agucova = import ./hosts/common/home.nix;
-            }
-          ];
-          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
-        };
+      
+      # Define overlays
+      overlays.default = final: prev: {
+        ghostty = inputs.ghostty.packages.${prev.system}.default;
+        claude-desktop-with-fhs = inputs.claude-desktop.packages.${prev.system}.claude-desktop-with-fhs;
       };
-
-      # Build artifacts and helper scripts
-      packages.${system} = {
-        # --- Build Targets ---
-
-        # Build a QEMU VM image (.qcow2) based on the vm-test configuration
-        # This is efficient for directly running the VM.
-        vm-image = nixos-generators.nixosGenerate {
-          inherit system;
-          format = "vm";
-          modules = commonModules ++ [
-            ./hosts/vm-test/configuration.nix
-            (
-              { lib, ... }:
-              {
-                virtualisation = {
-                  cores = lib.mkDefault 12;
-                  memorySize = lib.mkDefault 8192;
-                  diskSize = 40960;
-                  qemu.options = [
-                    "-vga virtio"
-                    "-display gtk,grab-on-hover=on"
-                    "-cpu host"
-                    "-device virtio-keyboard-pci"
-                    "-usb"
-                    "-device usb-tablet"
-                    "-device virtio-serial-pci"
-                  ];
-                };
-              }
-            )
-          ];
-          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
-        };
-
-        # Build an ISO image based on the gnome-nixos (hardware) configuration
-        # Useful for installing on real hardware.
-        iso-gnome = nixos-generators.nixosGenerate {
-          inherit system;
-          format = "iso";
-          modules = commonModules ++ [
-            ./hosts/gnome/configuration.nix
-            (
-              { lib, pkgs, ... }:
-              {
-                imports = [ "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix" ];
-                isoImage.isoName = "nixos-gnome-hardware-${pkgs.stdenv.hostPlatform.system}.iso";
-                isoImage.volumeID = "NIXOS_GNOME_HW";
-                boot.loader.timeout = 10;
-                users.users.nixos = {
-                  isNormalUser = true;
-                  extraGroups = [
-                    "wheel"
-                    "networkmanager"
-                    "video"
-                    "audio"
-                    "input"
-                  ];
-                  initialPassword = "nixos";
-                  initialHashedPassword = lib.mkForce null;
-                };
-                services.displayManager.autoLogin = {
-                  enable = true;
-                  user = "nixos";
-                };
-                security.sudo.wheelNeedsPassword = false;
-                environment.systemPackages = with pkgs; [ gparted ];
-                hardware.enableAllFirmware = true;
-                services.macos-remap.enable = lib.mkDefault true; # Now lib is available
-                services.xremap.userName = lib.mkDefault "nixos"; # Now lib is available
-              }
-            )
-          ];
-          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
-        };
-
-        # Build an ISO image based on the vm-test configuration
-        # Useful for testing the VM setup in an ISO/live environment.
-        iso-vm = nixos-generators.nixosGenerate {
-          inherit system;
-          format = "iso";
-          modules = commonModules ++ [
-            ./hosts/vm-test/configuration.nix
-            (
-              { lib, pkgs, ... }:
-              {
-                # <--- Added function wrapper
-                imports = [ "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix" ];
-                isoImage.isoName = "nixos-vm-test-${pkgs.stdenv.hostPlatform.system}.iso";
-                isoImage.volumeID = "NIXOS_VM_TEST";
-                boot.loader.timeout = 5;
-                users.users.nixos = {
-                  isNormalUser = true;
-                  extraGroups = [
-                    "wheel"
-                    "networkmanager"
-                    "video"
-                    "audio"
-                    "input"
-                  ];
-                  initialPassword = "nixos";
-                  initialHashedPassword = lib.mkForce null;
-                };
-                services.displayManager.autoLogin = {
-                  enable = true;
-                  user = "nixos";
-                };
-                security.sudo.wheelNeedsPassword = false;
-                hardware.enableAllFirmware = true;
-                services.macos-remap.enable = lib.mkDefault true;
-                services.xremap.userName = lib.mkDefault "nixos";
-              }
-            ) # <--- Close the function wrapper
-          ];
-          specialArgs = { inherit pkgs nix-mineral claude-desktop; };
-        };
-
-        # --- Runner Script ---
-
-        # Script to run the VM defined by `vm-image`
-        # `nix run .#run-vm` will build vm-image if needed, then execute this.
-        # flake.nix (inside packages.run-vm definition)
-        run-vm = pkgs.writeShellScriptBin "run-vm" ''
+      
+      # Package definitions
+      packages.x86_64-linux = {
+        # Simple run-vm script
+        run-vm = systemPkgs.writeShellScriptBin "run-vm" ''
           #!/usr/bin/env bash
           set -e
-          # set -x # You can remove or keep this now
-          VM_IMAGE_PATH="${self.packages.${system}.vm-image}"
-
-          # Remove the "-type f" argument from find:
-          VM_RUN_SCRIPT=$(find "$VM_IMAGE_PATH/bin" -name "run-*-vm" | head -n 1)
-
-          # You can remove the extra debug lines now if you want
-          # echo "DEBUG: Checking contents of $VM_IMAGE_PATH/bin/"
-          # ls -l "$VM_IMAGE_PATH/bin/"
-          # echo "DEBUG: Find command returned: '$VM_RUN_SCRIPT'"
-
+          
+          # Build the VM image
+          VM_PATH=$(nix build --no-link --print-out-paths .#vm-image --impure)
+          VM_RUN_SCRIPT=$(find "$VM_PATH/bin" -name "run-*-vm" | head -n 1)
+          
           if [ -z "$VM_RUN_SCRIPT" ]; then
-            echo "Error: Could not find the VM run script in $VM_IMAGE_PATH/bin" >&2
+            echo "Error: Could not find the VM run script in $VM_PATH/bin" >&2
             exit 1
           fi
-
+          
           echo "Starting NixOS VM using script: $VM_RUN_SCRIPT"
           exec "$VM_RUN_SCRIPT" "$@"
         '';
-      };
+        
+        # VM image generation
+        vm-image = inputs.nixos-generators.nixosGenerate {
+          system = "x86_64-linux";
+          format = "vm";
+          modules = [
+            # Import Home Manager
+            inputs.home-manager.nixosModules.home-manager
+            inputs.xremap-flake.nixosModules.default
+            
+            # Import common home manager config
+            hmCommonConfig
+            
+            # Allow unfree packages
+            { nixpkgs.config.allowUnfree = true; }
+            
+            # Direct inline configuration for VM to avoid module resolution issues
+            ({ lib, pkgs, ... }: {
+              # Set hostname for VM
+              networking.hostName = "nixos-vm-test";
+            
+              # User account for VM
+              users.users.agucova = {
+                isNormalUser = true;
+                description = "Agustin Covarrubias";
+                extraGroups = [ "networkmanager" "wheel" ];
+                shell = pkgs.fish;
+                initialPassword = "nixos";
+              };
+              
+              # Enable fish shell
+              programs.fish.enable = true;
+              
+              # Enable automatic login for testing
+              services.displayManager.autoLogin.enable = true;
+              services.displayManager.autoLogin.user = "agucova";
+              
+              # Disable some hardware-specific optimizations
+              boot.kernelParams = lib.mkForce [ "preempt=full" ];
+              
+              # Simplify boot configuration
+              boot.loader = {
+                systemd-boot.enable = true;
+                efi.canTouchEfiVariables = true;
+                timeout = lib.mkForce 0;
+              };
+              
+              # Command not found
+              programs.command-not-found.enable = false;
+              programs.nix-index.enable = false;
+              
+              # Filesystems for VM
+              fileSystems."/" = {
+                device = "/dev/disk/by-label/nixos";
+                fsType = "ext4";
+              };
+              
+              fileSystems."/boot" = {
+                device = "/dev/disk/by-label/boot";
+                fsType = "vfat";
+              };
+              
+              # Include packages from gui-apps module
+              environment.systemPackages = with pkgs; [
+                # Office and Productivity
+                libreoffice-qt
+                vscode
+                ghostty  # From flake overlay
+                zed-editor.fhs  # Modern code editor with FHS env for better compatibility
+                # Only include Claude Desktop if we're not in a live ISO environment
+                (lib.mkIf (!config.isoImage.enable or false) inputs.claude-desktop.packages.${system}.claude-desktop-with-fhs)  # Claude AI desktop app with FHS env for MCP
+                firefox-devedition-bin
+                gitkraken  # Migrated from Flatpak
 
-      homeConfigurations = {
-        "agucova" = home-manager.lib.homeManagerConfiguration {
-           inherit pkgs;
-           # Pass modules as a list: your main file + inline settings
-           modules = [
-             ./hosts/common/home.nix
-             # Add this inline module to define username and stateVersion
-             {
-               home.username = "agucova";
-               home.homeDirectory = "/home/agucova"; # Also good practice to set this
-               home.stateVersion = "24.11"; # Ensure consistency with home.nix
-             }
-           ];
-           extraSpecialArgs = { inherit nix-index-database; };
+                # Media and Entertainment
+                vlc
+                spotify
+                discord
+                signal-desktop
+                telegram-desktop
+                slack
+
+                # Productivity
+                insync
+                obsidian  # Already native
+                zotero    # Already native
+                calibre
+
+                # GNOME-specific utilities
+                gnome-disk-utility
+                gnome-system-monitor
+
+                # Gaming tools
+                steam
+                lutris
+                
+                # Basic tools
+                firefox
+                gnome-terminal
+                strace
+                lsof
+                file
+              ];
+              
+              # GNOME desktop
+              services.xserver.enable = true;
+              services.xserver.displayManager.gdm.enable = true;
+              services.xserver.desktopManager.gnome.enable = true;
+              
+              # Enable Firefox
+              programs.firefox.enable = true;
+              
+              # Configure Flatpak
+              services.flatpak = {
+                enable = true;
+              };
+              
+              # Flatpak post-installation script to install common apps
+              system.activationScripts.flatpakApps = ''
+                # Add Flathub repo
+                flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+                # Install common Flatpak apps that don't have good Nix packages
+                FLATPAK_APPS=(
+                  "com.stremio.Stremio"
+                  "org.jamovi.jamovi"
+                  "org.zulip.Zulip"
+                )
+
+                for app in "''${FLATPAK_APPS[@]}"; do
+                  flatpak install -y flathub "$app" || true
+                done
+              '';
+              
+              # xremap for keyboard remapping
+              services.xremap = {
+                enable = true;
+                userName = "agucova";
+                watch = true;
+                withGnome = true;
+                config = {
+                  modmap = [
+                    {
+                      name = "MacOS-like Alt/Cmd swapping";
+                      remap = {
+                        Alt_L = "Super_L";
+                        Super_L = "Alt_L";
+                      };
+                    }
+                  ];
+                  keymap = [
+                    {
+                      name = "MacOS-style shortcuts";
+                      remap = {
+                        "Super-c" = "C-c";  # Cmd+C -> Ctrl+C (Copy)
+                        "Super-v" = "C-v";  # Cmd+V -> Ctrl+V (Paste)
+                        "Super-x" = "C-x";  # Cmd+X -> Ctrl+X (Cut)
+                        "Super-z" = "C-z";  # Cmd+Z -> Ctrl+Z (Undo)
+                        "Super-a" = "C-a";  # Cmd+A -> Ctrl+A (Select All)
+                        "Super-f" = "C-f";  # Cmd+F -> Ctrl+F (Find)
+                        "Super-s" = "C-s";  # Cmd+S -> Ctrl+S (Save)
+                        "Super-w" = "C-w";  # Cmd+W -> Ctrl+W (Close)
+                      };
+                    }
+                  ];
+                };
+              };
+              
+              # Home manager config 
+              home-manager.users.agucova = { lib, ... }: {
+                home.username = "agucova";
+                home.homeDirectory = "/home/agucova";
+                home.stateVersion = "24.11";
+              };
+            
+              # Settings for VM tests
+              system.stateVersion = "24.11";
+              
+              # VM performance settings
+              virtualisation = {
+                cores = 12;
+                memorySize = 8192;
+                diskSize = 40960;
+                qemu.options = [
+                  "-vga virtio"
+                  "-display gtk,grab-on-hover=on"
+                  "-cpu host"
+                  "-device virtio-keyboard-pci"
+                  "-usb"
+                  "-device usb-tablet"
+                  "-device virtio-serial-pci"
+                ];
+              };
+            })
+          ];
+          specialArgs = { 
+            pkgs = systemPkgs;
+            inherit inputs;
+          };
+        };
+        
+        # ISO images
+        iso-gnome = inputs.nixos-generators.nixosGenerate {
+          system = "x86_64-linux";
+          format = "iso";
+          modules = [
+            ./systems/x86_64-linux/gnome-nixos/default.nix
+            ({ pkgs, ... }: {
+              imports = [ "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix" ];
+              isoImage.isoName = "nixos-gnome-hardware-x86_64-linux.iso";
+              isoImage.volumeID = "NIXOS_GNOME_HW";
+              boot.loader.timeout = 10;
+              users.users.nixos = {
+                isNormalUser = true;
+                extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
+                initialPassword = "nixos";
+                initialHashedPassword = null;
+              };
+              services.displayManager.autoLogin = {
+                enable = true;
+                user = "nixos";
+              };
+              security.sudo.wheelNeedsPassword = false;
+              environment.systemPackages = with pkgs; [ gparted ];
+              hardware.enableAllFirmware = true;
+              services.macos-remap.enable = true;
+              services.xremap.userName = "nixos";
+            })
+          ];
+          specialArgs = { 
+            pkgs = systemPkgs;
+            inherit inputs;
+          };
+        };
+        
+        iso-vm = inputs.nixos-generators.nixosGenerate {
+          system = "x86_64-linux";
+          format = "iso";
+          modules = [
+            ./systems/x86_64-linux/vm-test/default.nix
+            ({ pkgs, ... }: {
+              imports = [ "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-gnome.nix" ];
+              isoImage.isoName = "nixos-vm-test-x86_64-linux.iso";
+              isoImage.volumeID = "NIXOS_VM_TEST";
+              boot.loader.timeout = 5;
+              users.users.nixos = {
+                isNormalUser = true;
+                extraGroups = [ "wheel" "networkmanager" "video" "audio" "input" ];
+                initialPassword = "nixos";
+                initialHashedPassword = null;
+              };
+              services.displayManager.autoLogin = {
+                enable = true;
+                user = "nixos";
+              };
+              security.sudo.wheelNeedsPassword = false;
+              hardware.enableAllFirmware = true;
+              services.macos-remap.enable = true;
+              services.xremap.userName = "nixos";
+            })
+          ];
+          specialArgs = { 
+            pkgs = systemPkgs;
+            inherit inputs;
+          };
         };
       };
     };
