@@ -2,8 +2,9 @@
 { config, pkgs, lib, inputs, ... }:
 
 {
-  imports = [ 
-    "${inputs.self}/modules/home/base"
+  imports = [
+    # With Snowfall Lib, we can now use the auto-discovery
+    # for our home modules
   ];
 
   # Set username and home directory

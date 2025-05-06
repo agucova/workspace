@@ -5,10 +5,10 @@
   # Boot configuration
   boot = {
     # Use latest kernel for better hardware support
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
     # Performance optimizations for AMD 7800X3D
-    kernelParams = [
+    kernelParams = lib.mkDefault [
       # Better desktop responsiveness
       "clocksource=tsc"
       "tsc=reliable"
@@ -21,7 +21,7 @@
     ];
 
     # Enable AMD virtualization
-    kernelModules = [ "kvm-amd" ];
+    kernelModules = lib.mkDefault [ "kvm-amd" ];
   };
 
   # Bootloader with faster timeout
@@ -32,34 +32,34 @@
   };
 
   # Enable CPU microcode updates
-  hardware.cpu.amd.updateMicrocode = true;
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault true;
   hardware.enableRedistributableFirmware = true;
 
   # CPU Power Management
   powerManagement = {
     enable = true;
-    cpuFreqGovernor = "performance";
+    cpuFreqGovernor = lib.mkDefault "performance";
   };
 
   # Networking configuration
   networking = {
-    networkmanager.enable = true;
+    networkmanager.enable = lib.mkDefault true;
     # Enable firewall with default settings (allow SSH)
     firewall = {
-      enable = true;
-      allowedTCPPorts = [ 22 ];
-      allowedUDPPorts = [];
+      enable = lib.mkDefault true;
+      allowedTCPPorts = lib.mkDefault [ 22 ];
+      allowedUDPPorts = lib.mkDefault [];
     };
   };
 
   # Set your time zone
-  time.timeZone = "America/Santiago";
+  time.timeZone = lib.mkDefault "America/Santiago";
 
   # Select internationalisation properties
-  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
 
   # Add more detailed locale settings
-  i18n.extraLocaleSettings = {
+  i18n.extraLocaleSettings = lib.mkDefault {
     LC_ADDRESS = "es_CL.UTF-8";
     LC_IDENTIFICATION = "es_CL.UTF-8";
     LC_MEASUREMENT = "es_CL.UTF-8";
@@ -72,14 +72,14 @@
   };
 
   # Configure console keymap
-  console.keyMap = "us";
+  console.keyMap = lib.mkDefault "us";
 
   # Configure keyboard in X11 and audio services
   services = {
     # X11 keyboard settings - US international as requested
     xserver.xkb = {
-      layout = "us";
-      variant = "alt-intl";
+      layout = lib.mkDefault "us";
+      variant = lib.mkDefault "alt-intl";
     };
 
     # Disable PulseAudio in favor of PipeWire
@@ -87,12 +87,12 @@
 
     # Enable PipeWire with low-latency settings
     pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
+      enable = lib.mkDefault true;
+      alsa.enable = lib.mkDefault true;
+      alsa.support32Bit = lib.mkDefault true;
+      pulse.enable = lib.mkDefault true;
       # Low-latency settings for better audio experience
-      extraConfig.pipewire."92-low-latency" = {
+      extraConfig.pipewire."92-low-latency" = lib.mkDefault {
         "context.properties" = {
           "default.clock.rate" = 48000;
           "default.clock.quantum" = 32;
@@ -103,7 +103,7 @@
     };
 
     # Enable CUPS to print documents
-    printing.enable = true;
+    printing.enable = lib.mkDefault true;
   };
 
   # Enable RTKIT for PipeWire
@@ -177,8 +177,6 @@
   # Enable fish shell
   programs.fish.enable = true;
 
-  # Note: Firefox is configured in specific host configurations
-
   # Enable nix flakes
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
@@ -206,7 +204,7 @@
   };
 
   # Swap configuration using zram and a backup swapfile
-  swapDevices = [{
+  swapDevices = lib.mkDefault [{
     device = "/swapfile";
     size = 8*1024;    # 8GB swapfile
     priority = 10;    # Lower priority than zram
@@ -214,27 +212,27 @@
 
   # Enable zram swap as primary swap
   zramSwap = {
-    enable = true;
-    algorithm = "zstd";     # Best compression/performance ratio
-    memoryPercent = 100;    # Increased to account for compression ratio
-    priority = 100;         # Higher priority than disk-based swap
+    enable = lib.mkDefault true;
+    algorithm = lib.mkDefault "zstd";     # Best compression/performance ratio
+    memoryPercent = lib.mkDefault 100;    # Increased to account for compression ratio
+    priority = lib.mkDefault 100;         # Higher priority than disk-based swap
   };
 
   # Use preload for faster application launching
-  services.preload.enable = true;
+  services.preload.enable = lib.mkDefault true;
 
   # Security hardening options
   security = {
     # Sudo timeout
-    sudo.extraConfig = ''
+    sudo.extraConfig = lib.mkDefault ''
       Defaults timestamp_timeout=300
     '';
 
-    protectKernelImage = true;
+    protectKernelImage = lib.mkDefault true;
   };
 
   # System-level security options
-  boot.kernel.sysctl = {
+  boot.kernel.sysctl = lib.mkDefault {
     # Reduce swap tendency
     "vm.swappiness" = 10;
 

@@ -1,34 +1,8 @@
 # VM testing configuration for NixOS
-{ 
-  lib, 
-  pkgs, 
-  config, 
-  inputs, 
-  namespace, 
-  system, 
-  target, 
-  format, 
-  virtual, 
-  systems, 
-  ...
-}:
+{ lib, pkgs, config, inputs, ... }:
 
 {
-  imports = [
-    # Import modules with relative paths
-    ../../../modules/nixos/base
-    ../../../modules/nixos/gnome
-    ../../../modules/nixos/gui-apps
-    ../../../modules/nixos/virtualization  # Use VM-specific configuration instead of hardware.nix
-    ../../../modules/nixos/dotfiles
-    ../../../modules/nixos/ssh
-    ../../../modules/nixos/mineral
-    ../../../modules/nixos/macos-remap
-  ];
-
-  # Set hostname for VM
-  networking.hostName = "nixos-vm-test";
-
+    # No need for manual imports - Snowfall handles module auto-discovery
   # User account - same as hardware setup
   users.users.agucova = {
     isNormalUser = true;
@@ -36,6 +10,15 @@
     extraGroups = [ "networkmanager" "wheel" ];
     shell = pkgs.fish;
     initialPassword = "nixos";
+  };
+
+  # Enable Home Manager for agucova user
+  home-manager = {
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.agucova = { lib, ... }: {
+      imports = [ ../../../modules/home/base ]; # Import the base home config
+    };
   };
 
   # Enable automatic login for testing
@@ -54,16 +37,10 @@
     timeout = lib.mkForce 0;
   };
 
-  # Disable the default command-not-found implementation to avoid conflicts
-  programs.command-not-found.enable = false;
-
-  # Disable system-wide nix-index since we're using Home Manager module instead
-  programs.nix-index.enable = false;
-
   # Filesystem
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos"; # Standard label used by many NixOS VM tools
-    fsType = "ext4";                   # Common filesystem type for VMs
+    fsType = "ext4";                     # Common filesystem type for VMs
   };
 
   # Boot partition
@@ -161,27 +138,6 @@
     group = "nixos";
   };
   users.groups.nixos = {};
-
-  # Configure home-manager for this user
-  home-manager.users.agucova = { ... }: {
-    imports = [ 
-      ../../../modules/home/base 
-    ];
-
-    home.username = "agucova";
-    home.homeDirectory = "/home/agucova";
-    
-    # Add home activation script to ensure proper symlinks
-    home.activation = {
-      fixProfileLinks = lib.hm.dag.entryAfter ["writeBoundary"] ''
-        # Create necessary directories with proper ownership
-        $DRY_RUN_CMD mkdir -p $VERBOSE_ARG ~/.local/state/nix/profiles
-
-        # Create the symlink with proper ownership
-        $DRY_RUN_CMD ln -sfn ~/.local/state/nix/profiles/profile ~/.nix-profile
-      '';
-    };
-  };
 
   # State version
   system.stateVersion = "24.11";

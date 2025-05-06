@@ -39,7 +39,7 @@
     max-jobs = lib.mkDefault "auto";  # Utilize all available cores for builds
     cores = 0;                        # Use all cores for each build job
   };
-  
+
   # CPU optimizations for better responsiveness
   boot.kernelParams = lib.mkForce [
     "preempt=full"     # Better desktop responsiveness
@@ -61,7 +61,7 @@
     variables = {
       # Indicate we're in a VM (can be useful for scripts)
       RUNNING_IN_VM = "1";
-      
+
       # Clear any NVIDIA-specific variables that might be set in hardware.nix
       LIBVA_DRIVER_NAME = lib.mkForce "";
       WLR_NO_HARDWARE_CURSORS = lib.mkForce "";
@@ -77,5 +77,26 @@
       This is a virtual machine test environment.
       Login with username: agucova and password: nixos
     '';
+  };
+
+  # QEMU virtualization performance settings from original flake
+  virtualisation.vmVariant = {
+        virtualisation = {
+        cores = 12;
+        memorySize = 8192; # 8GB RAM
+        diskSize = 40960;  # 40GB disk
+        qemu.options = [
+        # Improved graphics with better performance
+        "-vga virtio"
+        "-display gtk,grab-on-hover=on"
+        # Pass through host CPU for better performance
+        "-cpu host"
+        # Better input device support
+        "-device virtio-keyboard-pci"
+        "-usb"
+        "-device usb-tablet"
+        "-device virtio-serial-pci"
+        ];
+    };
   };
 }

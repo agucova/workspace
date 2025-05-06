@@ -2,24 +2,31 @@
 
 A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware.
 
-This configuration uses the Snowfall Lib structure for organized, modular development.
+This configuration follows the Snowfall Lib conventions for organized, discoverable, and maintainable Nix configurations.
 
-## Repository Organization
+## Snowfall Lib Structure
 
-This repository follows the Snowfall Lib structure for organized Nix configurations:
+This repository fully implements the Snowfall Lib structure to provide automatic module discovery and organization:
 
 ### Directory Structure
-- `flake.nix` - Main entry point defining inputs and outputs with inline VM and ISO build configurations
-- `modules/` - Modular NixOS and Home Manager configurations
+- `flake.nix` - Main entry point defining inputs and outputs with Snowfall configuration
+- `modules/` - Modular NixOS and Home Manager configurations (auto-discovered)
   - `nixos/` - NixOS-specific modules for system configuration
+    - Each directory here becomes an available module
   - `home/` - Home Manager modules for user environment
-- `systems/` - System-specific configurations
+    - Each directory here becomes an available module
+- `systems/` - System-specific configurations (auto-discovered)
   - `x86_64-linux/` - Linux systems for x86_64 architecture
     - `gnome-nixos/` - Main workstation configuration 
     - `vm-test/` - VM testing configuration
-- `homes/` - Home Manager configurations
+- `homes/` - Home Manager configurations (auto-discovered)
   - `x86_64-linux/` - Linux home configurations
     - `agucova/` - User-specific home configuration
+- `packages/` - Custom package definitions (auto-discovered)
+- `overlays/` - Custom overlays (auto-discovered)
+- `lib/` - Custom library functions (auto-discovered)
+
+The primary advantage of using Snowfall Lib is automatic discovery of modules, packages, and more based on directory structure, removing the need for manual importing and reducing configuration complexity.
 
 ## Implementation Notes
 
@@ -162,8 +169,12 @@ This configuration is built with modularity in mind, now organized with Snowfall
 Test configuration changes in a VM before applying to your main system:
 
 ```bash
-# Build and run the VM (using Snowfall Lib structure)
-nix run .#run-vm --impure
+# Build and run the VM with our simple helper script
+./run-vm.sh
+
+# Or build and run directly using nix
+nix build .#nixosConfigurations.vm-test.config.system.build.vm --impure
+result/bin/run-nixos-vm
 ```
 
 The VM configuration:

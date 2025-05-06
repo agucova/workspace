@@ -1,23 +1,23 @@
 # Main NixOS configuration file for 7800X3D + RTX 4090 Workstation
-{ 
-  lib, 
-  pkgs, 
-  config, 
-  inputs, 
-  namespace, 
-  system, 
-  target, 
-  format, 
-  virtual, 
-  systems, 
+{
+  lib,
+  pkgs,
+  config,
+  inputs,
+  namespace,
+  system,
+  target,
+  format,
+  virtual,
+  systems,
   ...
 }:
 
 {
   imports = [
     # Import hardware configuration if available, otherwise use minimal config
-    (if builtins.pathExists /etc/nixos/hardware-configuration.nix 
-     then /etc/nixos/hardware-configuration.nix 
+    (if builtins.pathExists /etc/nixos/hardware-configuration.nix
+     then /etc/nixos/hardware-configuration.nix
      else ({ lib, ... }: {
        # Fallback minimal hardware configuration for testing
        fileSystems."/" = lib.mkDefault {
@@ -29,16 +29,6 @@
          fsType = "vfat";
        };
      }))
-    
-    # Import Snowfall modules with relative paths
-    ../../../modules/nixos/base
-    ../../../modules/nixos/hardware
-    ../../../modules/nixos/gnome
-    ../../../modules/nixos/gui-apps
-    ../../../modules/nixos/dotfiles
-    ../../../modules/nixos/ssh
-    ../../../modules/nixos/mineral
-    ../../../modules/nixos/macos-remap
   ];
 
   # Set hostname
@@ -81,15 +71,5 @@
   # Configure xremap
   services.xremap = {
     userName = "agucova"; # Use the default user
-  };
-
-  # Configure home-manager for this user
-  home-manager.users.agucova = { ... }: {
-    imports = [ 
-      ../../../modules/home/base
-    ];
-
-    home.username = "agucova";
-    home.homeDirectory = "/home/agucova";
   };
 }

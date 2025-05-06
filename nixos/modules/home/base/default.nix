@@ -1,155 +1,97 @@
-# Home Manager base configuration
-{ config, pkgs, lib, inputs, ... }:
+# modules/home/base/default.nix
+#
+# Base Home-Manager profile shared by every user in the Snowfall repo.
+{ config, pkgs, lib, inputs ? {}, ... }:
 
 {
-  # Home Manager version
+  ## Home-Manager version pin (don’t touch once the machine is installed)
   home.stateVersion = "24.11";
 
-  # Let Home Manager install and manage itself
+  ## Let Home-Manager manage itself
   programs.home-manager.enable = true;
 
-  # Import the nix-index-database module
-  imports = [
-    inputs.nix-index-database.hmModules.nix-index
-  ];
-
-  # Configure programs and tools
+  ## ───────────────────────── Programs & CLI helpers ─────────────────────────
   programs = {
-    # Enable nix-index with comprehensive shell integration
+    # nix-index with the pre-built database provided by
+    # inputs.nix-index-database.hmModules.nix-index
     nix-index = {
-      enable = true;
-      enableFishIntegration = true;
-      enableBashIntegration = true;
-      enableZshIntegration = true;  # Enable for all shells to be safe
+      enable                 = true;
+      enableFishIntegration  = true;
+      enableBashIntegration  = true;
+      enableZshIntegration   = true;
     };
 
-    # Enable comma functionality from nix-index-database
-    # This also ensures the nix-index database is properly linked
+    # “, pkg …” helper from nix-index-database
     nix-index-database.comma.enable = true;
 
-    # Configure shells
+    # Fish shell configuration
     fish = {
       enable = true;
 
-      # Initialize starship prompt
       interactiveShellInit = ''
-        # Use starship prompt
+        # Starship prompt
         starship init fish | source
 
-        # Set batcat as man pager if available
-        if command -v bat > /dev/null
+        # Pretty man pages if bat exists
+        if command -v bat >/dev/null
           set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
         end
       '';
 
-      # Shell aliases
       shellAliases = {
-        # Better ls using lsd
-        ls = "lsd";
-        ll = "lsd -l";
-        la = "lsd -la";
-        lt = "lsd --tree";
+        # Better ls
+        ls  = "lsd";
+        ll  = "lsd -l";
+        la  = "lsd -la";
+        lt  = "lsd --tree";
 
-        # Use bat instead of cat
+        # cat → bat
         cat = "bat";
 
-        # Better directory navigation
-        ".." = "cd ..";
-        "..." = "cd ../..";
+        # Quick directory jumps
+        ".."   = "cd ..";
+        "..."  = "cd ../..";
         "...." = "cd ../../..";
       };
     };
 
+    # Bash configuration (keep minimal; most users will use Fish)
     bash = {
-      enable = true;
-
-      # Initialize starship prompt
-      initExtra = ''
-        # Use starship prompt
-        eval "$(starship init bash)"
-      '';
+      enable    = true;
+      initExtra = ''eval "$(starship init bash)"'';
     };
 
-    # Configure git
+    # Git defaults
     git = {
-      enable = true;
+      enable   = true;
       userName = "Agustin Covarrubias";
       userEmail = "gh@agucova.dev";
-      extraConfig = {
-        init.defaultBranch = "main";
-      };
+      extraConfig.init.defaultBranch = "main";
     };
   };
-
-  # Packages to install for this user
   home.packages = with pkgs; [
-    # Development tools (CLI)
-    gh
-    bat
-    ripgrep
-    fd
-    fzf
-    jq
-    httpie
-    shellcheck
-    delta
-    hyperfine
-    glow
-    chezmoi
+    # Dev / CLI basics
+    gh bat ripgrep fd fzf jq httpie shellcheck delta hyperfine glow chezmoi
 
-    # Nix development tools
-    nil
-    nixd
-    statix
+    # Nix tooling
+    nil nixd statix
 
-    # Shell enhancements (CLI)
-    lsd
-    starship
-    btop
-    fastfetch
-    gdu
-    navi
+    # Shell & monitoring
+    lsd starship btop fastfetch gdu navi
 
-    # Programming languages and tools (CLI)
-    rustup
-    go_1_22
-    bun
+    # Languages
+    rustup go_1_22 bun
     (julia.withPackages [
-      "Plots"
-      "DifferentialEquations"
-      "Revise"
-      "OhMyREPL"
-      "Literate"
-      "Pluto"
-      "BenchmarkTools"
+      "Plots" "DifferentialEquations" "Revise" "OhMyREPL" "Literate"
+      "Pluto" "BenchmarkTools"
     ])
-    (python3.withPackages(ps: with ps; [
-      pip
-      ipython
-      numpy
-      pandas
-      matplotlib
-      seaborn
-      scikit-learn
-      black
-      flake8
-      mypy
-      # ruff and pyright moved to standalone packages
+    (python3.withPackages (ps: with ps; [
+      pip ipython numpy pandas matplotlib seaborn scikit-learn
+      black flake8 mypy
     ]))
+    ruff pyright
 
-    # Standalone Python tools with proper dependencies
-    ruff
-    pyright
-
-    # Network utilities (CLI)
-    nmap
-    whois
-    iperf
-    aria2
-
-    # CLI utilities
-    tree
-    unrar
-    p7zip
+    # Networking & files
+    nmap whois iperf aria2 tree unrar p7zip
   ];
 }
