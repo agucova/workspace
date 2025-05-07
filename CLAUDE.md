@@ -78,6 +78,25 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
 - **Simplified Configuration**: Systems and home configurations can enable features via options rather than explicit imports
 - **Cross-Platform Support**: Architecture-specific configurations are organized by directory structure
 
+### Module Naming Conventions
+- Modules should use the `my*` prefix for options (e.g., `myGnome.enable = true`)
+- Module option definitions should follow this pattern:
+  ```nix
+  let 
+    cfg = config.myModule;
+  in {
+    options.myModule = {
+      enable = lib.mkEnableOption "Module description";
+      # Other options...
+    };
+    
+    config = lib.mkIf cfg.enable {
+      # Configuration when enabled...
+    };
+  }
+  ```
+- System directory names are used by Snowfall as hostnames unless overridden with `networking.hostName = lib.mkForce "customname";`
+
 ### Key Features
 - Flake-based configuration with modular design using Snowfall Lib
 - Optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware
