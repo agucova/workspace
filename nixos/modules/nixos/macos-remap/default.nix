@@ -22,7 +22,7 @@ in
         serviceMode = "user";
         userName = config.users.defaultUserName or "agucova";
         withGnome = true;
-        debug = true;
+        # debug = true;
         config = lib.recursiveUpdate baseCfg
           config.macos-remap.extraXremapConfig;
       };
