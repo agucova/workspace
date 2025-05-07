@@ -33,80 +33,85 @@
       starship
     ];
 
-    programs.fish = {
-      enable = true;
-      interactiveShellInit = ''
-        # Fastfetch motd
-        if status --is-interactive && command -v fastfetch >/dev/null
-          # Shell is running interactively
+    programs = {
+      fish = {
+        enable = true;
+        interactiveShellInit = ''
+          # Fastfetch motd
+          if status --is-interactive && command -v fastfetch >/dev/null
+            # Shell is running interactively
 
-          # Display system info with fastfetch (minimal setup)
-          fastfetch --gpu-hide-type integrated --gpu-detection-method auto -s Title:OS:Host:Kernel:Shell:Terminal:CPU:GPU:Memory
-        end
+            # Display system info with fastfetch (minimal setup)
+            fastfetch --gpu-hide-type integrated --gpu-detection-method auto -s Title:OS:Host:Kernel:Shell:Terminal:CPU:GPU:Memory
+          end
 
-        # Starship prompt
-        starship init fish | source
+          # Starship prompt
+          starship init fish | source
 
-        # Editor configuration and Unicode support
-        set -gx EDITOR "micro"
-        set -gx LANG en_US.UTF-8
-        set -gx CLAUDE_CONFIG_DIR ~/.config/claude-code/
+          # Editor configuration and Unicode support
+          set -gx EDITOR "micro"
+          set -gx LANG en_US.UTF-8
+          set -gx CLAUDE_CONFIG_DIR ~/.config/claude-code/
 
-        # fzf configuration using fd as a backend
-        # Shows hidden files but excludes .git directories
-        set -gx FZF_DEFAULT_COMMAND 'fd --type file --hidden --exclude .git'
-        set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_COMMAND"
-        set -gx FZF_DEFAULT_OPTS '--height 40% --layout=reverse --border'
+          # fzf configuration using fd as a backend
+          # Shows hidden files but excludes .git directories
+          set -gx FZF_DEFAULT_COMMAND 'fd --type file --hidden --exclude .git'
+          set -gx FZF_CTRL_T_COMMAND "$FZF_DEFAULT_COMMAND"
+          set -gx FZF_DEFAULT_OPTS '--height 40% --layout=reverse --border'
 
-        # Pretty man pages if bat exists
-        if command -v bat >/dev/null
-          set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
-        end
+          # Pretty man pages if bat exists
+          if command -v bat >/dev/null
+            set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
+          end
 
-        # Disable default MOTD
-        set fish_greeting ""
+          # Disable default MOTD
+          set fish_greeting ""
 
-        # Enable colour hints in VCS prompt:
-        set __fish_git_prompt_showcolorhints yes
-        set __fish_git_prompt_color_prefix purple
-        set __fish_git_prompt_color_suffix purple
+          # Enable colour hints in VCS prompt:
+          set __fish_git_prompt_showcolorhints yes
+          set __fish_git_prompt_color_prefix purple
+          set __fish_git_prompt_color_suffix purple
 
-        # uv completions
-        if command -q uv
-            # Enable shell completions for uv
-            uvx --generate-shell-completion fish | source
+          # uv completions
+          if command -q uv
+              # Enable shell completions for uv
+              uvx --generate-shell-completion fish | source
 
-            # Add uv-created venvs to PATH
-            fish_add_path "$HOME/.venv/bin"
-        end
+              # Add uv-created venvs to PATH
+              fish_add_path "$HOME/.venv/bin"
+          end
 
-        # Configure pip to use uv as the backend
-        set -gx PIP_REQUIRE_VIRTUALENV true
-        set -gx PIP_USE_UV true
-      '';
-      shellAliases = {
-        ls = "lsd";
-        ll = "lsd -l";
-        la = "lsd -la";
-        lt = "lsd --tree";
-        cat = "bat";
-        ".." = "cd ..";
-        "..." = "cd ../..";
-        "...." = "cd ../../..";
+          # Configure pip to use uv as the backend
+          set -gx PIP_REQUIRE_VIRTUALENV true
+          set -gx PIP_USE_UV true
+        '';
+        shellAliases = {
+          ls = "lsd";
+          ll = "lsd -l";
+          la = "lsd -la";
+          lt = "lsd --tree";
+          cat = "bat";
+          ".." = "cd ..";
+          "..." = "cd ../..";
+          "...." = "cd ../../..";
+        };
       };
-    };
 
-    programs.bash = { enable = true; initExtra = ''eval "$(starship init bash)"''; };
+      bash = { 
+        enable = true; 
+        initExtra = ''eval "$(starship init bash)"''; 
+      };
 
-    programs.starship = {
-      enable = true;
-    };
+      starship = {
+        enable = true;
+      };
 
-    programs.git = {
-      enable = true;
-      userName = "Agustin Covarrubias";
-      userEmail = "gh@agucova.dev";
-      extraConfig = { init.defaultBranch = "main"; credential.helper = "store"; };
+      git = {
+        enable = true;
+        userName = "Agustin Covarrubias";
+        userEmail = "gh@agucova.dev";
+        extraConfig = { init.defaultBranch = "main"; credential.helper = "store"; };
+      };
     };
   };
 }

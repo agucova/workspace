@@ -2,15 +2,6 @@
 { lib, pkgs, config, inputs, ... }:
 
 {
-  # User account - same as hardware setup
-  users.users.agucova = {
-    isNormalUser = true;
-    description = "Agustin Covarrubias";
-    extraGroups = [ "networkmanager" "wheel" ];
-    shell = pkgs.fish;
-    initialPassword = "nixos";
-  };
-
   # Enable layered modules
   myVm.enable = true;
   myGnome.enable = true;
@@ -20,32 +11,62 @@
   macos-remap.enable = true;
   snowfallorg.users.agucova.home.config.macos-remap.keybindings = true;
 
+  # User configurations
+  users = {
+    users = {
+      # User account - same as hardware setup
+      agucova = {
+        isNormalUser = true;
+        description = "Agustin Covarrubias";
+        extraGroups = [ "networkmanager" "wheel" ];
+        shell = pkgs.fish;
+        initialPassword = "nixos";
+      };
+      
+      # Fix for nixos user in VM builds
+      nixos = {
+        isNormalUser = true;
+        group = "nixos";
+      };
+    };
+    
+    groups.nixos = { };
+  };
+
   # Enable automatic login for testing
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "agucova";
+  services.displayManager = {
+    autoLogin = {
+      enable = true;
+      user = "agucova";
+    };
+  };
 
   # Disable some hardware-specific optimizations that don't make sense in VM
-  boot.kernelParams = lib.mkForce [
-    "preempt=full"
-  ];
-
-  # Simplify boot configuration
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
-    timeout = lib.mkForce 0;
+  boot = {
+    kernelParams = lib.mkForce [
+      "preempt=full"
+    ];
+    
+    # Simplify boot configuration
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+      timeout = lib.mkForce 0;
+    };
   };
 
-  # Filesystem
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/nixos"; # Standard label used by many NixOS VM tools
-    fsType = "ext4"; # Common filesystem type for VMs
-  };
+  # Filesystem configuration
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-label/nixos"; # Standard label used by many NixOS VM tools
+      fsType = "ext4"; # Common filesystem type for VMs
+    };
 
-  # Boot partition
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-label/boot";
-    fsType = "vfat";
+    # Boot partition
+    "/boot" = {
+      device = "/dev/disk/by-label/boot";
+      fsType = "vfat";
+    };
   };
 
   # Add minimal GUI packages for VM testing
@@ -59,13 +80,6 @@
     lsof
     file
   ];
-
-  # Fix for nixos user in VM builds
-  users.users.nixos = {
-    isNormalUser = true;
-    group = "nixos";
-  };
-  users.groups.nixos = { };
 
   virtualisation.vmVariant.virtualisation = {
     cores = 12;

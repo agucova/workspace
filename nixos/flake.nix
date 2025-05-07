@@ -80,13 +80,12 @@
 
       # Overlays (extra packages shared by every build)
       overlays = [
-        (final: prev: {
+        (_: prev: {
           # Terminal emulator with GPU acceleration
           ghostty = inputs.ghostty.packages.${prev.system}.default;
 
           # Claude desktop wrapped inside an FHS env
-          claude-desktop-with-fhs =
-            inputs.claude-desktop.packages.${prev.system}.claude-desktop-with-fhs;
+          inherit (inputs.claude-desktop.packages.${prev.system}) claude-desktop-with-fhs;
         })
       ];
 

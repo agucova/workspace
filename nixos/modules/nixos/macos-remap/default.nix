@@ -17,25 +17,27 @@ in
 
   # 3.  Gate all concrete settings behind the boolean
   config = lib.mkIf config.macos-remap.enable {
-    services.xremap = {
-      serviceMode = "user";
-      userName = config.users.defaultUserName or "agucova";
-      withGnome = true;
-      debug = true;
-      config = lib.recursiveUpdate baseCfg
-        config.macos-remap.extraXremapConfig;
+    services = {
+      xremap = {
+        serviceMode = "user";
+        userName = config.users.defaultUserName or "agucova";
+        withGnome = true;
+        debug = true;
+        config = lib.recursiveUpdate baseCfg
+          config.macos-remap.extraXremapConfig;
+      };
+
+      xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+        [org.gnome.shell]
+        enabled-extensions=['xremap@k0kubun.com']
+      '';
+
+      udev.extraRules = ''
+        KERNEL=="uinput", GROUP="input", TAG+="uaccess"
+      '';
     };
 
-    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
-      [org.gnome.shell]
-      enabled-extensions=['xremap@k0kubun.com']
-    '';
-
     environment.systemPackages = with pkgs; [ gnomeExtensions.xremap ];
-
-    services.udev.extraRules = ''
-      KERNEL=="uinput", GROUP="input", TAG+="uaccess"
-    '';
 
     users.groups.input.members =
       lib.optionals (config.users ? defaultUserName)
