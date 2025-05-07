@@ -33,7 +33,7 @@
   ];
 
   # Set hostname
-  networking.hostName = "photon";
+  networking.hostName = "hackstation";
 
   # User account - your account
   users.users.agucova = {
