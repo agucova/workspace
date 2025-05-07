@@ -4,7 +4,7 @@
 {
   # Enable modules with the 'my' prefix
   myBase.enable = true;
-  myDesktop.enable = true;
+  myDesktop.enable = true; # Desktop now includes GNOME
 
   # Hardware module is not enabled for VM testing
   # This avoids hardware-specific optimizations that don't make sense in a VM
@@ -12,8 +12,7 @@
   # Enable VM-specific configurations
   myVm.enable = true;
 
-  # Enable layered modules
-  myGnome.enable = true;
+  # Enable GUI applications
   myGuiApps.enable = true;
 
   # Enable macOS-like keyboard remapping with xremap

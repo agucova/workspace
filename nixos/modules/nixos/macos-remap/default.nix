@@ -4,7 +4,7 @@ let
   baseCfg = import ./xremap-config.nix;
 in
 {
-  # 2.  Declare our feature options
+  # Declare our feature options
   options = {
     macos-remap.enable = lib.mkEnableOption "Run xremap with mac-style bindings";
 
@@ -15,32 +15,44 @@ in
     };
   };
 
-  # 3.  Gate all concrete settings behind the boolean
-  config = lib.mkIf config.macos-remap.enable {
+  # Configure based on the enable option
+  config = {
+    # Base services configuration regardless of whether enabled or not
     services = {
-      xremap = {
+      # Always provide minimum xremap config to avoid errors
+      xremap = if config.macos-remap.enable then {
+        # When enabled - full config
         serviceMode = "user";
         userName = config.users.defaultUserName or "agucova";
         withGnome = true;
         # debug = true;
-        config = lib.recursiveUpdate baseCfg
-          config.macos-remap.extraXremapConfig;
+        config = lib.recursiveUpdate baseCfg config.macos-remap.extraXremapConfig;
+        yamlConfig = ""; # Empty string as fallback to fix the "no config" error
+      } else {
+        # When disabled - minimal config to avoid errors
+        enable = false;
+        yamlConfig = "";
       };
 
-      xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+      # GNOME settings only when enabled
+      xserver.desktopManager.gnome.extraGSettingsOverrides = lib.mkIf config.macos-remap.enable ''
         [org.gnome.shell]
         enabled-extensions=['xremap@k0kubun.com']
       '';
 
-      udev.extraRules = ''
+      # udev rules only when enabled
+      udev.extraRules = lib.mkIf config.macos-remap.enable ''
         KERNEL=="uinput", GROUP="input", TAG+="uaccess"
       '';
     };
 
-    environment.systemPackages = with pkgs; [ gnomeExtensions.xremap ];
+    # Other configs only when enabled
+    environment.systemPackages = lib.mkIf config.macos-remap.enable (with pkgs; [ 
+      gnomeExtensions.xremap 
+    ]);
 
-    users.groups.input.members =
-      lib.optionals (config.users ? defaultUserName)
-        [ config.users.defaultUserName ];
+    users.groups.input.members = lib.mkIf config.macos-remap.enable
+      (lib.optionals (config.users ? defaultUserName)
+        [ config.users.defaultUserName ]);
   };
 }

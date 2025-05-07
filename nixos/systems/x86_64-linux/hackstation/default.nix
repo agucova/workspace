@@ -57,7 +57,7 @@
   # Enable base module (required)
   myBase.enable = true;
 
-  # Enable desktop features (for workstation)
+  # Enable desktop features (for workstation with GNOME)
   myDesktop.enable = true;
 
   # Enable hardware configuration and optimizations
@@ -86,8 +86,7 @@
     };
   };
 
-  # Enable layered modules
-  myGnome.enable = true;
+  # Enable GUI applications module
   myGuiApps.enable = true;
 
   # Enable macOS-like keyboard remapping with xremap

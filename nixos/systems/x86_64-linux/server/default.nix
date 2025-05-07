@@ -19,21 +19,29 @@
     (if builtins.pathExists /etc/nixos/hardware-configuration.nix
     then /etc/nixos/hardware-configuration.nix
     else
-      ({ lib, ... }: {
+      ({ lib, modulesPath, ... }: {
+        # Import the qemu-guest module for testing
+        imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
+        
         # Fallback minimal hardware configuration for testing
-        fileSystems."/" = lib.mkDefault {
+        boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "virtio_blk" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-amd" ];
+        boot.extraModulePackages = [ ];
+        
+        fileSystems."/" = {
           device = "/dev/disk/by-label/nixos";
           fsType = "ext4";
         };
-        fileSystems."/boot" = lib.mkDefault {
+        
+        fileSystems."/boot" = {
           device = "/dev/disk/by-label/boot";
           fsType = "vfat";
         };
+        
+        swapDevices = [ ];
       }))
   ];
-
-  # Set hostname
-  networking.hostName = "server";
 
   # User account - your account
   users.users.agucova = {
@@ -41,14 +49,23 @@
     shell = pkgs.fish; # Set Fish as default shell
     initialPassword = "nixos";
   };
+  
+  # Add minimal boot configuration
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
 
   # Enable base module (required)
-  modules.base.enable = true;
+  myBase.enable = true;
+  
+  # Explicitly disable macOS remapping (not needed on server)
+  macos-remap.enable = false;
 
   # Enable minimal hardware configuration
   # This enables just firmware and generic hardware support,
   # but doesn't enable specific CPU/GPU optimizations
-  modules.hardware = {
+  myHardware = {
     enable = true;
 
     # Enable performance optimizations but not hardware-specific ones
@@ -61,15 +78,6 @@
     # cpu.intel.enable = true;
     # or
     # cpu.amd.enable = true;
-  };
-
-  # Server-specific SSH configuration
-  services.openssh = {
-    enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
-    };
   };
 
   # Additional server-specific packages
@@ -85,8 +93,7 @@
   ];
 
   # Disable sound system completely
-  sound.enable = false;
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing

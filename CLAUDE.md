@@ -263,8 +263,12 @@ Always test your NixOS configuration changes before committing:
 cd /path/to/workspace/nixos
 nix eval --no-update-lock-file --impure --json ".#lib" > /dev/null
 
+# IMPORTANT: Always build all three system configurations before committing
 # For testing the main system configuration
 nix build .#nixosConfigurations.hackstation.config.system.build.toplevel --impure --dry-run
+
+# For testing the server configuration
+nix build .#nixosConfigurations.server.config.system.build.toplevel --impure --dry-run
 
 # For testing the VM configuration
 nix build .#nixosConfigurations.vm.config.system.build.toplevel --impure --dry-run
