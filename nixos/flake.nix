@@ -93,7 +93,10 @@
     ##########################################################################
     systems.modules.nixos = with inputs; [
       home-manager.nixosModules.home-manager
-      xremap-flake.nixosModules.default
+      {
+        home-manager.useUserPackages = true;
+      }
+      xremap-flake.nixosModules.default # Not always necessary, but disabled by default
       nix-index-database.nixosModules.nix-index
     ];
 

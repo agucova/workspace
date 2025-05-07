@@ -3,7 +3,7 @@
 
 pkgs.writeShellScriptBin "run-vm" ''
   #!/usr/bin/env bash
-  set -e
+  set -euo pipefail
 
   # Get the system configuration name
   SYSTEM_NAME="vm-test"
