@@ -1,4 +1,4 @@
-{ ... } @ _:
+_:
 {
   core-shell.enable = true;
   dev-shell.enable = true;
