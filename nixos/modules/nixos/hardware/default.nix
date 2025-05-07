@@ -17,8 +17,8 @@
     # Use latest stable drivers
     package = config.boot.kernelPackages.nvidiaPackages.stable;
     forceFullCompositionPipeline = true;
-    nvidiaPersistenced = true;  # Keeps the NVIDIA driver persistent, improving performance
-    nvidiaSettings = true;      # Enable nvidia-settings utility
+    nvidiaPersistenced = true; # Keeps the NVIDIA driver persistent, improving performance
+    nvidiaSettings = true; # Enable nvidia-settings utility
   };
 
   # Enable NVIDIA driver for X server
@@ -29,7 +29,7 @@
     # GPU monitoring tools
     glxinfo
     vulkan-tools
-    nvtopPackages.full  # renamed from nvtop
+    nvtopPackages.full # renamed from nvtop
 
     # Graphics driver utilities
     libva
@@ -52,6 +52,6 @@
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
 
     # NVIDIA offloading
-    MOZ_DISABLE_RDD_SANDBOX = "1";  # For Firefox hardware acceleration
+    MOZ_DISABLE_RDD_SANDBOX = "1"; # For Firefox hardware acceleration
   };
 }

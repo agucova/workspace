@@ -14,7 +14,7 @@ let
 
     # Skip the default unpack phase since we'll handle it with 7z
     dontUnpack = true;
-    
+
     nativeBuildInputs = with pkgs; [
       p7zip
       icoutils
@@ -46,41 +46,41 @@ let
     '';
 
     installPhase = ''
-      # Create directory structure
-      mkdir -p $out/share/applications
+            # Create directory structure
+            mkdir -p $out/share/applications
 
-      # Install icons in various sizes
-      for size in 16 24 32 48 64 256; do
-        # Find the icon file that matches the size
-        ICON_FILE=$(find . -name "claude_*''${size}x''${size}x*.png" | head -1)
-        if [ -n "$ICON_FILE" ]; then
-          mkdir -p $out/share/icons/hicolor/''${size}x''${size}/apps
-          cp "$ICON_FILE" $out/share/icons/hicolor/''${size}x''${size}/apps/claude-desktop.png
-        else
-          echo "Warning: Missing ''${size}x''${size} icon"
-        fi
-      done
+            # Install icons in various sizes
+            for size in 16 24 32 48 64 256; do
+              # Find the icon file that matches the size
+              ICON_FILE=$(find . -name "claude_*''${size}x''${size}x*.png" | head -1)
+              if [ -n "$ICON_FILE" ]; then
+                mkdir -p $out/share/icons/hicolor/''${size}x''${size}/apps
+                cp "$ICON_FILE" $out/share/icons/hicolor/''${size}x''${size}/apps/claude-desktop.png
+              else
+                echo "Warning: Missing ''${size}x''${size} icon"
+              fi
+            done
 
-      # Create desktop entry with mimetype for x-scheme-handler/claude
-      cat > $out/share/applications/claude-desktop.desktop << EOF
-[Desktop Entry]
-Name=Claude
-GenericName=Claude Desktop
-Comment=AI assistant from Anthropic
-Exec=claude-desktop %u
-Icon=claude-desktop
-Terminal=false
-Type=Application
-Categories=Office;Utility;
-MimeType=x-scheme-handler/claude;
-EOF
+            # Create desktop entry with mimetype for x-scheme-handler/claude
+            cat > $out/share/applications/claude-desktop.desktop << EOF
+      [Desktop Entry]
+      Name=Claude
+      GenericName=Claude Desktop
+      Comment=AI assistant from Anthropic
+      Exec=claude-desktop %u
+      Icon=claude-desktop
+      Terminal=false
+      Type=Application
+      Categories=Office;Utility;
+      MimeType=x-scheme-handler/claude;
+      EOF
     '';
 
     meta = with lib; {
       description = "Claude Desktop for Linux - Icons and desktop entry";
       license = licenses.unfree;
       platforms = platforms.linux;
-      maintainers = [];
+      maintainers = [ ];
     };
   };
 in

@@ -8,7 +8,29 @@
   config = lib.mkIf config.core-shell.enable {
     home.packages = with pkgs; [
       # Dev / CLI basics
-      gh bat ripgrep fd fzf jq httpie shellcheck delta hyperfine glow chezmoi fastfetch lsd navi btop whois iperf aria2 tree unrar p7zip starship
+      gh
+      bat
+      ripgrep
+      fd
+      fzf
+      jq
+      httpie
+      shellcheck
+      delta
+      hyperfine
+      glow
+      chezmoi
+      fastfetch
+      lsd
+      navi
+      btop
+      whois
+      iperf
+      aria2
+      tree
+      unrar
+      p7zip
+      starship
     ];
 
     programs.fish = {
@@ -63,8 +85,14 @@
         set -gx PIP_USE_UV true
       '';
       shellAliases = {
-        ls="lsd"; ll="lsd -l"; la="lsd -la"; lt="lsd --tree";
-        cat="bat"; ".."="cd .."; "..."="cd ../.."; "...."="cd ../../..";
+        ls = "lsd";
+        ll = "lsd -l";
+        la = "lsd -la";
+        lt = "lsd --tree";
+        cat = "bat";
+        ".." = "cd ..";
+        "..." = "cd ../..";
+        "...." = "cd ../../..";
       };
     };
 

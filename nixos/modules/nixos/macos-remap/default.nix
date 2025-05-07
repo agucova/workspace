@@ -9,8 +9,8 @@ in
     macos-remap.enable = lib.mkEnableOption "Run xremap with mac-style bindings";
 
     macos-remap.extraXremapConfig = lib.mkOption {
-      type        = lib.types.attrs;
-      default     = { };
+      type = lib.types.attrs;
+      default = { };
       description = "Extra bindings merged into the default xremap config.";
     };
   };
@@ -19,11 +19,11 @@ in
   config = lib.mkIf config.macos-remap.enable {
     services.xremap = {
       serviceMode = "user";
-      userName    = config.users.defaultUserName or "agucova";
-      withGnome   = true;
-      debug       = true;
-      config      = lib.recursiveUpdate baseCfg
-                       config.macos-remap.extraXremapConfig;
+      userName = config.users.defaultUserName or "agucova";
+      withGnome = true;
+      debug = true;
+      config = lib.recursiveUpdate baseCfg
+        config.macos-remap.extraXremapConfig;
     };
 
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''

@@ -48,7 +48,7 @@
     firewall = {
       enable = lib.mkDefault true;
       allowedTCPPorts = lib.mkDefault [ 22 ];
-      allowedUDPPorts = lib.mkDefault [];
+      allowedUDPPorts = lib.mkDefault [ ];
     };
   };
 
@@ -209,16 +209,16 @@
   # Swap configuration using zram and a backup swapfile
   swapDevices = lib.mkDefault [{
     device = "/swapfile";
-    size = 8*1024;    # 8GB swapfile
-    priority = 10;    # Lower priority than zram
+    size = 8 * 1024; # 8GB swapfile
+    priority = 10; # Lower priority than zram
   }];
 
   # Enable zram swap as primary swap
   zramSwap = {
     enable = lib.mkDefault true;
-    algorithm = lib.mkDefault "zstd";     # Best compression/performance ratio
-    memoryPercent = lib.mkDefault 100;    # Increased to account for compression ratio
-    priority = lib.mkDefault 100;         # Higher priority than disk-based swap
+    algorithm = lib.mkDefault "zstd"; # Best compression/performance ratio
+    memoryPercent = lib.mkDefault 100; # Increased to account for compression ratio
+    priority = lib.mkDefault 100; # Higher priority than disk-based swap
   };
 
   # Use preload for faster application launching

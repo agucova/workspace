@@ -6,9 +6,13 @@
 
   config = lib.mkIf config.dotfiles.enable {
     home.packages = with pkgs; [
-      chezmoi _1password-cli uv git gh
+      chezmoi
+      _1password-cli
+      uv
+      git
+      gh
     ];
-    programs.fish.shellAliases.setup-dotfiles="mkdir -p ~/repos && cd ~/repos && \
+    programs.fish.shellAliases.setup-dotfiles = "mkdir -p ~/repos && cd ~/repos && \
         git clone https://github.com/agucova/workspace && \
         cd workspace/pyinfra && uv run dotfiles_setup.py";
   };

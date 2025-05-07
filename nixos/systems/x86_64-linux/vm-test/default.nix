@@ -12,9 +12,9 @@
   };
 
   # Enable layered modules
-  myVm.enable           = true;
+  myVm.enable = true;
   myGnome.enable = true;
-  myGuiApps.enable                 = true;
+  myGuiApps.enable = true;
 
   # Enable macOS-like keyboard remapping with xremap
   macos-remap.enable = true;
@@ -39,7 +39,7 @@
   # Filesystem
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos"; # Standard label used by many NixOS VM tools
-    fsType = "ext4";                     # Common filesystem type for VMs
+    fsType = "ext4"; # Common filesystem type for VMs
   };
 
   # Boot partition
@@ -65,7 +65,7 @@
     isNormalUser = true;
     group = "nixos";
   };
-  users.groups.nixos = {};
+  users.groups.nixos = { };
 
   virtualisation.vmVariant.virtualisation = {
     cores = 12;

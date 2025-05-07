@@ -1,46 +1,46 @@
 [
   # Toggle terminal
   {
-    key     = "ctrl+`";
+    key = "ctrl+`";
     command = "workbench.action.terminal.toggleTerminal";
-    when    = "terminal.active";
+    when = "terminal.active";
   }
   {
-    key     = "ctrl+`";
+    key = "ctrl+`";
     command = "workbench.action.terminal.toggleTerminal";
   }
 
   # Send Ctrl-C inside terminal
   {
-    key     = "ctrl+c";
+    key = "ctrl+c";
     command = "workbench.action.terminal.sendSequence";
-    when    = "terminalFocus";
-    args    = { text = "\\u0003"; };
+    when = "terminalFocus";
+    args = { text = "\\u0003"; };
   }
   {
-    key     = "ctrl+v";
+    key = "ctrl+v";
     command = "workbench.action.terminal.paste";
-    when    = "terminalFocus";
+    when = "terminalFocus";
   }
 
   # mac-style word navigation
   {
-    key     = "alt+left";
+    key = "alt+left";
     command = "workbench.action.terminal.sendSequence";
-    when    = "terminalFocus";
-    args    = { text = "\\u001b[1;5D"; };
+    when = "terminalFocus";
+    args = { text = "\\u001b[1;5D"; };
   }
   {
-    key     = "alt+right";
+    key = "alt+right";
     command = "workbench.action.terminal.sendSequence";
-    when    = "terminalFocus";
-    args    = { text = "\\u001b[1;5C"; };
+    when = "terminalFocus";
+    args = { text = "\\u001b[1;5C"; };
   }
 
   # mac-style delete word
   {
-    key     = "alt+backspace";
+    key = "alt+backspace";
     command = "deleteWordLeft";
-    when    = "textInputFocus && !editorReadonly";
+    when = "textInputFocus && !editorReadonly";
   }
 ]

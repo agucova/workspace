@@ -1,16 +1,15 @@
 # Main NixOS configuration file for 7800X3D + RTX 4090 Workstation
-{
-  lib,
-  pkgs,
-  config,
-  inputs,
-  namespace,
-  system,
-  target,
-  format,
-  virtual,
-  systems,
-  ...
+{ lib
+, pkgs
+, config
+, inputs
+, namespace
+, system
+, target
+, format
+, virtual
+, systems
+, ...
 }:
 
 {
@@ -18,18 +17,19 @@
     # Import hardware configuration if available, otherwise use minimal config
     # We'll replace this on first deploy.
     (if builtins.pathExists /etc/nixos/hardware-configuration.nix
-     then /etc/nixos/hardware-configuration.nix
-     else ({ lib, ... }: {
-       # Fallback minimal hardware configuration for testing
-       fileSystems."/" = lib.mkDefault {
-         device = "/dev/disk/by-label/nixos";
-         fsType = "ext4";
-       };
-       fileSystems."/boot" = lib.mkDefault {
-         device = "/dev/disk/by-label/boot";
-         fsType = "vfat";
-       };
-     }))
+    then /etc/nixos/hardware-configuration.nix
+    else
+      ({ lib, ... }: {
+        # Fallback minimal hardware configuration for testing
+        fileSystems."/" = lib.mkDefault {
+          device = "/dev/disk/by-label/nixos";
+          fsType = "ext4";
+        };
+        fileSystems."/boot" = lib.mkDefault {
+          device = "/dev/disk/by-label/boot";
+          fsType = "vfat";
+        };
+      }))
   ];
 
   # Set hostname
@@ -40,7 +40,7 @@
     isNormalUser = true;
     description = "Agustin Covarrubias";
     extraGroups = [ "networkmanager" "wheel" "docker" "video" "audio" "input" "podman" ];
-    shell = pkgs.fish;  # Set Fish as default shell
+    shell = pkgs.fish; # Set Fish as default shell
     # Using a plain text password is fine for initial setup, but consider
     # changing it after installation or using hashedPassword instead
     initialPassword = "nixos";
@@ -48,7 +48,7 @@
 
   # Enable layered modules
   myGnome.enable = true;
-  myGuiApps.enable                 = true;
+  myGuiApps.enable = true;
 
   # Enable macOS-like keyboard remapping with xremap
   macos-remap.enable = true;

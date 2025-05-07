@@ -24,11 +24,11 @@ in
       # Office and Productivity
       libreoffice-qt
       vscode
-      ghostty  # From flake overlay
-      zed-editor.fhs  # Modern code editor with FHS env for better compatibility
+      ghostty # From flake overlay
+      zed-editor.fhs # Modern code editor with FHS env for better compatibility
       # Only include Claude Desktop if we're not in a live ISO environment
       claude-desktop-with-fhs
-      gitkraken  # Migrated from Flatpak
+      gitkraken # Migrated from Flatpak
 
       # Media and Entertainment
       vlc
@@ -40,8 +40,8 @@ in
 
       # Productivity
       insync
-      obsidian  # Already native
-      zotero    # Already native
+      obsidian # Already native
+      zotero # Already native
       calibre
 
       # GNOME-specific utilities
