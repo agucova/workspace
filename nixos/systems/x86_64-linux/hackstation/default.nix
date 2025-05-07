@@ -32,8 +32,8 @@
       }))
   ];
 
-  # Set hostname
-  networking.hostName = "hackstation";
+  # Set hostname with higher priority
+  networking.hostName = lib.mkForce "hackstation";
 
   # User account - your account
   users.users.agucova = {
