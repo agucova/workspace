@@ -2,57 +2,63 @@
   description = "NixOS / Home-Manager mono-repo for my 7800X3D + RTX 4090 workstation fleet";
 
   ############################################################################
-  ## 1  Inputs                                                              ##
+  #  Inputs                                                                  #
   ############################################################################
   inputs = {
+    # Core dependencies
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-
+    
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    ghostty.url = "github:ghostty-org/ghostty";
+    
     flake-utils.url = "github:numtide/flake-utils";
+    
+    # Tools and generators
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
+    # Application dependencies
+    ghostty.url = "github:ghostty-org/ghostty";
+    
     claude-desktop = {
       url = "github:k3d3/claude-desktop-linux-flake";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
     };
-
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nix-index-database = {
-      url = "github:nix-community/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
+    
+    # System enhancements
     xremap-flake = {
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # Hardening rules (plain Nix files, not a flake)
+    
+    # Security
     nix-mineral = {
       url = "github:cynicsketch/nix-mineral";
-      flake = false;
+      flake = false; # Plain Nix files, not a flake
     };
   };
 
   ############################################################################
-  ## 2  Outputs                                                             ##
+  #  Outputs                                                                 #
   ############################################################################
   outputs = inputs:
     let
-      # Build an extended lib that knows about every input + Snowfall helpers
+      # Build an extended lib with Snowfall helpers
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
@@ -67,43 +73,41 @@
       };
     in
     lib.mkFlake {
-
-      ##########################################################################
-      ## 2.1  Global nixpkgs configuration                                    ##
-      ##########################################################################
+      # Global nixpkgs configuration
       channels-config = {
         allowUnfree = true;
       };
 
-      ##########################################################################
-      ## 2.2  Overlays (extra packages shared by every build)                 ##
-      ##########################################################################
+      # Overlays (extra packages shared by every build)
       overlays = [
         (final: prev: {
+          # Terminal emulator with GPU acceleration
           ghostty = inputs.ghostty.packages.${prev.system}.default;
 
-          # Claude desktop arrives already wrapped inside an FHS env
+          # Claude desktop wrapped inside an FHS env
           claude-desktop-with-fhs =
             inputs.claude-desktop.packages.${prev.system}.claude-desktop-with-fhs;
         })
       ];
 
-      ##########################################################################
-      ## 2.3  Modules applied to *every* NixOS host                           ##
-      ##########################################################################
+      # Modules applied to all NixOS hosts
       systems.modules.nixos = with inputs; [
+        # Home-manager integration
         home-manager.nixosModules.home-manager
         {
           home-manager.useUserPackages = true;
         }
-        xremap-flake.nixosModules.default # Not always necessary, but disabled by default
-        nix-index-database.nixosModules.nix-index
+        
+        # System enhancements
+        xremap-flake.nixosModules.default # macOS-style keyboard remapping (disabled by default)
+        
+        # Tools
+        nix-index-database.nixosModules.nix-index # Command-not-found replacement
       ];
 
-      # Make the Home-Manager wrapper available to every user that
-      # imports modules from your `homes/**` tree.
-      homes.modules = [
-        inputs.nix-index-database.hmModules.nix-index
+      # Modules applied to all home-manager configurations
+      homes.modules = with inputs; [
+        nix-index-database.hmModules.nix-index # Command-not-found replacement for home-manager
       ];
     };
 }
