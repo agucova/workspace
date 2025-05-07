@@ -107,11 +107,11 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
 
 ### NixOS Rebuild Commands
 ```bash
-# Apply configuration changes for the main system (photon)
-sudo nixos-rebuild switch --flake /path/to/workspace/nixos#photon --experimental-features 'nix-command flakes' --impure
+# Apply configuration changes for the main system
+sudo nixos-rebuild switch --flake /path/to/workspace/nixos#hackstation --experimental-features 'nix-command flakes' --impure
 
 # Build without applying (useful for testing)
-sudo nixos-rebuild build --flake /path/to/workspace/nixos#photon --experimental-features 'nix-command flakes' --impure
+sudo nixos-rebuild build --flake /path/to/workspace/nixos#hackstation --experimental-features 'nix-command flakes' --impure
 
 # List all available system configurations from Snowfall structure
 nix flake show /path/to/workspace/nixos
@@ -122,7 +122,7 @@ The `--impure` flag is required because the configuration imports the system har
 ### Home Manager Commands
 ```bash
 # Apply home-manager configuration changes
-home-manager switch --flake /path/to/workspace/nixos#agucova@photon --experimental-features 'nix-command flakes'
+home-manager switch --flake /path/to/workspace/nixos#agucova@hackstation --experimental-features 'nix-command flakes'
 # Note: The format is username@hostname for home configurations in Snowfall
 ```
 
@@ -189,21 +189,24 @@ Key lints include:
 
 ### VM Testing
 ```bash
-# Quick VM run (works on non-NixOS systems too)
+# Build a VM directly
 cd /path/to/workspace/nixos
-nix run .#run-vm --impure  # Uses auto CPU core detection, auto-detects VM script
+nix build .#nixosConfigurations.vm-test.config.system.build.vm --impure
 
-# Build and then run (alternative approach)
-cd /path/to/workspace/nixos
-nix build .#vm-test --impure
+# Run the VM after building
 ./result/bin/run-nixos-vm
 
-# Use optimized build settings
-cd /path/to/workspace/nixos
-nix run .#fast-build -- vm-test  # Uses optimized job settings
+# Test building without running (for verification)
+cd /path/to/workspace/nixos 
+nix build .#nixosConfigurations.vm-test.config.system.build.toplevel --impure --dry-run
 
-# Fast-build can be used for any output:
-nix run .#fast-build -- [output-name]
+# Test building the hackstation configuration
+cd /path/to/workspace/nixos
+nix build .#nixosConfigurations.hackstation.config.system.build.toplevel --impure --dry-run
+
+# Quick run using the existing run-vm script (if available)
+cd /path/to/workspace/nixos
+nix run .#run-vm --impure  # Uses auto CPU core detection, auto-detects VM script
 ```
 
 The VM configuration includes performance optimizations:
@@ -248,37 +251,36 @@ The `ansible/` directory contains the original Ansible playbook for Ubuntu-based
    - On local machine: `cd pyinfra && uv run pyinfra @local -v <module>.<function>`
    - In Docker (for headless modules): `cd pyinfra && uv run docker_test.py run <module>.<function>`
    - For NixOS changes: Run validation before committing (see below)
-6. IMPORTANT: Never commit changes until they've been fully tested. Commit only after verifying functionality.
+6. IMPORTANT: Never commit changes until they've been fully tested. Commit only after verifying functionality using the build test commands.
 7. IMPORTANT: NEVER commit changes unless explicitly requested by the user. Always wait for confirmation before creating any git commits.
 8. Use conventional commit messages
 
-## NixOS Testing Before Commit
-**IMPORTANT**: Always test Nix configuration changes before committing to avoid breaking the system:
+### Testing Before Committing
+Always test your NixOS configuration changes before committing:
 
 ```bash
-# For NixOS configuration changes
+# Quick test - just validate the flake structure and module names
 cd /path/to/workspace/nixos
-
-# Test flake evaluation (quick validation)
 nix eval --no-update-lock-file --impure --json ".#lib" > /dev/null
+
+# For testing the main system configuration
+nix build .#nixosConfigurations.hackstation.config.system.build.toplevel --impure --dry-run
+
+# For testing the VM configuration
+nix build .#nixosConfigurations.vm-test.config.system.build.toplevel --impure --dry-run
 
 # For basic validation of flake structure and outputs
 nix flake check --no-build --impure
 
-# For more thorough checking (builds derivations)
-nix flake check --impure
-
-# For testing specific system without applying
-nix build .#nixosConfigurations.photon.config.system.build.toplevel --impure --dry-run
-
-# For testing specific home configuration without applying
-nix build .#homeConfigurations."agucova@photon".activationPackage --impure --dry-run
-
-# For testing VM configuration (useful for safer testing)
-nix build .#vm-test --impure
+# For testing VM builds
+nix build .#nixosConfigurations.vm-test.config.system.build.vm --impure
 ```
 
-Use these commands to validate changes before committing. If any test fails, fix the issues before committing.
+These tests ensure your changes don't break the system configuration. If any test fails, fix the issues before committing. Common errors include:
+- Missing or incorrect module references
+- Type errors in configuration values
+- Circular dependencies
+- Missing hardware configuration settings
 
 ## Code Style Guidelines
 - **Typing**: Use type hints throughout; prefer `|` for union types in Python 3.10+
