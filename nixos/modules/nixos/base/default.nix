@@ -4,9 +4,9 @@
 with lib;
 
 let 
-  cfg = config.modules.base;
+  cfg = config.myBase;
 in {
-  options.modules.base = {
+  options.myBase = {
     enable = mkEnableOption "Base system configuration";
   };
 

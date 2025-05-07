@@ -4,9 +4,9 @@
 with lib;
 
 let 
-  cfg = config.modules.hardware;
+  cfg = config.myHardware;
 in {
-  options.modules.hardware = {
+  options.myHardware = {
     enable = mkEnableOption "Hardware configuration and optimizations";
     
     # CPU options

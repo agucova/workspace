@@ -47,13 +47,13 @@
   };
 
   # Enable base module (required)
-  modules.base.enable = true;
+  myBase.enable = true;
   
   # Enable desktop features (for workstation)
-  modules.desktop.enable = true;
+  myDesktop.enable = true;
   
   # Enable hardware configuration and optimizations
-  modules.hardware = {
+  myHardware = {
     enable = true;
     
     # CPU configuration for AMD 7800X3D

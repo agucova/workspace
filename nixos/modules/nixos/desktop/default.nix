@@ -4,9 +4,9 @@
 with lib;
 
 let
-  cfg = config.modules.desktop;
+  cfg = config.myDesktop;
 in {
-  options.modules.desktop = {
+  options.myDesktop = {
     enable = mkEnableOption "Desktop configuration";
   };
 

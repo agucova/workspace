@@ -2,7 +2,7 @@
 { lib, pkgs, config, inputs, ... }:
 
 {
-  # Enable my custom modules
+  # Enable modules with the 'my' prefix
   myBase.enable = true;
   myDesktop.enable = true;
   
