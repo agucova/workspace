@@ -1,4 +1,4 @@
-# Main NixOS configuration file for 7800X3D + RTX 4090 Workstation
+# Server NixOS configuration file
 { lib
 , pkgs
 , config
@@ -33,13 +33,13 @@
   ];
 
   # Set hostname
-  networking.hostName = "hackstation";
+  networking.hostName = "server";
 
   # User account - your account
   users.users.agucova = {
     isNormalUser = true;
     description = "Agustin Covarrubias";
-    extraGroups = [ "networkmanager" "wheel" "docker" "video" "audio" "input" "podman" ];
+    extraGroups = [ "wheel" ];
     shell = pkgs.fish; # Set Fish as default shell
     # Using a plain text password is fine for initial setup, but consider
     # changing it after installation or using hashedPassword instead
@@ -49,58 +49,48 @@
   # Enable base module (required)
   modules.base.enable = true;
   
-  # Enable desktop features (for workstation)
-  modules.desktop.enable = true;
-  
-  # Enable hardware configuration and optimizations
+  # Enable minimal hardware configuration
+  # This enables just firmware and generic hardware support,
+  # but doesn't enable specific CPU/GPU optimizations
   modules.hardware = {
     enable = true;
     
-    # CPU configuration for AMD 7800X3D
-    cpu.amd = {
-      enable = true;
-      model = "7800X3D";
-      optimizations = true;
-    };
-    
-    # GPU configuration for NVIDIA RTX 4090
-    gpu.nvidia = {
-      enable = true;
-      model = "RTX 4090";
-      open = true;
-      wayland = true;
-    };
-    
-    # Enable performance optimizations
+    # Enable performance optimizations but not hardware-specific ones
     performance = {
       enable = true;
       build.parallel = true;
     };
+    
+    # If server has specific hardware, can be enabled like:
+    # cpu.intel.enable = true;
+    # or
+    # cpu.amd.enable = true; 
   };
-
-  # Enable layered modules
-  myGnome.enable = true;
-  myGuiApps.enable = true;
-
-  # Enable macOS-like keyboard remapping with xremap
-  macos-remap.enable = true;
-  snowfallorg.users.agucova.home.config.macos-remap.keybindings = true;
-
-  # Enable Docker and NvCT
-  virtualisation = {
-    docker = {
-      enable = true;
+  
+  # Server-specific SSH configuration
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      PermitRootLogin = "no";
     };
   };
-  hardware.nvidia-container-toolkit.enable = true;
 
-  # Additional host-specific packages
+  # Additional server-specific packages
   environment.systemPackages = with pkgs; [
-    # Container tools
-    docker
-    docker-compose
-    podman
+    # Server tools
+    tmux
+    htop
+    iotop
+    iftop
+    jq
+    ripgrep
+    fd
   ];
+
+  # Disable sound system completely
+  sound.enable = false;
+  hardware.pulseaudio.enable = false;
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing

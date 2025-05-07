@@ -1,251 +1,185 @@
-# Base NixOS Configuration for 7800X3D + RTX 4090 Workstation
-{ lib, pkgs, ... }:
+# Base NixOS Configuration
+{ config, lib, pkgs, ... }:
 
-{
-  # Boot configuration
-  boot = {
-    # Use latest kernel for better hardware support
-    kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+with lib;
 
-    # Performance optimizations for AMD 7800X3D
-    kernelParams = lib.mkDefault [
-      # Better desktop responsiveness
-      "clocksource=tsc"
-      "tsc=reliable"
-      "preempt=full"
-      # AMD-specific optimizations
-      "amd_pstate=active"
-      "processor.max_cstate=5"
-      # Uncomment for maximum performance (reduces security)
-      # "mitigations=off"
-    ];
-
-    # Enable AMD virtualization
-    kernelModules = lib.mkDefault [ "kvm-amd" ];
+let 
+  cfg = config.modules.base;
+in {
+  options.modules.base = {
+    enable = mkEnableOption "Base system configuration";
   };
 
-  # Bootloader with faster timeout
-  boot.loader = {
-    systemd-boot.enable = true;
-    efi.canTouchEfiVariables = true;
-    timeout = lib.mkDefault 3;
-  };
-
-  # Enable CPU microcode updates
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault true;
-  hardware.enableRedistributableFirmware = true;
-
-  # CPU Power Management
-  powerManagement = {
-    enable = true;
-    cpuFreqGovernor = lib.mkDefault "performance";
-  };
-
-  # Networking configuration
-  networking = {
-    networkmanager.enable = lib.mkDefault true;
-    # Enable firewall with default settings (allow SSH)
-    firewall = {
-      enable = lib.mkDefault true;
-      allowedTCPPorts = lib.mkDefault [ 22 ];
-      allowedUDPPorts = lib.mkDefault [ ];
-    };
-  };
-
-  # Set your time zone
-  time.timeZone = lib.mkDefault "America/Santiago";
-
-  # Select internationalisation properties
-  i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
-
-  # Add more detailed locale settings
-  i18n.extraLocaleSettings = lib.mkDefault {
-    LC_ADDRESS = "es_CL.UTF-8";
-    LC_IDENTIFICATION = "es_CL.UTF-8";
-    LC_MEASUREMENT = "es_CL.UTF-8";
-    LC_MONETARY = "es_CL.UTF-8";
-    LC_NAME = "es_CL.UTF-8";
-    LC_NUMERIC = "es_CL.UTF-8";
-    LC_PAPER = "es_CL.UTF-8";
-    LC_TELEPHONE = "es_CL.UTF-8";
-    LC_TIME = "es_CL.UTF-8";
-  };
-
-  # Configure console keymap
-  console.keyMap = lib.mkDefault "us";
-
-  # Configure keyboard in X11 and audio services
-  services = {
-    # X11 keyboard settings - US international as requested
-    xserver.xkb = {
-      layout = lib.mkDefault "us";
-      variant = lib.mkDefault "alt-intl";
-    };
-
-    # Disable PulseAudio in favor of PipeWire
-    pulseaudio.enable = false;
-
-    # Enable PipeWire with low-latency settings
-    pipewire = {
-      enable = lib.mkDefault true;
-      alsa.enable = lib.mkDefault true;
-      alsa.support32Bit = lib.mkDefault true;
-      pulse.enable = lib.mkDefault true;
-      # Low-latency settings for better audio experience
-      extraConfig.pipewire."92-low-latency" = lib.mkDefault {
-        "context.properties" = {
-          "default.clock.rate" = 48000;
-          "default.clock.quantum" = 32;
-          "default.clock.min-quantum" = 32;
-          "default.clock.max-quantum" = 512;
-        };
+  config = mkIf cfg.enable {
+    # Boot configuration (generic)
+    boot = {
+      # Use latest kernel for better hardware support
+      kernelPackages = mkDefault pkgs.linuxPackages_latest;
+      
+      # Bootloader configuration
+      loader = {
+        systemd-boot.enable = true;
+        efi.canTouchEfiVariables = true;
+        timeout = 5; # Sensible default, overridden by desktop module
       };
     };
 
-    # Enable CUPS to print documents
-    printing.enable = lib.mkDefault true;
-  };
+    # Enable firmware
+    hardware.enableRedistributableFirmware = true;
 
-  # Enable RTKIT for PipeWire
-  security.rtkit.enable = true;
+    # Networking configuration
+    networking = {
+      # Enable firewall with default settings (allow SSH)
+      firewall = {
+        enable = mkDefault true;
+        allowedTCPPorts = mkDefault [ 22 ];
+        allowedUDPPorts = mkDefault [ ];
+      };
+    };
 
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
+    # Set your time zone
+    time.timeZone = mkDefault "America/Santiago";
 
-  # Base system packages
-  environment.systemPackages = with pkgs; [
-    # Essential tools
-    wget
-    curl
-    git
-    htop
-    micro
-    vim
-    nano
-    fish
+    # Select internationalisation properties
+    i18n.defaultLocale = mkDefault "en_US.UTF-8";
 
-    # Security tools
-    gnupg
-    keepassxc
-    # ufw (enable as a service instead)
+    # Add more detailed locale settings
+    i18n.extraLocaleSettings = mkDefault {
+      LC_ADDRESS = "es_CL.UTF-8";
+      LC_IDENTIFICATION = "es_CL.UTF-8";
+      LC_MEASUREMENT = "es_CL.UTF-8";
+      LC_MONETARY = "es_CL.UTF-8";
+      LC_NAME = "es_CL.UTF-8";
+      LC_NUMERIC = "es_CL.UTF-8";
+      LC_PAPER = "es_CL.UTF-8";
+      LC_TELEPHONE = "es_CL.UTF-8";
+      LC_TIME = "es_CL.UTF-8";
+    };
 
-    # System utilities
-    pciutils
-    usbutils
-    inxi
-    lm_sensors
-    # nvtop
-    # timeshift
-    dnsutils
-    iperf
-    whois
-    tree
-    sqlite
+    # Configure console keymap
+    console.keyMap = mkDefault "us";
 
-    # Compression tools
-    zip
-    unzip
-    p7zip
-    gzip
-    xz
+    # Allow unfree packages
+    nixpkgs.config.allowUnfree = true;
 
-    # Fun tools
-    cowsay
-    lolcat
+    # Base system packages
+    environment.systemPackages = with pkgs; [
+      # Essential tools
+      wget
+      curl
+      git
+      htop
+      micro
+      vim
+      nano
+      fish
 
-    # Development tools
-    gcc
-    cmake
-    autoconf
-    automake
-    libtool
-    pkg-config
-    gnumake
-    clang
+      # Security tools
+      gnupg
+      keepassxc
 
-    # File transfer
-    aria2
-    # magic-wormhole
-    #
-    # Network tools
-    nmap
-    traceroute
-    netcat
-    openvpn
-  ];
+      # System utilities
+      pciutils
+      usbutils
+      inxi
+      lm_sensors
+      dnsutils
+      iperf
+      whois
+      tree
+      sqlite
 
-  # Enable fish shell
-  programs.fish.enable = true;
+      # Compression tools
+      zip
+      unzip
+      p7zip
+      gzip
+      xz
 
-  # Enable nix flakes
-  nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
-    # Enable garbage collection and optimizations
-    auto-optimise-store = true;
-    # Allow greater parallelism for builds
-    max-jobs = "auto";
-    cores = 0;
-    # Add binary caches
-    substituters = [
-      "https://nix-community.cachix.org"
-      "https://cache.nixos.org"
+      # Fun tools
+      cowsay
+      lolcat
+
+      # Development tools
+      gcc
+      cmake
+      autoconf
+      automake
+      libtool
+      pkg-config
+      gnumake
+      clang
+
+      # File transfer
+      aria2
+
+      # Network tools
+      nmap
+      traceroute
+      netcat
+      openvpn
     ];
-    trusted-public-keys = [
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-    ];
-  };
 
-  # Support dynamic libraries
-  programs.nix-ld.enable = true;
+    # Enable fish shell
+    programs.fish.enable = true;
 
-  # Automatically optimize the Nix store
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-older-than 30d";
-  };
+    # Enable nix flakes
+    nix.settings = {
+      experimental-features = [ "nix-command" "flakes" ];
+      # Enable garbage collection and optimizations
+      auto-optimise-store = true;
+      # Add binary caches
+      substituters = [
+        "https://nix-community.cachix.org"
+        "https://cache.nixos.org"
+      ];
+      trusted-public-keys = [
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      ];
+    };
 
-  # Swap configuration using zram and a backup swapfile
-  swapDevices = lib.mkDefault [{
-    device = "/swapfile";
-    size = 8 * 1024; # 8GB swapfile
-    priority = 10; # Lower priority than zram
-  }];
+    # Support dynamic libraries
+    programs.nix-ld.enable = true;
 
-  # Enable zram swap as primary swap
-  zramSwap = {
-    enable = lib.mkDefault true;
-    algorithm = lib.mkDefault "zstd"; # Best compression/performance ratio
-    memoryPercent = lib.mkDefault 100; # Increased to account for compression ratio
-    priority = lib.mkDefault 100; # Higher priority than disk-based swap
-  };
+    # Automatically optimize the Nix store
+    nix.gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 30d";
+    };
 
-  # Use preload for faster application launching
-  services.preload.enable = lib.mkDefault true;
+    # Swap configuration
+    swapDevices = mkDefault [{
+      device = "/swapfile";
+      size = 8 * 1024; # 8GB swapfile
+      priority = 10; # Lower priority than zram
+    }];
 
-  # Security hardening options
-  security = {
-    # Sudo timeout
-    sudo.extraConfig = lib.mkDefault ''
-      Defaults timestamp_timeout=300
-    '';
+    # Enable zram swap as primary swap
+    zramSwap = {
+      enable = mkDefault true;
+      algorithm = mkDefault "zstd"; # Best compression/performance ratio
+      memoryPercent = mkDefault 100; # Increased to account for compression ratio
+      priority = mkDefault 100; # Higher priority than disk-based swap
+    };
 
-    protectKernelImage = lib.mkDefault true;
-  };
+    # Security hardening options
+    security = {
+      # Sudo timeout
+      sudo.extraConfig = mkDefault ''
+        Defaults timestamp_timeout=300
+      '';
 
-  # System-level security options
-  boot.kernel.sysctl = lib.mkDefault {
-    # Reduce swap tendency
-    "vm.swappiness" = 10;
+      protectKernelImage = mkDefault true;
+    };
 
-    # Improve network security
-    "net.ipv4.conf.all.rp_filter" = 1;
-    "net.ipv4.conf.default.rp_filter" = 1;
-    "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
-
-    # Increase file handle limits for high performance
-    "fs.file-max" = 2097152;
-    "fs.inotify.max_user_watches" = 524288;
+    # Network security
+    boot.kernel.sysctl = mkDefault {
+      # Improve network security
+      "net.ipv4.conf.all.rp_filter" = 1;
+      "net.ipv4.conf.default.rp_filter" = 1;
+      "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
+    };
   };
 }

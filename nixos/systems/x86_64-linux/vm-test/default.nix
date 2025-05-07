@@ -2,8 +2,17 @@
 { lib, pkgs, config, inputs, ... }:
 
 {
-  # Enable layered modules
+  # Enable my custom modules
+  myBase.enable = true;
+  myDesktop.enable = true;
+  
+  # Hardware module is not enabled for VM testing
+  # This avoids hardware-specific optimizations that don't make sense in a VM
+  
+  # Enable VM-specific configurations
   myVm.enable = true;
+  
+  # Enable layered modules
   myGnome.enable = true;
   myGuiApps.enable = true;
 
@@ -41,18 +50,11 @@
     };
   };
 
-  # Disable some hardware-specific optimizations that don't make sense in VM
-  boot = {
-    kernelParams = lib.mkForce [
-      "preempt=full"
-    ];
-    
-    # Simplify boot configuration
-    loader = {
-      systemd-boot.enable = true;
-      efi.canTouchEfiVariables = true;
-      timeout = lib.mkForce 0;
-    };
+  # Simplify boot configuration
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+    timeout = lib.mkForce 0;
   };
 
   # Filesystem configuration
@@ -81,6 +83,7 @@
     file
   ];
 
+  # VM configuration
   virtualisation.vmVariant.virtualisation = {
     cores = 12;
     memorySize = 8192; # 8GB RAM
