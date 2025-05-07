@@ -36,8 +36,6 @@ in
       xserver.videoDrivers = lib.mkForce [ "qxl" "fbdev" "vesa" ];
     };
 
-    # Support both Intel and AMD virtualization
-    boot.kernelModules = [ "kvm-intel" "kvm-amd" ];
 
     # VM performance optimizations
     nix.settings = {

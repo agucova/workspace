@@ -16,6 +16,7 @@
 {
   imports = [
     # Import hardware configuration if available, otherwise use minimal config
+    # We'll replace this on first deploy.
     (if builtins.pathExists /etc/nixos/hardware-configuration.nix
      then /etc/nixos/hardware-configuration.nix
      else ({ lib, ... }: {
@@ -32,7 +33,7 @@
   ];
 
   # Set hostname
-  networking.hostName = "gnome-nixos";
+  networking.hostName = "hackstation";
 
   # User account - your account
   users.users.agucova = {
@@ -44,6 +45,14 @@
     # changing it after installation or using hashedPassword instead
     initialPassword = "nixos";
   };
+
+  # Enable layered modules
+  myGnome.enable = true;
+  myGuiApps.enable                 = true;
+
+  # Enable macOS-like keyboard remapping with xremap
+  macos-remap.enable = true;
+  snowfallorg.users.agucova.home.config.macos-remap.keybindings = true;
 
   # Enable Docker and NvCT
   virtualisation = {

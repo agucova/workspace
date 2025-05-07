@@ -1,5 +1,5 @@
 # Base NixOS Configuration for 7800X3D + RTX 4090 Workstation
-{ lib, pkgs, config, inputs, ... }:
+{ lib, pkgs, ... }:
 
 {
   # Boot configuration
@@ -97,7 +97,7 @@
           "default.clock.rate" = 48000;
           "default.clock.quantum" = 32;
           "default.clock.min-quantum" = 32;
-          "default.clock.max-quantum" = 32;
+          "default.clock.max-quantum" = 512;
         };
       };
     };
