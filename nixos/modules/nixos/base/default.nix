@@ -166,7 +166,7 @@
     # File transfer
     aria2
     # magic-wormhole
-
+    #
     # Network tools
     nmap
     traceroute
@@ -195,6 +195,9 @@
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     ];
   };
+
+  # Support dynamic libraries
+  programs.nix-ld.enable = true;
 
   # Automatically optimize the Nix store
   nix.gc = {

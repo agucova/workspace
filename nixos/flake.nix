@@ -101,7 +101,7 @@
     homes.modules = [
       inputs.nix-index-database.hmModules.nix-index
     ];
-    
+
     # Enable Home Manager for the vm-test host
     systems.hosts.vm-test.specialArgs = {
       inherit inputs;

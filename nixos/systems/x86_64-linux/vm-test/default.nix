@@ -2,7 +2,6 @@
 { lib, pkgs, config, inputs, ... }:
 
 {
-    # No need for manual imports - Snowfall handles module auto-discovery
   # User account - same as hardware setup
   users.users.agucova = {
     isNormalUser = true;
@@ -12,14 +11,9 @@
     initialPassword = "nixos";
   };
 
-  # Enable Home Manager for agucova user
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    users.agucova = { lib, ... }: {
-      imports = [ ../../../modules/home/base ]; # Import the base home config
-    };
-  };
+  # Enable base GNOME environment
+  baseGnome.enable           = true;
+  virtualizedEnvironment.enable = true;
 
   # Enable automatic login for testing
   services.displayManager.autoLogin.enable = true;
@@ -125,12 +119,8 @@
   ];
 
   # Enable macOS-like keyboard remapping with xremap
-  services.macos-remap.enable = true;
-
-  # Configure xremap
-  services.xremap = {
-    userName = "agucova"; # Use the default user
-  };
+  macos-remap.enable = true;
+  snowfallorg.users.agucova.home.config.macos-remap.keybindings = true;
 
   # Fix for nixos user in VM builds
   users.users.nixos = {
@@ -138,6 +128,22 @@
     group = "nixos";
   };
   users.groups.nixos = {};
+
+  virtualisation.vmVariant.virtualisation = {
+    cores = 12;
+    memorySize = 8192; # 8GB RAM
+    diskSize = 40 * 1024; # 40960 MiB
+
+    qemu.options = [
+      "-vga virtio"
+      "-display gtk,grab-on-hover=on"
+      "-cpu host"
+      "-device virtio-keyboard-pci"
+      "-usb"
+      "-device usb-tablet"
+      "-device virtio-serial-pci"
+    ];
+  };
 
   # State version
   system.stateVersion = "24.11";

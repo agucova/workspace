@@ -1,20 +1,11 @@
-# Home-manager standalone configuration for agucova
-{ config, pkgs, lib, inputs, ... }:
-
+{ ... }:
 {
-  imports = [
-    # With Snowfall Lib, we can now use the auto-discovery
-    # for our home modules
-  ];
+  core-shell.enable          = true;
+  dev-shell.enable           = true;
 
-  # Set username and home directory
-  home.username = "agucova";
-  home.homeDirectory = "/home/agucova";
-  
-  # Additional configuration specific to standalone (not NixOS) use
-  programs.git = {
-    extraConfig = {
-      credential.helper = "store";
-    };
+  home = {
+    username      = "agucova";
+    homeDirectory = "/home/agucova";
+    stateVersion  = "24.11";
   };
 }

@@ -64,12 +64,4 @@
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing
   system.stateVersion = "24.11"; # This should match your initial install version
-
-  # Enable macOS-like keyboard remapping with xremap
-  services.macos-remap.enable = true;
-
-  # Configure xremap
-  services.xremap = {
-    userName = "agucova"; # Use the default user
-  };
 }

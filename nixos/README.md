@@ -8,13 +8,28 @@ This configuration follows the Snowfall Lib conventions for organized, discovera
 
 This repository fully implements the Snowfall Lib structure to provide automatic module discovery and organization:
 
-### Directory Structure
+### Current Directory Structure
 - `flake.nix` - Main entry point defining inputs and outputs with Snowfall configuration
 - `modules/` - Modular NixOS and Home Manager configurations (auto-discovered)
   - `nixos/` - NixOS-specific modules for system configuration
-    - Each directory here becomes an available module
-  - `home/` - Home Manager modules for user environment
-    - Each directory here becomes an available module
+    - `base/` - Core system configuration
+    - `gnome/` - GNOME desktop environment
+    - `hardware/` - RTX 4090 specific configuration
+    - `gui-apps/` - GUI application configurations
+    - `virtualization/` - VM-specific configuration
+    - `hardening/` - System hardening settings (replaces mineral)
+    - `macos-remap/` - macOS keyboard remapping
+      - `default.nix` - Main configuration
+      - `xremap-config.nix` - xremap configuration
+    - `ssh/` - SSH configuration
+  - `home/` - Home Manager modules
+    - `core-shell/` - Core shell configuration
+    - `dev-shell/` - Development shell tools
+    - `dotfiles/` - Chezmoi and dotfiles integration
+    - `macos-remap/` - macOS keyboard remapping for Home Manager
+      - `default.nix` - Main configuration
+      - `dconf.nix` - GNOME dconf settings
+      - `vscode-keybindings.nix` - VS Code keybindings
 - `systems/` - System-specific configurations (auto-discovered)
   - `x86_64-linux/` - Linux systems for x86_64 architecture
     - `gnome-nixos/` - Main workstation configuration 
@@ -23,8 +38,6 @@ This repository fully implements the Snowfall Lib structure to provide automatic
   - `x86_64-linux/` - Linux home configurations
     - `agucova/` - User-specific home configuration
 - `packages/` - Custom package definitions (auto-discovered)
-- `overlays/` - Custom overlays (auto-discovered)
-- `lib/` - Custom library functions (auto-discovered)
 
 The primary advantage of using Snowfall Lib is automatic discovery of modules, packages, and more based on directory structure, removing the need for manual importing and reducing configuration complexity.
 
@@ -37,40 +50,6 @@ The configuration uses a direct approach with standard Nix flake outputs while m
 3. **Explicit Control**: Direct definition of outputs allows fine-grained control
 4. **Easy Path Resolution**: Relative paths between components simplify maintenance
 5. **VM Testing Support**: Built-in configuration for testing in a virtual machine
-
-## Repository Structure
-
-This repository follows a structured approach based on Snowfall Lib conventions:
-
-### Current Working Structure
-- `flake.nix` - Main entry point defining inputs and outputs for the configuration
-- `modules/` - Modular NixOS configuration files with namespaces
-  - `nixos/` - NixOS-specific modules
-    - `base/` - Core system configuration
-    - `gnome/` - GNOME desktop environment
-    - `hardware/` - RTX 4090 specific configuration
-    - `gui-apps/` - GUI application configurations
-    - `virtualization/` - VM-specific configuration
-    - `dotfiles/` - Chezmoi and dotfiles integration
-    - `ssh/` - SSH configuration
-    - `mineral/` - System hardening settings
-    - `macos-remap/` - macOS keyboard remapping
-  - `home/` - Home Manager modules
-    - `base/` - Core home configuration
-- `systems/` - System-specific configurations
-  - `x86_64-linux/` - Linux systems for x86_64 architecture
-    - `gnome-nixos/` - Main workstation configuration
-    - `vm-test/` - VM testing configuration
-- `homes/` - Home Manager configurations
-  - `x86_64-linux/` - Linux home configurations
-    - `agucova/` - User-specific home configuration
-- `packages/` - Custom package definitions
-  - `run-vm/` - VM runner script
-  - `vm-image/` - VM image generator
-  - `iso-gnome/` - ISO installer for GNOME
-  - `iso-vm/` - ISO installer for VM test
-
-The configuration now follows a pure Snowfall structure, with all legacy paths removed.
 
 ## Quick Setup Guide
 
@@ -92,7 +71,7 @@ The configuration now follows a pure Snowfall structure, with all legacy paths r
 
 ## Module Design
 
-This configuration is built with modularity in mind, now organized with Snowfall Lib's structure:
+This configuration is built with modularity in mind, following Snowfall Lib's structure:
 
 ### Core System (`modules/nixos/base`)
 - Optimized kernel and CPU settings for AMD Ryzen 7800X3D
@@ -135,7 +114,7 @@ This configuration is built with modularity in mind, now organized with Snowfall
 - Based on xremap with GNOME integration
 - Designed to make transition between macOS and Linux seamless
 
-### System Hardening (`modules/nixos/mineral`)
+### System Hardening (`modules/nixos/hardening`)
 - Security hardening with nix-mineral
 - Firewall configuration with gaming compatibility
 - Hardened mount options and sysctl settings
@@ -143,7 +122,7 @@ This configuration is built with modularity in mind, now organized with Snowfall
 - Security features tuned to minimize gaming performance impact
 - System hardening that doesn't interfere with GPU drivers or anti-cheat systems
 
-### Dotfiles Integration (`modules/nixos/dotfiles`)
+### Dotfiles Integration (`modules/home/dotfiles`)
 - Chezmoi and 1Password integration
 - GitHub CLI and authentication setup
 - Convenience aliases for dotfiles management
@@ -164,13 +143,36 @@ This configuration is built with modularity in mind, now organized with Snowfall
 - Multimedia applications with hardware acceleration
 - Gaming-related tools and compatibility layers
 
+### Core Shell (`modules/home/core-shell`)
+- Fish shell configuration with custom functions
+- Modern CLI tools (lsd, starship, bat, fastfetch)
+- Custom command-not-found handler with nix-index-database
+- Git and GitHub CLI configuration
+- SSH client configuration
+
+### Development Shell (`modules/home/dev-shell`)
+- Development tools and programming languages
+- Editor configuration with Helix, NvChad, and VS Code
+- Docker and container tools
+- Build tools and compilers
+- Language servers and development utilities
+
+### Home macOS Remapping (`modules/home/macos-remap`)
+- VS Code keybindings for macOS compatibility
+- GNOME dconf settings for keyboard shortcuts
+- Application-specific keyboard remappings
+- Consistent experience between macOS and Linux
+
 ## VM Testing Workflow
 
 Test configuration changes in a VM before applying to your main system:
 
 ```bash
-# Build and run the VM with our simple helper script
-./run-vm.sh
+# Build and run the VM with optimized settings
+nix run .#run-vm --impure
+
+# Or use the fast-build helper
+nix run .#fast-build -- vm
 
 # Or build and run directly using nix
 nix build .#nixosConfigurations.vm-test.config.system.build.vm --impure
@@ -219,7 +221,7 @@ This configuration embodies several core design principles:
 
 ## Home Manager Integration
 
-The configuration uses Home Manager for user-specific settings, now structured using Snowfall Lib:
+The configuration uses Home Manager for user-specific settings, organized using Snowfall Lib:
 
 - Shell configuration (Fish shell) with aliases and utilities
 - Development tools and programming languages (Go, Rust, Python, Node.js, Julia)

@@ -48,14 +48,29 @@ Each module that requires a graphical environment (GNOME, Firefox, Kinto, Mathem
 
 ## NixOS Configuration
 
-The NixOS implementation (`nixos/` directory) provides a Nix Flake-based configuration for NixOS with GNOME Desktop. It includes:
+The NixOS implementation (`nixos/` directory) provides a Nix Flake-based configuration for NixOS with GNOME Desktop, following the Snowfall Lib structure. It includes:
 
-- Modular configuration with separate files for different aspects of the system
-- Host-specific configurations for both bare-metal and VM testing
+- Modular configuration structured using Snowfall Lib for automatic discovery
+- System-specific configurations for both bare-metal and VM testing
+- Home Manager integration for user-specific configurations
 - Optimized for specific hardware (AMD Ryzen 7800X3D + NVIDIA RTX 4090)
-- ISO image building capabilities
+- VM testing and ISO image building capabilities
 
-See the `nixos/README.md` and `nixos/COMMANDS.md` for detailed information about working with the NixOS configuration.
+### Directory Structure
+- `flake.nix` - Main entry point defining inputs and outputs with Snowfall configuration
+- `modules/` - Modular NixOS and Home Manager configurations (auto-discovered)
+  - `nixos/` - NixOS-specific modules for system configuration
+  - `home/` - Home Manager modules for user environment
+- `systems/` - System-specific configurations (auto-discovered)
+  - `x86_64-linux/` - Linux systems for x86_64 architecture
+    - `gnome-nixos/` - Main workstation configuration 
+    - `vm-test/` - VM testing configuration
+- `homes/` - Home Manager configurations (auto-discovered)
+  - `x86_64-linux/` - Linux home configurations
+    - `agucova/` - User-specific home configuration
+- `packages/` - Custom package definitions (auto-discovered)
+
+See the `nixos/README.md` for detailed information about working with the NixOS configuration.
 
 ## Ansible Configuration
 
