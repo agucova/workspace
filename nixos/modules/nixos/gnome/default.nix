@@ -2,11 +2,11 @@
 { lib, pkgs, config, ... }:
 
 let
-  cfg = config.baseGnome;
+  cfg = config.myGnome;
 in
 {
   # Define options to enable/disable this module
-  options.baseGnome = {
+  options.myGnome = {
     enable = lib.mkEnableOption "GNOME desktop environment";
   };
 

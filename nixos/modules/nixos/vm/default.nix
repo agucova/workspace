@@ -3,11 +3,11 @@
 { config, pkgs, lib, ... }:
 
 let
-  cfg = config.virtualizedEnvironment;
+  cfg = config.myVm;
 in
 {
   # Define options to enable/disable this module
-  options.virtualizedEnvironment = {
+  options.myVm = {
     enable = lib.mkEnableOption "virtualized environment configuration";
   };
 
