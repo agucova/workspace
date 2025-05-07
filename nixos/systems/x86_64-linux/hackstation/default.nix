@@ -19,16 +19,27 @@
     (if builtins.pathExists /etc/nixos/hardware-configuration.nix
     then /etc/nixos/hardware-configuration.nix
     else
-      ({ lib, ... }: {
+      ({ lib, modulesPath, ... }: {
+        # Import the qemu-guest module for testing
+        imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
+        
         # Fallback minimal hardware configuration for testing
-        fileSystems."/" = lib.mkDefault {
+        boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "virtio_blk" ];
+        boot.initrd.kernelModules = [ ];
+        boot.kernelModules = [ "kvm-amd" ];
+        boot.extraModulePackages = [ ];
+        
+        fileSystems."/" = {
           device = "/dev/disk/by-label/nixos";
           fsType = "ext4";
         };
-        fileSystems."/boot" = lib.mkDefault {
+        
+        fileSystems."/boot" = {
           device = "/dev/disk/by-label/boot";
           fsType = "vfat";
         };
+        
+        swapDevices = [ ];
       }))
   ];
 
