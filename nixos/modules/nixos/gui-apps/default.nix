@@ -6,8 +6,11 @@ let
   cfg = config.myGuiApps;
 in
 {
-  # Import Claude Desktop icon module
-  imports = [ ./claude-desktop-icons.nix ];
+  # Import submodules
+  imports = [
+    ./claude-desktop-icons.nix
+    ./1password.nix
+  ];
 
   # Define options to enable/disable this module
   options.myGuiApps = {
@@ -37,6 +40,7 @@ in
       signal-desktop
       telegram-desktop
       slack
+      zoom-us
 
       # Productivity
       insync
@@ -51,6 +55,9 @@ in
       # Gaming tools
       steam
       lutris
+
+      # Cryptography
+      cryptomator
     ];
 
     # Enable Firefox (using the cleaner program approach)

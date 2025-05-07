@@ -9,8 +9,8 @@ let
     name = "wallpaper_light.jpg";
   };
   wallpaper_dark = pkgs.fetchurl {
-    url = "https://public.nrao.edu/wp-content/uploads/2024/11/ALMA_Milky-Way_Less-Green_r6-2048x1365.jpg";
-    sha256 = "7174aa2e2f117dc0cb58804254cebe7665e0e73a6f55b967cbc41942cb9a76a4";
+    url = "https://www.almaobservatory.org/wp-content/uploads/2020/04/Antenas-ALMA-105.jpg";
+    sha256 = "067cad71d42f3cc22de885b82914b28d3b57b3fcfe99c4a1ae3e747ed717aab6";
     name = "wallpaper_dark.jpg";
 
   };

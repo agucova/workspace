@@ -14,10 +14,16 @@
 
   # Enable GUI applications
   myGuiApps.enable = true;
+  
+  # Enable 1Password with SSH/CLI integration
+  my1Password.enable = true;
 
   # Enable macOS-like keyboard remapping with xremap
   macos-remap.enable = true;
-  snowfallorg.users.agucova.home.config.macos-remap.keybindings = true;
+  snowfallorg.users.agucova.home.config = {
+    macos-remap.keybindings = true;
+    my1Password.enable = true;
+  };
 
   # User configurations
   users = {

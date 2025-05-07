@@ -7,7 +7,6 @@
   config = lib.mkIf config.dotfiles.enable {
     home.packages = with pkgs; [
       chezmoi
-      _1password-cli
       uv
       git
       gh
