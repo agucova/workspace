@@ -64,7 +64,7 @@ The NixOS implementation (`nixos/` directory) provides a Nix Flake-based configu
 - `systems/` - System-specific configurations (auto-discovered)
   - `x86_64-linux/` - Linux systems for x86_64 architecture
     - `gnome-nixos/` - Main workstation configuration 
-    - `vm-test/` - VM testing configuration
+    - `vm/` - VM testing configuration
 - `homes/` - Home Manager configurations (auto-discovered)
   - `x86_64-linux/` - Linux home configurations
     - `agucova/` - User-specific home configuration

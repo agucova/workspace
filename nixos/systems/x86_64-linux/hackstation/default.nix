@@ -22,23 +22,23 @@
       ({ lib, modulesPath, ... }: {
         # Import the qemu-guest module for testing
         imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
-        
+
         # Fallback minimal hardware configuration for testing
         boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "virtio_blk" ];
         boot.initrd.kernelModules = [ ];
         boot.kernelModules = [ "kvm-amd" ];
         boot.extraModulePackages = [ ];
-        
+
         fileSystems."/" = {
           device = "/dev/disk/by-label/nixos";
           fsType = "ext4";
         };
-        
+
         fileSystems."/boot" = {
           device = "/dev/disk/by-label/boot";
           fsType = "vfat";
         };
-        
+
         swapDevices = [ ];
       }))
   ];
@@ -48,32 +48,29 @@
 
   # User account - your account
   users.users.agucova = {
-    isNormalUser = true;
-    description = "Agustin Covarrubias";
-    extraGroups = [ "networkmanager" "wheel" "docker" "video" "audio" "input" "podman" ];
+    description = "Agustín Covarrubias";
+    extraGroups = [ "docker" ];
     shell = pkgs.fish; # Set Fish as default shell
-    # Using a plain text password is fine for initial setup, but consider
-    # changing it after installation or using hashedPassword instead
     initialPassword = "nixos";
   };
 
   # Enable base module (required)
   myBase.enable = true;
-  
+
   # Enable desktop features (for workstation)
   myDesktop.enable = true;
-  
+
   # Enable hardware configuration and optimizations
   myHardware = {
     enable = true;
-    
+
     # CPU configuration for AMD 7800X3D
     cpu.amd = {
       enable = true;
       model = "7800X3D";
       optimizations = true;
     };
-    
+
     # GPU configuration for NVIDIA RTX 4090
     gpu.nvidia = {
       enable = true;
@@ -81,7 +78,7 @@
       open = true;
       wayland = true;
     };
-    
+
     # Enable performance optimizations
     performance = {
       enable = true;

@@ -6,7 +6,7 @@ pkgs.writeShellScriptBin "run-vm" ''
   set -euo pipefail
 
   # Get the system configuration name
-  SYSTEM_NAME="vm-test"
+  SYSTEM_NAME="vm"
 
   # Build the VM
   echo "Building VM for $SYSTEM_NAME..."

@@ -51,7 +51,7 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
   - `nixos/` - System-level modules:
     - `base/` - Core system configuration with AMD 7800X3D optimizations
     - `gnome/` - GNOME desktop environment setup with optimizations
-    - `gui-apps/` - Graphical application setup including Claude desktop 
+    - `gui-apps/` - Graphical application setup including Claude desktop
     - `hardware/` - RTX 4090 GPU configuration with proprietary drivers
     - `macos-remap/` - macOS-like keyboard remapping
     - `vm/` - VM-specific configuration
@@ -65,7 +65,7 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
 - `systems/` - Host-specific configurations:
   - `x86_64-linux/` - Platform-specific system configurations
     - `photon/` - Main physical machine configuration
-    - `vm-test/` - VM testing configuration
+    - `vm/` - VM testing configuration
 - `homes/` - Home manager configurations:
   - `x86_64-linux/` - Platform-specific home configurations
     - `agucova/` - User-specific home configuration
@@ -82,14 +82,14 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
 - Modules should use the `my*` prefix for options (e.g., `myGnome.enable = true`)
 - Module option definitions should follow this pattern:
   ```nix
-  let 
+  let
     cfg = config.myModule;
   in {
     options.myModule = {
       enable = lib.mkEnableOption "Module description";
       # Other options...
     };
-    
+
     config = lib.mkIf cfg.enable {
       # Configuration when enabled...
     };
@@ -191,14 +191,14 @@ Key lints include:
 ```bash
 # Build a VM directly
 cd /path/to/workspace/nixos
-nix build .#nixosConfigurations.vm-test.config.system.build.vm --impure
+nix build .#nixosConfigurations.vm.config.system.build.vm --impure
 
 # Run the VM after building
 ./result/bin/run-nixos-vm
 
 # Test building without running (for verification)
-cd /path/to/workspace/nixos 
-nix build .#nixosConfigurations.vm-test.config.system.build.toplevel --impure --dry-run
+cd /path/to/workspace/nixos
+nix build .#nixosConfigurations.vm.config.system.build.toplevel --impure --dry-run
 
 # Test building the hackstation configuration
 cd /path/to/workspace/nixos
@@ -267,13 +267,13 @@ nix eval --no-update-lock-file --impure --json ".#lib" > /dev/null
 nix build .#nixosConfigurations.hackstation.config.system.build.toplevel --impure --dry-run
 
 # For testing the VM configuration
-nix build .#nixosConfigurations.vm-test.config.system.build.toplevel --impure --dry-run
+nix build .#nixosConfigurations.vm.config.system.build.toplevel --impure --dry-run
 
 # For basic validation of flake structure and outputs
 nix flake check --no-build --impure
 
 # For testing VM builds
-nix build .#nixosConfigurations.vm-test.config.system.build.vm --impure
+nix build .#nixosConfigurations.vm.config.system.build.vm --impure
 ```
 
 These tests ensure your changes don't break the system configuration. If any test fails, fix the issues before committing. Common errors include:

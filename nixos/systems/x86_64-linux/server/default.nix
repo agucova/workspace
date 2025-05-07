@@ -37,36 +37,32 @@
 
   # User account - your account
   users.users.agucova = {
-    isNormalUser = true;
-    description = "Agustin Covarrubias";
-    extraGroups = [ "wheel" ];
+    description = "Agustín Covarrubias";
     shell = pkgs.fish; # Set Fish as default shell
-    # Using a plain text password is fine for initial setup, but consider
-    # changing it after installation or using hashedPassword instead
     initialPassword = "nixos";
   };
 
   # Enable base module (required)
   modules.base.enable = true;
-  
+
   # Enable minimal hardware configuration
   # This enables just firmware and generic hardware support,
   # but doesn't enable specific CPU/GPU optimizations
   modules.hardware = {
     enable = true;
-    
+
     # Enable performance optimizations but not hardware-specific ones
     performance = {
       enable = true;
       build.parallel = true;
     };
-    
+
     # If server has specific hardware, can be enabled like:
     # cpu.intel.enable = true;
     # or
-    # cpu.amd.enable = true; 
+    # cpu.amd.enable = true;
   };
-  
+
   # Server-specific SSH configuration
   services.openssh = {
     enable = true;

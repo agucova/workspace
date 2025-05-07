@@ -5,13 +5,13 @@
   # Enable modules with the 'my' prefix
   myBase.enable = true;
   myDesktop.enable = true;
-  
+
   # Hardware module is not enabled for VM testing
   # This avoids hardware-specific optimizations that don't make sense in a VM
-  
+
   # Enable VM-specific configurations
   myVm.enable = true;
-  
+
   # Enable layered modules
   myGnome.enable = true;
   myGuiApps.enable = true;
@@ -25,21 +25,11 @@
     users = {
       # User account - same as hardware setup
       agucova = {
-        isNormalUser = true;
-        description = "Agustin Covarrubias";
-        extraGroups = [ "networkmanager" "wheel" ];
+        description = "Agustín Covarrubias";
         shell = pkgs.fish;
         initialPassword = "nixos";
       };
-      
-      # Fix for nixos user in VM builds
-      nixos = {
-        isNormalUser = true;
-        group = "nixos";
-      };
     };
-    
-    groups.nixos = { };
   };
 
   # Enable automatic login for testing
