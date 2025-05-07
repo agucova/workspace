@@ -2,7 +2,7 @@ _:
 {
   core-shell.enable = true;
   dev-shell.enable = true;
-  desktopSettings.enable = true;
+  desktop-settings.enable = true;
 
   home = {
     username = "agucova";
