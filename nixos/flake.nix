@@ -18,9 +18,11 @@
     };
 
     ghostty.url            = "github:ghostty-org/ghostty";
+    flake-utils.url         = "github:numtide/flake-utils";
     claude-desktop = {
       url = "github:k3d3/claude-desktop-linux-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
 
     nixos-generators = {
@@ -71,7 +73,6 @@
     ##########################################################################
     channels-config = {
       allowUnfree              = true;
-      permittedInsecurePackages = [ "electron-25.9.0" ];
     };
 
     ##########################################################################

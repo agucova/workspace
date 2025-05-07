@@ -39,7 +39,9 @@
     },
     "claude-desktop": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "flake-utils": [
+          "flake-utils"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -818,6 +820,7 @@
     "root": {
       "inputs": {
         "claude-desktop": "claude-desktop",
+        "flake-utils": "flake-utils",
         "ghostty": "ghostty",
         "home-manager": "home-manager",
         "nix-index-database": "nix-index-database",

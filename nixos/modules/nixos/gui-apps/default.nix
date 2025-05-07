@@ -6,6 +6,9 @@ let
   cfg = config.myGuiApps;
 in
 {
+  # Import Claude Desktop icon module
+  imports = [ ./claude-desktop-icons.nix ];
+
   # Define options to enable/disable this module
   options.myGuiApps = {
     enable = lib.mkEnableOption "graphical applications";
@@ -15,13 +18,16 @@ in
   config = lib.mkIf cfg.enable {
     # Enable GUI applications
     environment.systemPackages = with pkgs; [
+      # Basics
+      google-chrome
+
       # Office and Productivity
       libreoffice-qt
       vscode
       ghostty  # From flake overlay
       zed-editor.fhs  # Modern code editor with FHS env for better compatibility
       # Only include Claude Desktop if we're not in a live ISO environment
-      (lib.mkIf (!config.isoImage.enable or false) claude-desktop-with-fhs)  # Claude AI desktop app with FHS env for MCP
+      claude-desktop-with-fhs
       gitkraken  # Migrated from Flatpak
 
       # Media and Entertainment
