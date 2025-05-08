@@ -207,9 +207,9 @@ To install the hackstation system from a NixOS live boot environment, follow the
 
 ### 1. Boot from NixOS Live Media
 
-Boot your system using a NixOS installation media. You can either:
-- Download the official NixOS ISO from [nixos.org](https://nixos.org/download.html)
-- Build your own ISO using the command above
+Boot your system using a NixOS minimal installation media:
+- Download the minimal NixOS ISO from [nixos.org](https://nixos.org/download.html#nixos-iso)
+- Create a bootable USB drive following the [instructions here](https://nixos.org/manual/nixos/stable/index.html#sec-booting-from-usb)
 
 ### 2. Connect to the Internet
 
@@ -223,63 +223,79 @@ nmcli device wifi list
 nmcli device wifi connect "SSID" password "password"
 ```
 
-### 3. Clone Your Repository
+### 3. Identify Your Disk
+
+Use `lsblk` to identify the disk you want to install NixOS on:
 
 ```bash
+lsblk
+```
+
+In our case, we'll be using `/dev/nvme1n1`.
+
+### 4. Clone Your Repository
+
+```bash
+# Enable nix commands and flakes
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
 # Install git
 nix-shell -p git
 
 # Clone your repository
 git clone https://github.com/agucova/workspace.git /tmp/workspace
-cd /tmp/workspace
+cd /tmp/workspace/nixos
 ```
 
-### 4. Partition the Disk with Disko
+### 5. Partition the Disk with Disko
 
 The configuration includes a disko module for BTRFS with LUKS encryption:
 
 ```bash
-# Install disko
-nix-shell -p git nixFlakes
-
-# Partition the disk (replace nvme1n1 with your actual device)
-sudo nix run github:nix-community/disko -- --mode disko /tmp/workspace/nixos/modules/nixos/disk/default.nix --arg device '"/dev/nvme1n1"'
+# Run disko to partition the disk
+sudo nix run github:nix-community/disko -- \
+  --mode disko \
+  ./modules/nixos/disk/default.nix \
+  --arg device '"/dev/nvme1n1"'
 
 # Enter your LUKS encryption password when prompted
 ```
 
-### 5. Mount the Partitions and Generate Hardware Configuration
+### 6. Generate Hardware Configuration
 
-Disko automatically mounts the partitions under `/mnt`. Generate the hardware configuration:
-
-```bash
-# Verify mounts
-mount | grep /mnt
-
-# Generate hardware configuration
-nixos-generate-config --root /mnt
-```
-
-### 6. Install NixOS with Your Flake
+Disko will automatically mount the partitions under `/mnt`. Generate the hardware configuration:
 
 ```bash
-# Enable flakes
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+# Generate hardware configuration without filesystems
+sudo nixos-generate-config --no-filesystems --root /mnt
 
-# Install the system
-sudo nixos-install --flake /tmp/workspace/nixos#hackstation --impure
-
-# Enter your root password when prompted
+# Copy hardware configuration to expected location
+sudo cp /mnt/etc/nixos/hardware-configuration.nix /mnt/etc/nixos/
 ```
 
-### 7. Reboot into Your New System
+### 7. Install NixOS with Your Flake
 
 ```bash
-reboot
+# Install NixOS using your flake
+sudo nixos-install --flake '.#hackstation' --no-root-passwd
+
+# Set the root password when prompted
+sudo nixos-enter --root /mnt
+passwd
+exit
 ```
 
-After rebooting, you'll be prompted for your LUKS encryption password, and then your system will boot into the configured NixOS environment.
+### 8. Reboot into Your New System
+
+```bash
+sudo reboot
+```
+
+After rebooting, you'll be prompted for your LUKS encryption password, and then your system will boot into your configured NixOS environment. On first boot:
+
+1. Login with the root password you set
+2. Set up your user password: `passwd agucova`
+3. Clone your repository to a permanent location
 
 ## Design Philosophy
 
