@@ -77,13 +77,6 @@ in {
       dconf.enable = true;
     };
 
-    # Enable XDG Portal (required for Flatpak)
-    xdg.portal = {
-      enable = true;
-      extraPortals = [ pkgs.xdg-desktop-portal-gnome ];
-      config.common.default = "gtk";
-    };
-
     # Fonts configuration with improved Flatpak compatibility
     fonts = {
       fontDir.enable = true; # Enable font directory for improved Flatpak support
@@ -158,34 +151,6 @@ in {
         MUTTER_DEBUG_ENABLE_EGL_KMSMODE = lib.mkIf (!(config.virtualisation.vmware.guest.enable or config.virtualisation.virtualbox.guest.enable or config.virtualisation.qemu.guest.enable or false)) "1";
       };
     };
-
-    # Fix for Flatpak to access system fonts and icons
-    system.fsPackages = [ pkgs.bindfs ];
-    fileSystems =
-      let
-        mkRoSymBind = path: {
-          device = path;
-          fsType = "fuse.bindfs";
-          options = [ "ro" "resolve-symlinks" "x-gvfs-hide" ];
-        };
-        aggregatedIcons = pkgs.buildEnv {
-          name = "system-icons";
-          paths = with pkgs; [
-            adwaita-icon-theme
-            gnome-themes-extra
-          ];
-          pathsToLink = [ "/share/icons" ];
-        };
-        aggregatedFonts = pkgs.buildEnv {
-          name = "system-fonts";
-          paths = config.fonts.packages;
-          pathsToLink = [ "/share/fonts" ];
-        };
-      in
-      {
-        "/usr/share/icons" = mkRoSymBind "${aggregatedIcons}/share/icons";
-        "/usr/local/share/fonts" = mkRoSymBind "${aggregatedFonts}/share/fonts";
-      };
 
     # GNOME specific tweaks for better performance/experience
     services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''

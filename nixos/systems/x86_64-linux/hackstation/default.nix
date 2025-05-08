@@ -104,10 +104,10 @@
   };
 
   # Enable GUI applications module
-  myGuiApps.enable = true;
+  myGuiApps.enable = false;
 
   # Enable 1Password with SSH/CLI integration
-  my1Password.enable = true;
+  my1Password.enable = false;
 
   # Enable BTRFS with LUKS disk configuration
   myDisko = {
@@ -136,7 +136,6 @@
     # Container tools
     docker
     docker-compose
-    podman
   ];
 
   # This value determines the NixOS release to base packages on
