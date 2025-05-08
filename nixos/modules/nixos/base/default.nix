@@ -163,7 +163,7 @@ in {
       algorithm = mkDefault "zstd"; # Best compression/performance ratio
       memoryPercent = mkDefault 100; # Increased to account for compression ratio
       priority = mkDefault 100; # Higher priority than disk-based swap
-    };
+    });
 
     # Security hardening options
     security = {
