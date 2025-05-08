@@ -4,7 +4,7 @@ set -e
 # Simple NixOS Recovery Mount Script
 
 # Default values
-DISK="/dev/nvme0n1"
+DISK="/dev/nvme1n1"
 MOUNT_POINT="/mnt"
 ENTER=0
 
@@ -68,8 +68,8 @@ echo "System mounted at $MOUNT_POINT"
 # Enter the system if requested
 if [ $ENTER -eq 1 ]; then
   echo "Entering system with nix-enter..."
-  exec nix-enter --root $MOUNT_POINT
+  exec nixos-enter --root $MOUNT_POINT
 else
   echo "Done. To enter the system, run:"
-  echo "nix-enter --root $MOUNT_POINT"
+  echo "nixos-enter --root $MOUNT_POINT"
 fi
