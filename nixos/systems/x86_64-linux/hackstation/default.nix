@@ -22,6 +22,58 @@
      else /etc/nixos/hardware-configuration.nix) # Fallback to default even if it doesn't exist yet
   ];
 
+  # Temporary fixes for GNOME/GDM issues
+  services.xserver = {
+    enable = true;
+    displayManager.gdm = {
+      # Keep Wayland enabled as requested
+      wayland = true;
+      # Prevent GDM from auto-suspending
+      autoSuspend = false;
+      # Set debug to true to get more logs
+      debug = true;
+    };
+    # Add input device configuration
+    libinput = {
+      enable = true;
+      mouse.accelProfile = "flat";
+      touchpad.accelProfile = "flat";
+    };
+  };
+  
+  # Add debug environment variables for GNOME
+  environment.sessionVariables = {
+    # Enable shell debugging
+    MUTTER_DEBUG = "1";
+    # Add debugging for GDM
+    GDM_DEBUG = "true";
+  };
+
+  # Ensure GDM user has proper permissions
+  users.users.gdm.extraGroups = [ "video" "audio" "input" ];
+
+  # Fix NVIDIA settings - adjust power management and ensure modesetting
+  hardware.nvidia = {
+    modesetting.enable = lib.mkForce true;
+    powerManagement.enable = lib.mkForce false;
+    # Add additional fixes for NVIDIA
+    forceFullCompositionPipeline = lib.mkForce true;
+  };
+
+  # Ensure systemd user sessions work properly
+  systemd = {
+    enableUnifiedCgroupHierarchy = true;
+    # Fix user session issues
+    oomd.enable = false;
+    user = {
+      services.gnome-session-failed = {
+        description = "GNOME Session Failed Target";
+        conflicts = [ "graphical-session.target" ];
+        unitConfig.StopWhenUnneeded = true;
+      };
+    };
+  };
+
   # Set hostname with higher priority
   networking.hostName = lib.mkForce "hackstation";
 
@@ -78,10 +130,10 @@
     swapSize = "64G"; # Adjust based on your needs (should be at least equal to RAM for hibernation)
   };
 
-  # Enable macOS-like keyboard remapping with xremap
-  macos-remap.enable = true;
+  # Temporarily disable macOS-like keyboard remapping (for troubleshooting)
+  macos-remap.enable = lib.mkForce false;
   snowfallorg.users.agucova.home.config = {
-    macos-remap.keybindings = true;
+    macos-remap.keybindings = lib.mkForce false;
     my1Password.enable = true;
   };
 
