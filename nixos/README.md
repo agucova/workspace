@@ -271,9 +271,6 @@ Disko will automatically mount the partitions under `/mnt`. Generate the hardwar
 ```bash
 # Generate hardware configuration without filesystems
 sudo nixos-generate-config --no-filesystems --root /mnt
-
-# Copy hardware configuration to expected location
-sudo cp /mnt/etc/nixos/hardware-configuration.nix /mnt/etc/nixos/
 ```
 
 ### 7. Install NixOS with Your Flake
