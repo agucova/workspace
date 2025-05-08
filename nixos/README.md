@@ -201,6 +201,88 @@ nix build .#iso-vm --impure
 sudo dd if=./result/iso/nixos-gnome-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
+## Bootstrapping Hackstation from NixOS Live Boot
+
+To install the hackstation system from a NixOS live boot environment, follow these steps:
+
+### 1. Boot from NixOS Live Media
+
+Boot your system using a NixOS installation media. You can either:
+- Download the official NixOS ISO from [nixos.org](https://nixos.org/download.html)
+- Build your own ISO using the command above
+
+### 2. Connect to the Internet
+
+Ensure you have an internet connection. For wired connections, this should work automatically. For wireless:
+
+```bash
+# List available networks
+nmcli device wifi list
+
+# Connect to your network
+nmcli device wifi connect "SSID" password "password"
+```
+
+### 3. Clone Your Repository
+
+```bash
+# Install git
+nix-shell -p git
+
+# Clone your repository
+git clone https://github.com/agucova/workspace.git /tmp/workspace
+cd /tmp/workspace
+```
+
+### 4. Partition the Disk with Disko
+
+The configuration includes a disko module for BTRFS with LUKS encryption:
+
+```bash
+# Install disko
+nix-shell -p git nixFlakes
+
+# Partition the disk (replace nvme1n1 with your actual device)
+sudo nix run github:nix-community/disko -- --mode disko /tmp/workspace/nixos/modules/nixos/disk/default.nix --arg device '"/dev/nvme1n1"'
+
+# Enter your LUKS encryption password when prompted
+```
+
+### 5. Mount the Partitions
+
+Disko will automatically mount the partitions under `/mnt`. Verify with:
+
+```bash
+mount | grep /mnt
+```
+
+### 6. Generate Hardware Configuration
+
+```bash
+nixos-generate-config --root /mnt
+```
+
+### 7. Install NixOS with Your Flake
+
+```bash
+# Enable flakes
+mkdir -p ~/.config/nix
+echo "experimental-features = nix-command flakes" > ~/.config/nix/nix.conf
+
+# Install the system
+sudo nixos-install --flake /tmp/workspace/nixos#hackstation --impure
+
+# Enter your root password when prompted
+```
+
+### 8. Reboot into Your New System
+
+```bash
+reboot
+```
+
+After rebooting, you'll be prompted for your LUKS encryption password, and then your system will boot into the configured NixOS environment.
+
 ## Design Philosophy
 
 This configuration embodies several core design principles:
