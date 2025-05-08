@@ -248,21 +248,19 @@ sudo nix run github:nix-community/disko -- --mode disko /tmp/workspace/nixos/mod
 # Enter your LUKS encryption password when prompted
 ```
 
-### 5. Mount the Partitions
+### 5. Mount the Partitions and Generate Hardware Configuration
 
-Disko will automatically mount the partitions under `/mnt`. Verify with:
+Disko automatically mounts the partitions under `/mnt`. Generate the hardware configuration:
 
 ```bash
+# Verify mounts
 mount | grep /mnt
-```
 
-### 6. Generate Hardware Configuration
-
-```bash
+# Generate hardware configuration
 nixos-generate-config --root /mnt
 ```
 
-### 7. Install NixOS with Your Flake
+### 6. Install NixOS with Your Flake
 
 ```bash
 # Enable flakes
@@ -275,7 +273,7 @@ sudo nixos-install --flake /tmp/workspace/nixos#hackstation --impure
 # Enter your root password when prompted
 ```
 
-### 8. Reboot into Your New System
+### 7. Reboot into Your New System
 
 ```bash
 reboot

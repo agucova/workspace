@@ -14,33 +14,8 @@
 
 {
   imports = [
-    # Import hardware configuration if available, otherwise use minimal config
-    # We'll replace this on first deploy.
-    (if builtins.pathExists /etc/nixos/hardware-configuration.nix
-    then /etc/nixos/hardware-configuration.nix
-    else
-      ({ lib, modulesPath, ... }: {
-        # Import the qemu-guest module for testing
-        imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
-
-        # Fallback minimal hardware configuration for testing
-        boot.initrd.availableKernelModules = [ "ahci" "xhci_pci" "virtio_pci" "virtio_blk" ];
-        boot.initrd.kernelModules = [ ];
-        boot.kernelModules = [ "kvm-amd" ];
-        boot.extraModulePackages = [ ];
-
-        fileSystems."/" = {
-          device = "/dev/disk/by-label/nixos";
-          fsType = "ext4";
-        };
-
-        fileSystems."/boot" = {
-          device = "/dev/disk/by-label/boot";
-          fsType = "vfat";
-        };
-
-        swapDevices = [ ];
-      }))
+    # Import hardware configuration from the standard location
+    /etc/nixos/hardware-configuration.nix
   ];
 
   # Set hostname with higher priority
