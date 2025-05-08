@@ -40,7 +40,7 @@
       touchpad.accelProfile = "flat";
     };
   };
-  
+
   # Add debug environment variables for GNOME
   environment.sessionVariables = {
     # Enable shell debugging
@@ -58,20 +58,6 @@
     powerManagement.enable = lib.mkForce false;
     # Add additional fixes for NVIDIA
     forceFullCompositionPipeline = lib.mkForce true;
-  };
-
-  # Ensure systemd user sessions work properly
-  systemd = {
-    enableUnifiedCgroupHierarchy = true;
-    # Fix user session issues
-    oomd.enable = false;
-    user = {
-      services.gnome-session-failed = {
-        description = "GNOME Session Failed Target";
-        conflicts = [ "graphical-session.target" ];
-        unitConfig.StopWhenUnneeded = true;
-      };
-    };
   };
 
   # Set hostname with higher priority
