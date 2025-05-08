@@ -32,7 +32,7 @@ This repository fully implements the Snowfall Lib structure to provide automatic
       - `vscode-keybindings.nix` - VS Code keybindings
 - `systems/` - System-specific configurations (auto-discovered)
   - `x86_64-linux/` - Linux systems for x86_64 architecture
-    - `gnome-nixos/` - Main workstation configuration 
+    - `gnome-nixos/` - Main workstation configuration
     - `vm/` - VM testing configuration
 - `homes/` - Home Manager configurations (auto-discovered)
   - `x86_64-linux/` - Linux home configurations
@@ -277,12 +277,10 @@ sudo nixos-generate-config --no-filesystems --root /mnt
 
 ```bash
 # Install NixOS using your flake
-sudo nixos-install --flake '.#hackstation' --no-root-passwd
+sudo nixos-install --flake '.#hackstation' --impure
 
 # Set the root password when prompted
-sudo nixos-enter --root /mnt
-passwd
-exit
+sudo nixos-enter --root /mnt -c 'passwd agucova'
 ```
 
 ### 8. Reboot into Your New System

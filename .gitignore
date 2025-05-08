@@ -175,3 +175,5 @@ cython_debug/
 
 # NixOS VM disk images
 nixos/*.qcow2
+
+**/.claude/settings.local.json
