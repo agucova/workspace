@@ -253,10 +253,13 @@ The configuration includes a disko module for BTRFS with LUKS encryption:
 
 ```bash
 # Run disko to partition the disk
+# Edit the disko-config.nix file first to set your device if needed
+sudo vi ./modules/nixos/disk/disko-config.nix
+
+# Then run disko
 sudo nix run github:nix-community/disko -- \
   --mode disko \
-  ./modules/nixos/disk/disko-config.nix \
-  --arg device '"/dev/nvme1n1"'
+  ./modules/nixos/disk/disko-config.nix
 
 # Enter your LUKS encryption password when prompted
 ```

@@ -1,10 +1,11 @@
 # Standalone disko configuration for CLI usage
-# Usage: sudo nix run github:nix-community/disko -- --mode disko ./disko-config.nix --arg device '"/dev/nvme1n1"'
-{ 
-  device ? "/dev/nvme1n1",
-  swapSize ? "64G"
-}:
+# Usage: sudo nix run github:nix-community/disko -- --mode disko ./disko-config.nix
+{ lib ? import <nixpkgs/lib>, diskoLib ? import <nixpkgs> {}, ... }@args:
 
+let
+  device = if args?device then args.device else "/dev/nvme1n1";
+  swapSize = if args?swapSize then args.swapSize else "64G";
+in 
 {
   disko.devices = {
     disk = {
