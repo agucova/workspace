@@ -24,11 +24,7 @@ in {
           variant = lib.mkDefault "alt-intl";
         };
 
-        # Enable GNOME Desktop
-        displayManager.gdm = {
-          enable = true;
-          wayland = true;
-        };
+        displayManager.gdm.enable = true;
         desktopManager.gnome.enable = true;
       };
 
@@ -56,56 +52,53 @@ in {
       printing.enable = lib.mkDefault true;
 
       # Use preload for faster application launching
-      preload.enable = lib.mkDefault true;
+      # preload.enable = lib.mkDefault true;
 
       # Enable udev for GNOME
       udev.packages = with pkgs; [ gnome-settings-daemon ];
-
-      # Enable flatpak for extra applications
-      flatpak.enable = true;
 
       # Enable sysprof service for system profiling
       sysprof.enable = true;
     };
 
     # Enable RTKIT for PipeWire
-    security.rtkit.enable = true;
+    # security.rtkit.enable = true;
 
     # Enable XWayland for X11 application compatibility
-    programs = {
-      xwayland.enable = true;
-      dconf.enable = true;
-    };
+    # programs = {
+      # xwayland.enable = true;
+      # dconf.enable = true;
+    # };
 
     # Fonts configuration with improved Flatpak compatibility
-    fonts = {
-      fontDir.enable = true; # Enable font directory for improved Flatpak support
-      packages = with pkgs; [
-        noto-fonts
-        noto-fonts-emoji
-        liberation_ttf
-        fira-code
-        fira-code-symbols
-        inter
-        roboto
-        dejavu_fonts
-        ubuntu_font_family
-        source-code-pro
-        jetbrains-mono
-        hack-font
-        font-awesome
-      ];
+    # fonts = {
+    #   fontDir.enable = true; # Enable font directory for improved Flatpak support
+    #   packages = with pkgs; [
+    #     noto-fonts
+    #     noto-fonts-emoji
+    #     liberation_ttf
+    #     fira-code
+    #     fira-code-symbols
+    #     inter
+    #     roboto
+    #     dejavu_fonts
+    #     ubuntu_font_family
+    #     source-code-pro
+    #     jetbrains-mono
+    #     hack-font
+    #     font-awesome
+    #   ];
 
-      # Font configuration settings
-      fontconfig = {
-        defaultFonts = {
-          serif = [ "DejaVu Serif" "Noto Serif" ];
-          sansSerif = [ "Inter" "Roboto" "DejaVu Sans" ];
-          monospace = [ "JetBrains Mono" "Fira Code" "Hack" ];
-          emoji = [ "Noto Color Emoji" ];
-        };
-      };
-    };
+    #   # Font configuration settings
+    #   fontconfig = {
+    #     defaultFonts = {
+    #       serif = [ "DejaVu Serif" "Noto Serif" ];
+    #       sansSerif = [ "Inter" "Roboto" "DejaVu Sans" ];
+    #       monospace = [ "JetBrains Mono" "Fira Code" "Hack" ];
+    #       emoji = [ "Noto Color Emoji" ];
+    #     };
+    #   };
+    # };
 
     # Configure environment
     environment = {
@@ -137,47 +130,50 @@ in {
         imagemagick
 
         # System profiling
-        sysprof # For system performance profiling
+        # sysprof # For system performance profiling
       ];
 
-      # Enable Ozone Wayland support for Chromium/Electron apps
-      sessionVariables = {
-        NIXOS_OZONE_WL = "1";
-      };
+      # Set environment variables based on display server
+      # sessionVariables = lib.mkIf config.services.xserver.displayManager.gdm.wayland {
+      #   # Only enable Ozone Wayland support when using Wayland
+      #   NIXOS_OZONE_WL = "1";
+      # };
 
-      # Set environment variable for better GNOME compatibility
-      variables = {
-        # Only set NVIDIA-specific variable when not in a VM
-        MUTTER_DEBUG_ENABLE_EGL_KMSMODE = lib.mkIf (!(config.virtualisation.vmware.guest.enable or config.virtualisation.virtualbox.guest.enable or config.virtualisation.qemu.guest.enable or false)) "1";
-      };
+      # Removed MUTTER_DEBUG_ENABLE_EGL_KMSMODE variable as it can cause issues
     };
 
     # GNOME specific tweaks for better performance/experience
-    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
-      [org.gnome.desktop.interface]
-      enable-animations=true
-      gtk-theme='Adwaita-dark'
-      color-scheme='prefer-dark'
+    # services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+    #   [org.gnome.desktop.interface]
+    #   enable-animations=true
+    #   gtk-theme='Adwaita-dark'
+    #   color-scheme='prefer-dark'
 
-      [org.gnome.desktop.wm.preferences]
-      button-layout=':minimize,maximize,close'
+    #   [org.gnome.desktop.wm.preferences]
+    #   button-layout=':minimize,maximize,close'
 
-      [org.gnome.shell]
-      favorite-apps=['org.gnome.Nautilus.desktop', 'firefox.desktop', 'code.desktop', 'ghostty.desktop']
-    '';
+    #   [org.gnome.shell]
+    #   favorite-apps=['org.gnome.Nautilus.desktop', 'firefox.desktop', 'code.desktop', 'ghostty.desktop']
+    # '';
 
-    # NVIDIA-specific settings (only applied if not in a VM)
-    hardware.nvidia.powerManagement.finegrained = lib.mkIf (!(config.virtualisation.vmware.guest.enable or config.virtualisation.virtualbox.guest.enable or config.virtualisation.qemu.guest.enable or false)) false;
+    # Basic NVIDIA settings for better compatibility
+    # hardware.nvidia = {
+    #   # Enable basic modesetting for NVIDIA
+    #   modesetting.enable = lib.mkDefault true;
+    # };
+
+    # Ensure GDM user has proper permissions
+    # users.users.gdm.extraGroups = [ "video" "audio" "input" ];
 
     # Boot parameters for better desktop responsiveness
-    boot.kernelParams = lib.mkDefault [
-      # Better desktop responsiveness
-      "clocksource=tsc"
-      "tsc=reliable"
-      "preempt=full"
-    ];
+    # boot.kernelParams = lib.mkDefault [
+    #   # Better desktop responsiveness
+    #   "clocksource=tsc"
+    #   "tsc=reliable"
+    #   "preempt=full"
+    # ];
 
     # Set a faster bootloader timeout for desktop use
-    boot.loader.timeout = lib.mkDefault 3;
+    # boot.loader.timeout = lib.mkDefault 3;
   };
 }

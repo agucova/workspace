@@ -3,7 +3,7 @@
 
 with lib;
 
-let 
+let
   cfg = config.myBase;
 in {
   options.myBase = {
@@ -15,7 +15,7 @@ in {
     boot = {
       # Use latest kernel for better hardware support
       kernelPackages = mkDefault pkgs.linuxPackages_latest;
-      
+
       # Bootloader configuration
       loader = {
         systemd-boot.enable = true;
@@ -28,14 +28,14 @@ in {
     hardware.enableRedistributableFirmware = true;
 
     # Networking configuration
-    networking = {
-      # Enable firewall with default settings (allow SSH)
-      firewall = {
-        enable = mkDefault true;
-        allowedTCPPorts = mkDefault [ 22 ];
-        allowedUDPPorts = mkDefault [ ];
-      };
-    };
+    # networking = {
+    #   # Enable firewall with default settings (allow SSH)
+    #   firewall = {
+    #     enable = mkDefault true;
+    #     allowedTCPPorts = mkDefault [ 22 ];
+    #     allowedUDPPorts = mkDefault [ ];
+    #   };
+    # };
 
     # Set your time zone
     time.timeZone = mkDefault "America/Santiago";
@@ -158,7 +158,7 @@ in {
     }]);
 
     # Enable zram swap as primary swap
-    zramSwap = {
+    zramSwap = mkIf (!config.myDisko.enable) (mkDefault {
       enable = mkDefault true;
       algorithm = mkDefault "zstd"; # Best compression/performance ratio
       memoryPercent = mkDefault 100; # Increased to account for compression ratio

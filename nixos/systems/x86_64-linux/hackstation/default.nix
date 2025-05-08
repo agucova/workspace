@@ -21,26 +21,8 @@
      then /mnt/etc/nixos/hardware-configuration.nix
      else /etc/nixos/hardware-configuration.nix) # Fallback to default even if it doesn't exist yet
   ];
-
-  # Minimal X11 configuration for initial setup
-  services.xserver = {
-    enable = true;
-    displayManager.gdm = {
-      # Use X11 instead of Wayland for now
-      wayland = lib.mkForce false;
-    };
-    # Basic input configuration
-    libinput.enable = true;
-  };
-
-  # Ensure GDM user has proper permissions
-  users.users.gdm.extraGroups = [ "video" "audio" "input" ];
-
-  # Minimal NVIDIA settings
-  hardware.nvidia.modesetting.enable = lib.mkForce true;
-
   # Set hostname with higher priority
-  networking.hostName = lib.mkForce "hackstation";
+  networking.hostName = "hackstation";
 
   # User account - your account
   users.users.agucova = {
@@ -103,19 +85,19 @@
   };
 
   # Enable Docker and NvCT
-  virtualisation = {
-    docker = {
-      enable = true;
-    };
-  };
-  hardware.nvidia-container-toolkit.enable = true;
+  # virtualisation = {
+  #   docker = {
+  #     enable = true;
+  #   };
+  # };
+  # hardware.nvidia-container-toolkit.enable = true;
 
-  # Additional host-specific packages
-  environment.systemPackages = with pkgs; [
-    # Container tools
-    docker
-    docker-compose
-  ];
+  # # Additional host-specific packages
+  # environment.systemPackages = with pkgs; [
+  #   # Container tools
+  #   docker
+  #   docker-compose
+  # ];
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing
