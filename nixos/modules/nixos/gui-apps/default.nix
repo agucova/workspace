@@ -58,31 +58,10 @@ in
 
       # Cryptography
       cryptomator
+      stremio
     ];
 
-    # Enable Firefox (using the cleaner program approach)
+    # Enable Firefox
     programs.firefox.enable = true;
-
-    # Configure Flatpak
-    services.flatpak = {
-      enable = true;
-    };
-
-    # Flatpak post-installation script to install common apps
-    system.activationScripts.flatpakApps = ''
-      # Add Flathub repo
-      flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-      # Install common Flatpak apps that don't have good Nix packages
-      FLATPAK_APPS=(
-        "com.stremio.Stremio"
-        "org.jamovi.jamovi"
-        "org.zulip.Zulip"
-      )
-
-      for app in "''${FLATPAK_APPS[@]}"; do
-        flatpak install -y flathub "$app" || true
-      done
-    '';
   };
 }
