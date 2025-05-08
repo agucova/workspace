@@ -22,43 +22,22 @@
      else /etc/nixos/hardware-configuration.nix) # Fallback to default even if it doesn't exist yet
   ];
 
-  # Temporary fixes for GNOME/GDM issues
+  # Minimal X11 configuration for initial setup
   services.xserver = {
     enable = true;
     displayManager.gdm = {
-      # Keep Wayland enabled as requested
-      wayland = true;
-      # Prevent GDM from auto-suspending
-      autoSuspend = false;
-      # Set debug to true to get more logs
-      debug = true;
+      # Use X11 instead of Wayland for now
+      wayland = lib.mkForce false;
     };
-    # Add input device configuration
-    libinput = {
-      enable = true;
-      mouse.accelProfile = "flat";
-      touchpad.accelProfile = "flat";
-    };
-  };
-
-  # Add debug environment variables for GNOME
-  environment.sessionVariables = {
-    # Enable shell debugging
-    MUTTER_DEBUG = "1";
-    # Add debugging for GDM
-    GDM_DEBUG = "true";
+    # Basic input configuration
+    libinput.enable = true;
   };
 
   # Ensure GDM user has proper permissions
   users.users.gdm.extraGroups = [ "video" "audio" "input" ];
 
-  # Fix NVIDIA settings - adjust power management and ensure modesetting
-  hardware.nvidia = {
-    modesetting.enable = lib.mkForce true;
-    powerManagement.enable = lib.mkForce false;
-    # Add additional fixes for NVIDIA
-    forceFullCompositionPipeline = lib.mkForce true;
-  };
+  # Minimal NVIDIA settings
+  hardware.nvidia.modesetting.enable = lib.mkForce true;
 
   # Set hostname with higher priority
   networking.hostName = lib.mkForce "hackstation";
@@ -92,8 +71,8 @@
     gpu.nvidia = {
       enable = true;
       model = "RTX 4090";
-      open = true;
-      wayland = true;
+      open = lib.mkForce false; # Use proprietary drivers for now
+      wayland = lib.mkForce false; # Use X11 for now
     };
 
     # Enable performance optimizations
