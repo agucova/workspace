@@ -31,6 +31,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    
     # Application dependencies
     ghostty.url = "github:ghostty-org/ghostty";
     
@@ -99,6 +104,7 @@
         
         # System enhancements
         xremap-flake.nixosModules.default # macOS-style keyboard remapping (disabled by default)
+        disko.nixosModules.disko # Declarative disk management
         
         # Tools
         nix-index-database.nixosModules.nix-index # Command-not-found replacement

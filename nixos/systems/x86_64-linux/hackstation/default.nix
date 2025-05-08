@@ -88,9 +88,16 @@
 
   # Enable GUI applications module
   myGuiApps.enable = true;
-  
+
   # Enable 1Password with SSH/CLI integration
   my1Password.enable = true;
+
+  # Enable BTRFS with LUKS disk configuration
+  myDisko = {
+    enable = true;
+    device = "/dev/nvme1n1"; # Primary NVMe device
+    swapSize = "64G"; # Adjust based on your needs (should be at least equal to RAM for hibernation)
+  };
 
   # Enable macOS-like keyboard remapping with xremap
   macos-remap.enable = true;

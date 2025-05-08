@@ -150,11 +150,12 @@ in {
     };
 
     # Swap configuration
-    swapDevices = mkDefault [{
+    # When not using disko, use a simple swapfile
+    swapDevices = mkIf (!config.myDisko.enable) (mkDefault [{
       device = "/swapfile";
       size = 8 * 1024; # 8GB swapfile
       priority = 10; # Lower priority than zram
-    }];
+    }]);
 
     # Enable zram swap as primary swap
     zramSwap = {
