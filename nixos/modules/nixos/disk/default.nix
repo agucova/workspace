@@ -116,8 +116,8 @@ in
     };
 
     # Hibernate settings
-    powerManagement.enable = true;
-    powerManagement.powertop.enable = true;
+    # powerManagement.enable = true;
+    # powerManagement.powertop.enable = true;
 
     # Install disko tools
     environment.systemPackages = with pkgs; [

@@ -1,10 +1,10 @@
 _:
 {
-  core-shell.enable = true;
-  dev-shell.enable = true;
-  desktop-settings.enable = true;
-  dotfiles.enable = true;
-  my1Password.enable = true;
+  core-shell.enable = false;
+  dev-shell.enable = false;
+  desktop-settings.enable = false;
+  dotfiles.enable = false;
+  my1Password.enable = false;
 
   home = {
     username = "agucova";
