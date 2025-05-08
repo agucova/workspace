@@ -14,8 +14,12 @@
 
 {
   imports = [
-    # Import hardware configuration from the standard location
-    /etc/nixos/hardware-configuration.nix
+    # Import hardware configuration with fallback for installation environment
+    (if builtins.pathExists /etc/nixos/hardware-configuration.nix
+     then /etc/nixos/hardware-configuration.nix
+     else if builtins.pathExists /mnt/etc/nixos/hardware-configuration.nix
+     then /mnt/etc/nixos/hardware-configuration.nix
+     else /etc/nixos/hardware-configuration.nix) # Fallback to default even if it doesn't exist yet
   ];
 
   # Set hostname with higher priority
