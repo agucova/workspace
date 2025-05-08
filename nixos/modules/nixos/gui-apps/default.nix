@@ -8,7 +8,7 @@ in
 {
   # Import submodules
   imports = [
-    ./claude-desktop-icons.nix
+    # ./claude-desktop-icons.nix
     ./1password.nix
   ];
 
@@ -30,7 +30,7 @@ in
       ghostty # From flake overlay
       zed-editor.fhs # Modern code editor with FHS env for better compatibility
       # Only include Claude Desktop if we're not in a live ISO environment
-      claude-desktop-with-fhs
+      # claude-desktop-with-fhs
       gitkraken # Migrated from Flatpak
 
       # Media and Entertainment
