@@ -4,16 +4,6 @@ A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized f
 
 This configuration uses flake-parts to organize the NixOS modules, systems and Home Manager configurations in a maintainable structure.
 
-## Migration from Snowfall Lib to flake-parts
-
-This repository has been migrated from Snowfall Lib to flake-parts. The migration included the following changes:
-
-1. **Direct Module Imports**: Instead of relying on automatic module import from Snowfall Lib, modules are now explicitly imported in flake.nix
-2. **Standardized Option Naming**: All module options now use the consistent `my<ModuleName>` format with camelCase
-3. **Explicit Type Handling**: Better handling of conditional configurations with appropriate use of mkDefault and mkForce
-4. **Clean Inputs Handling**: Simplified dependencies through direct input definitions
-5. **Structured Outputs**: Using flake-parts to organize outputs by system
-
 ## Directory Structure
 
 - `flake.nix` - Main entry point defining inputs and outputs using flake-parts
@@ -153,6 +143,134 @@ nix build .#packages.x86_64-linux.iso-vm --impure
 # Write to USB drive (replace sdX with your USB device, be careful!)
 sudo dd if=./result/iso/nixos-*.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
+
+## Bootstrapping Hackstation from NixOS Live Boot
+
+To install the hackstation system from a NixOS live boot environment, you can use the automated script or follow the manual steps.
+
+### Automated Installation
+
+```bash
+# 1. Boot from NixOS live media
+# 2. Connect to the internet (for WiFi: nmcli device wifi connect "SSID" password "password")
+# 3. Enable flakes and install git
+export NIX_CONFIG="experimental-features = nix-command flakes"
+nix-shell -p git
+
+# 4. Clone the repository
+git clone https://github.com/agucova/workspace.git /tmp/workspace
+cd /tmp/workspace/nixos
+
+# 5. Run the installation script
+sudo ./install.sh
+# The script will show available disks and let you choose one
+# Alternatively, you can specify the disk directly: sudo ./install.sh /dev/nvme1n1
+
+# 6. After installation completes, reboot
+sudo reboot
+```
+
+The `install.sh` script will:
+- Check internet connectivity
+- Verify the disk exists
+- Setup disk partitioning with disko (BTRFS + LUKS encryption)
+- Generate hardware configuration
+- Install NixOS with the hackstation flake
+- Set user password
+
+### Manual Installation Steps
+
+If you prefer to perform the installation manually, follow these steps:
+
+#### 1. Boot from NixOS Live Media
+
+Boot your system using a NixOS minimal installation media:
+- Download the minimal NixOS ISO from [nixos.org](https://nixos.org/download.html#nixos-iso)
+- Create a bootable USB drive following the [instructions here](https://nixos.org/manual/nixos/stable/index.html#sec-booting-from-usb)
+
+#### 2. Connect to the Internet
+
+Ensure you have an internet connection. For wired connections, this should work automatically. For wireless:
+
+```bash
+# List available networks
+nmcli device wifi list
+
+# Connect to your network
+nmcli device wifi connect "SSID" password "password"
+```
+
+#### 3. Identify Your Disk
+
+Use `lsblk` to identify the disk you want to install NixOS on:
+
+```bash
+lsblk
+```
+
+In our case, we'll be using `/dev/nvme1n1`.
+
+#### 4. Clone Your Repository
+
+```bash
+# Enable nix commands and flakes
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
+# Install git
+nix-shell -p git
+
+# Clone your repository
+git clone https://github.com/agucova/workspace.git /tmp/workspace
+cd /tmp/workspace/nixos
+```
+
+#### 5. Partition the Disk with Disko
+
+The configuration includes a disko module for BTRFS with LUKS encryption:
+
+```bash
+# Run disko to partition the disk
+# Edit the disko-config.nix file first to set your device if needed
+sudo vi ./modules/nixos/disk/disko-config.nix
+
+# Then run disko
+sudo nix run github:nix-community/disko -- \
+  --mode disko \
+  ./modules/nixos/disk/disko-config.nix
+
+# Enter your LUKS encryption password when prompted
+```
+
+#### 6. Generate Hardware Configuration
+
+Disko will automatically mount the partitions under `/mnt`. Generate the hardware configuration:
+
+```bash
+# Generate hardware configuration without filesystems
+sudo nixos-generate-config --no-filesystems --root /mnt
+```
+
+#### 7. Install NixOS with Your Flake
+
+```bash
+# Install NixOS using your flake
+sudo nixos-install --flake '.#hackstation' --impure
+
+# Set the root password when prompted
+sudo nixos-enter --root /mnt -c 'passwd agucova'
+```
+
+#### 8. Reboot into Your New System
+
+```bash
+sudo reboot
+```
+
+After rebooting, you'll be prompted for your LUKS encryption password, and then your system will boot into your configured NixOS environment. On first boot:
+
+1. Login with the root password you set
+2. Set up your user password: `passwd agucova`
+3. Clone your repository to a permanent location
 
 ## Home Manager Integration
 
