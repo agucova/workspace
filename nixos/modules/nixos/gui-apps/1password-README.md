@@ -31,28 +31,22 @@ The Home Manager module (`my1Password`) provides:
 
 ### System Configuration
 
-In your system configuration (e.g., `/nixos/systems/x86_64-linux/hackstation/default.nix`):
+The system module is automatically enabled when imported. In your system configuration (e.g., `/nixos/systems/x86_64-linux/hackstation/default.nix`), you can optionally customize user permissions:
 
 ```nix
 {
-  # Enable 1Password with SSH/CLI integration
-  my1Password.enable = true;
-  
   # Optional: Specify users that should have polkit permissions
-  my1Password.users = [ "username1" "username2" ];
+  my1Password.users = [ "agucova" ];
 }
 ```
 
 ### Home Manager Configuration
 
-In your home configuration (e.g., `/nixos/homes/x86_64-linux/agucova/default.nix`):
+The home manager module is automatically enabled when imported. In your home configuration (e.g., `/nixos/homes/x86_64-linux/agucova/default.nix`), you can configure the integration features:
 
 ```nix
 {
-  # Enable 1Password SSH/Git integration
-  my1Password.enable = true;
-  
-  # Optional: Configure SSH and Git individually
+  # Configure SSH and Git integration (both enabled by default)
   my1Password.enableSSH = true;  # Default is true
   my1Password.enableGit = true;  # Default is true
 }

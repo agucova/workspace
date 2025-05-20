@@ -4,10 +4,9 @@
 let
   sshSignPath = "${pkgs._1password-gui}/share/1password/op-ssh-sign";
   agentSocketPath = "~/.1password/agent.sock";
-  cfg = config.onePassword;
 in
 {
-  options.onePassword = {
+  options.my1Password = {
     enableSSH = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -23,7 +22,7 @@ in
 
   config = {
     # SSH configuration for 1Password identity agent
-    programs.ssh = lib.mkIf cfg.enableSSH {
+    programs.ssh = lib.mkIf config.my1Password.enableSSH {
       enable = true;  # Enable SSH config management
       extraConfig = ''
         # 1Password SSH agent configuration
@@ -32,7 +31,7 @@ in
     };
 
     # Git configuration for 1Password signing
-    programs.git = lib.mkIf cfg.enableGit {
+    programs.git = lib.mkIf config.my1Password.enableGit {
       enable = true;  # Enable Git config management
       extraConfig = {
         gpg = {

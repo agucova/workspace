@@ -4,15 +4,26 @@ This directory contains modular configurations for NixOS, designed to be composa
 
 ## Available Modules
 
-- `base.nix` - Core system configuration with AMD 7800X3D optimizations
-- `gnome.nix` - GNOME desktop environment setup with optimizations
-- `gui-apps.nix` - Common GUI applications
-- `hardware.nix` - RTX 4090 GPU configuration with proprietary drivers
-- `virtualization.nix` - VM-specific configuration (used instead of hardware.nix)
-- `dotfiles.nix` - Chezmoi dotfiles integration
-- `ssh.nix` - SSH server configuration
-- `mineral.nix` - System hardening with gaming optimizations
-- `macos-remap.nix` - macOS-like keyboard remapping with xremap
+### System-level modules (nixos/)
+
+- `base/` - Core system configuration with AMD 7800X3D optimizations
+- `desktop/` - GNOME desktop environment setup with optimizations
+- `gui-apps/` - Common GUI applications and 1Password integration
+- `hardware/` - RTX 4090 GPU configuration with proprietary drivers
+- `disk/` - BTRFS with LUKS disk configuration
+- `vm/` - VM-specific configuration (used instead of hardware.nix)
+- `ssh/` - SSH server configuration
+- `hardening/` - System hardening with gaming optimizations
+- `macos-remap/` - macOS-like keyboard remapping with xremap
+
+### User-level modules (home/)
+
+- `core-shell/` - Basic shell configuration
+- `dev-shell/` - Development environment setup
+- `desktop-settings/` - User-specific desktop settings
+- `dotfiles/` - User configuration files
+- `macos-remap/` - User-specific keyboard remapping
+- `1password/` - 1Password CLI, SSH and Git integration
 
 ## macOS-like Keyboard Remapping
 
@@ -32,18 +43,14 @@ The `macos-remap.nix` module provides macOS-like keyboard behavior in GNOME, mak
 
 ### Usage
 
-The macOS-like keyboard remapping is enabled by default in all configurations. If you need to disable it:
+To enable or disable the macOS-like keyboard remapping:
 
 ```nix
-# In your configuration.nix
-services.macos-remap.enable = false;
+# In your system configuration
+myMacosRemap.enable = true;  # or false to disable
 ```
 
-To re-enable it after disabling:
-
-```nix
-services.macos-remap.enable = true;
-```
+The home-manager module is automatically enabled when imported and provides additional VS Code and GNOME settings.
 
 ### Implementation Details
 

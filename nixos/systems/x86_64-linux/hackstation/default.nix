@@ -27,12 +27,10 @@
 
   # Base and desktop modules are directly imported in flake.nix
 
-  # Enable hardware configuration and optimizations
+  # Enable hardware configuration with AMD CPU and NVIDIA GPU
   myHardware = {
-    enable = true; # Enable hardware module
     cpu.amd.enable = true;
     gpu.nvidia.enable = true;
-    performance.enable = true;
   };
 
   # Load nvidia driver for Xorg
@@ -47,13 +45,15 @@
     swapSize = "64G"; # Adjust based on your needs (should be at least equal to RAM for hibernation)
   };
 
+  # Disable macOS-style keyboard remapping
   myMacosRemap.enable = false;
-
+  
+  # When myMacosRemap is disabled, we still need to provide empty values
+  # for xremap to prevent type errors during the build
   services.xremap = {
-    # Disable the service but provide required config values to avoid errors
     enable = false;
-    yamlConfig = "";
-    config = {};  # Empty config object
+    yamlConfig = "";  # Empty string to satisfy type requirements
+    config = {};      # Empty config object
   };
 
   # Home Manager configuration
@@ -71,8 +71,7 @@
       ../../../homes/x86_64-linux/agucova
     ];
 
-    # Override specific settings for this system
-    options.my1Password.enable = true;
+    # No need to override 1Password settings as it's enabled by default now
   };
 
   # Enable Docker and NvCT

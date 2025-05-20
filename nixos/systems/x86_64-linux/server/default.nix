@@ -63,23 +63,13 @@
   # Disable macOS remapping on server
   myMacosRemap.enable = false;
 
-  # Enable minimal hardware configuration
-  # This enables just firmware and generic hardware support,
-  # but doesn't enable specific CPU/GPU optimizations
-  myHardware = {
-    enable = true;
-
-    # Enable performance optimizations but not hardware-specific ones
-    performance = {
-      enable = true;
-      build.parallel = true;
-    };
-
-    # If server has specific hardware, can be enabled like:
-    # cpu.intel.enable = true;
-    # or
-    # cpu.amd.enable = true;
-  };
+  # Server hardware configuration
+  # Commented out since we can't determine the actual hardware without deploying
+  # Uncomment and set the appropriate CPU type when deploying
+  # myHardware = {
+  #   cpu.amd.enable = true;  # For AMD-based server
+  #   # cpu.intel.enable = true;  # For Intel-based server
+  # };
 
   # Additional server-specific packages
   environment.systemPackages = with pkgs; [
@@ -109,9 +99,9 @@
     ];
     
     # Override to disable desktop-related settings
-    onePassword = {
-      enableSSH = lib.mkForce false;
-      enableGit = lib.mkForce false;
+    my1Password = {
+      enableSSH = false;
+      enableGit = false;
     };
   };
 

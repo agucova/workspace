@@ -1,20 +1,19 @@
 # GUI Applications module for NixOS
 # This module includes GUI applications that can be included in hosts that need them
+# NOTE: This module is automatically enabled when imported (no enable option required)
 { config, pkgs, lib, ... }:
 
-let
-  cfg = config.myGuiApps;
-in
 {
-  # Import submodules
+  # Import submodules - all are automatically enabled when imported
   imports = [
-    # ./claude-desktop-icons.nix
     ./1password.nix
+    # Uncomment to enable Claude Desktop icons
+    # ./claude-desktop-icons.nix
   ];
 
-  # Apply configuration only when enabled
+  # Apply configuration directly
   config = {
-    # Enable GUI applications
+    # GUI applications
     environment.systemPackages = with pkgs; [
       # Basics
       google-chrome

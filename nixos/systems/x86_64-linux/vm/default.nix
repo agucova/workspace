@@ -8,8 +8,11 @@
   # - VM module provides virtualization optimizations
   # - GUI applications are directly imported
   
-  # Hardware module is not imported for VM testing
-  # This avoids hardware-specific optimizations that don't make sense in a VM
+  # Enable hardware configuration for VM with basic Intel CPU settings
+  myHardware = {
+    cpu.intel.enable = true;
+    # No specific GPU is enabled as we're using QEMU's virtio
+  };
 
   # Enable macOS-like keyboard remapping with xremap
   myMacosRemap.enable = true;
@@ -30,9 +33,9 @@
     ];
     
     # Override specific settings for the VM
-    onePassword = {
-      enableSSH = lib.mkForce true;
-      enableGit = lib.mkForce true;
+    my1Password = {
+      enableSSH = true;
+      enableGit = true;
     };
   };
 

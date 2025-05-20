@@ -8,7 +8,7 @@
   };
   
   # 1Password integration options
-  onePassword = {
+  my1Password = {
     enableSSH = true;
     enableGit = true;
   };

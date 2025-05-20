@@ -1,3 +1,5 @@
+# MacOS-style keyboard remapping for NixOS using xremap
+# NOTE: Unlike other modules, this one requires an enable option since it affects system behavior
 { lib, pkgs, config, inputs, ... }:
 
 let
@@ -7,7 +9,7 @@ in
 {
   # Declare our feature options
   options.myMacosRemap = {
-    enable = lib.mkEnableOption "Run xremap with mac-style bindings";
+    enable = lib.mkEnableOption "Run xremap with macOS-style bindings";
 
     extraXremapConfig = lib.mkOption {
       type = lib.types.attrs;
@@ -17,13 +19,18 @@ in
   };
 
   # Configure based on the enable option
-  config = {
+  config = lib.mkIf cfg.enable {
     # Base services configuration
     services = {
       # Configure xremap with conditional elements
       xremap = {
-        # Always provide placeholder yamlConfig to avoid errors when disabled
-        yamlConfig = if cfg.enable then ''
+        enable = true;
+        serviceMode = "user";
+        userName = config.users.defaultUserName or "agucova";
+        withGnome = true;
+        
+        # Full xremap config
+        yamlConfig = ''
           # macOS-style key remapping
           keymap:
             - name: Global macOS keybindings
@@ -43,34 +50,28 @@ in
                 Ctrl-t: Alt-t  # New Tab
                 Ctrl-o: Alt-o  # Open
                 Ctrl-p: Alt-p  # Print
-        '' else "";
-        
-        # Only apply these settings when enabled
-        enable = lib.mkIf cfg.enable true;
-        serviceMode = lib.mkIf cfg.enable "user";
-        userName = lib.mkIf cfg.enable (config.users.defaultUserName or "agucova");
-        withGnome = lib.mkIf cfg.enable true;
+        '';
       };
 
-      # GNOME settings only when enabled
-      xserver.desktopManager.gnome.extraGSettingsOverrides = lib.mkIf cfg.enable ''
+      # GNOME settings 
+      xserver.desktopManager.gnome.extraGSettingsOverrides = ''
         [org.gnome.shell]
         enabled-extensions=['xremap@k0kubun.com']
       '';
 
-      # udev rules only when enabled
-      udev.extraRules = lib.mkIf cfg.enable ''
+      # udev rules
+      udev.extraRules = ''
         KERNEL=="uinput", GROUP="input", TAG+="uaccess"
       '';
     };
 
-    # Other configs that only apply when enabled
-    environment.systemPackages = lib.mkIf cfg.enable (with pkgs; [ 
+    # Other configs
+    environment.systemPackages = with pkgs; [ 
       gnomeExtensions.xremap 
-    ]);
+    ];
 
-    users.groups.input.members = lib.mkIf cfg.enable
-      (lib.optionals (config.users ? defaultUserName)
-        [ config.users.defaultUserName ]);
+    users.groups.input.members = 
+      lib.optionals (config.users ? defaultUserName)
+        [ config.users.defaultUserName ];
   };
 }
