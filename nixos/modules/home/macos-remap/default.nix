@@ -1,10 +1,14 @@
 { lib, config, ... }:
 
+let
+  cfg = config.myMacosRemap;
+in
 {
-  options.macos-remap.keybindings =
-    lib.mkEnableOption "mac-style GNOME & VS Code bindings";
+  options.myMacosRemap = {
+    enable = lib.mkEnableOption "macOS keyboard remapping for GNOME & VS Code";
+  };
 
-  config = lib.mkIf config.macos-remap.keybindings {
+  config = lib.mkIf cfg.enable {
     dconf.settings =
       import ./dconf.nix;
 

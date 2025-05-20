@@ -1,10 +1,11 @@
 { lib, pkgs, config, ... }:
 
 {
-  options.dev-shell.enable =
-    lib.mkEnableOption "Development packages and settings for the shell";
+  options.myDevShell = {
+    enable = lib.mkEnableOption "Development packages and settings for the shell";
+  };
 
-  config = lib.mkIf config.dev-shell.enable {
+  config = lib.mkIf config.myDevShell.enable {
     home.packages = with pkgs; [
       # Nix tooling
       nil

@@ -19,10 +19,26 @@
   my1Password.enable = true;
 
   # Enable macOS-like keyboard remapping with xremap
-  macos-remap.enable = true;
-  snowfallorg.users.agucova.home.config = {
-    macos-remap.keybindings = true;
-    my1Password.enable = true;
+  myMacosRemap.enable = true;
+  
+  # Home Manager configuration
+  home-manager.users.agucova = { pkgs, lib, ... }: {
+    imports = [
+      # Import all home modules first to provide options
+      ../../../modules/home/core-shell
+      ../../../modules/home/dev-shell
+      ../../../modules/home/desktop-settings
+      ../../../modules/home/dotfiles
+      ../../../modules/home/macos-remap
+      ../../../modules/home/1password
+      
+      # Import user configuration last
+      ../../../homes/x86_64-linux/agucova
+    ];
+    
+    # Override specific settings for the VM
+    myMacosRemap.enable = lib.mkForce true;
+    my1Password.enable = lib.mkForce true;
   };
 
   # User configurations
@@ -31,10 +47,16 @@
       # User account - same as hardware setup
       agucova = {
         description = "Agustín Covarrubias";
+        isNormalUser = true; # Regular user account
+        group = "agucova"; # Primary group with same name
+        extraGroups = [ "wheel" "networkmanager" ]; # Add common groups
         shell = pkgs.fish;
         initialPassword = "nixos";
       };
     };
+    
+    # Create the user's group
+    groups.agucova = {};
   };
 
   # Enable automatic login for testing
@@ -94,6 +116,9 @@
       "-device virtio-serial-pci"
     ];
   };
+
+  # Set hostname
+  networking.hostName = "vm";
 
   # State version
   system.stateVersion = "24.11";

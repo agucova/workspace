@@ -3,12 +3,6 @@
 , pkgs
 , config
 , inputs
-, namespace
-, system
-, target
-, format
-, virtual
-, systems
 , ...
 }:
 
@@ -43,12 +37,21 @@
       }))
   ];
 
+  # Set hostname
+  networking.hostName = "server";
+
   # User account - your account
   users.users.agucova = {
     description = "Agustín Covarrubias";
+    isNormalUser = true; # Regular user account
+    group = "agucova"; # Primary group with same name
+    extraGroups = [ "wheel" "networkmanager" ]; # Add common groups
     shell = pkgs.fish; # Set Fish as default shell
     initialPassword = "nixos";
   };
+  
+  # Create the user's group
+  users.groups.agucova = {};
   
   # Add minimal boot configuration
   boot.loader = {
@@ -59,8 +62,7 @@
   # Enable base module (required)
   myBase.enable = true;
   
-  # Explicitly disable macOS remapping (not needed on server)
-  macos-remap.enable = false;
+  # Note: macOS remapping is not needed on server
 
   # Enable minimal hardware configuration
   # This enables just firmware and generic hardware support,

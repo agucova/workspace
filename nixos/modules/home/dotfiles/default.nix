@@ -1,10 +1,11 @@
 { lib, pkgs, config, ... }:
 
 {
-  options.dotfiles.enable =
-    lib.mkEnableOption "Dotfiles deployment with Chezmoi";
+  options.myDotfiles = {
+    enable = lib.mkEnableOption "Dotfiles deployment with Chezmoi";
+  };
 
-  config = lib.mkIf config.dotfiles.enable {
+  config = lib.mkIf config.myDotfiles.enable {
     home.packages = with pkgs; [
       chezmoi
       uv

@@ -2,10 +2,11 @@
 { lib, config, pkgs, ... }:
 
 {
-  options.core-shell.enable =
-    lib.mkEnableOption "core shell with Fish + Starship + aliases";
+  options.myCoreShell = {
+    enable = lib.mkEnableOption "core shell with Fish + Starship + aliases";
+  };
 
-  config = lib.mkIf config.core-shell.enable {
+  config = lib.mkIf config.myCoreShell.enable {
     home.packages = with pkgs; [
       # Dev / CLI basics
       gh

@@ -8,17 +8,13 @@
     # Core dependencies
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     
+    # Replace snowfall-lib with flake-parts
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
-    snowfall-lib = {
-      url = "github:snowfallorg/lib";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    
-    flake-utils.url = "github:numtide/flake-utils";
     
     # Tools and generators
     nixos-generators = {
@@ -42,7 +38,6 @@
     claude-desktop = {
       url = "github:k3d3/claude-desktop-linux-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
     };
     
     # System enhancements
@@ -61,58 +56,234 @@
   ############################################################################
   #  Outputs                                                                 #
   ############################################################################
-  outputs = inputs:
-    let
-      # Build an extended lib with Snowfall helpers
-      lib = inputs.snowfall-lib.mkLib {
-        inherit inputs;
-        src = ./.;
-
-        snowfall = {
-          namespace = "workstation";
-          meta = {
-            name = "workstation";
-            title = "Workstation NixOS configuration";
-          };
-        };
-      };
-    in
-    lib.mkFlake {
-      # Global nixpkgs configuration
-      channels-config = {
-        allowUnfree = true;
-      };
-
-      # Overlays (extra packages shared by every build)
-      overlays = [
-        (_: prev: {
+  outputs = inputs@{ flake-parts, nixpkgs, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" ];
+      
+      imports = [];
+      
+      # Define perSystem outputs (packages, devShells, etc.)
+      perSystem = { config, self', inputs', pkgs, system, ... }: {
+        # Packages available in this flake
+        packages = {
           # Terminal emulator with GPU acceleration
-          ghostty = inputs.ghostty.packages.${prev.system}.default;
+          ghostty = inputs'.ghostty.packages.default;
 
           # Claude desktop wrapped inside an FHS env
-          inherit (inputs.claude-desktop.packages.${prev.system}) claude-desktop-with-fhs;
-        })
-      ];
-
-      # Modules applied to all NixOS hosts
-      systems.modules.nixos = with inputs; [
-        # Home-manager integration
-        home-manager.nixosModules.home-manager
-        {
-          home-manager.useUserPackages = true;
-        }
+          claude-desktop-with-fhs = inputs'.claude-desktop.packages.claude-desktop-with-fhs;
+        };
         
-        # System enhancements
-        xremap-flake.nixosModules.default # macOS-style keyboard remapping (disabled by default)
-        disko.nixosModules.disko # Declarative disk management
+        # Development shell
+        devShells.default = pkgs.mkShell {
+          buildInputs = with pkgs; [
+            nixpkgs-fmt
+            statix
+          ];
+        };
+      };
+      
+      # System-wide flake outputs
+      flake = {
+        # NixOS configurations
+        nixosConfigurations = {
+          # Hackstation configuration
+          hackstation = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = { inherit inputs; };
+            modules = [
+              # System configuration
+              ./systems/x86_64-linux/hackstation
+              
+              # Import all NixOS modules
+              ./modules/nixos/base
+              ./modules/nixos/desktop
+              ./modules/nixos/disk
+              ./modules/nixos/gui-apps
+              ./modules/nixos/hardening
+              ./modules/nixos/hardware
+              ./modules/nixos/macos-remap
+              ./modules/nixos/ssh
+              ./modules/nixos/vm
+              
+              # Required modules
+              inputs.home-manager.nixosModules.home-manager
+              inputs.disko.nixosModules.disko
+              inputs.nix-index-database.nixosModules.nix-index
+              inputs.xremap-flake.nixosModules.default
+              
+              # Home Manager settings
+              {
+                home-manager.useUserPackages = true;
+                home-manager.useGlobalPkgs = true;
+                nixpkgs.config.allowUnfree = true;
+              }
+              
+              # Import hardware configuration if available (with fallback)
+              ({ lib, ... }: {
+                imports = if builtins.pathExists /etc/nixos/hardware-configuration.nix 
+                  then [ /etc/nixos/hardware-configuration.nix ]
+                  else if builtins.pathExists /mnt/etc/nixos/hardware-configuration.nix 
+                  then [ /mnt/etc/nixos/hardware-configuration.nix ]
+                  else [];
+              })
+            ];
+          };
+          
+          # VM configuration 
+          vm = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = { inherit inputs; };
+            modules = [
+              # System configuration
+              ./systems/x86_64-linux/vm
+              
+              # Import all NixOS modules
+              ./modules/nixos/base
+              ./modules/nixos/desktop
+              ./modules/nixos/disk
+              ./modules/nixos/gui-apps
+              ./modules/nixos/hardening
+              ./modules/nixos/hardware
+              ./modules/nixos/macos-remap
+              ./modules/nixos/ssh
+              ./modules/nixos/vm
+              
+              # Required modules
+              inputs.home-manager.nixosModules.home-manager
+              inputs.disko.nixosModules.disko
+              inputs.nix-index-database.nixosModules.nix-index
+              inputs.xremap-flake.nixosModules.default
+              
+              # Home Manager settings
+              {
+                home-manager.useUserPackages = true;
+                home-manager.useGlobalPkgs = true;
+                nixpkgs.config.allowUnfree = true;
+              }
+            ];
+          };
+          
+          # Server configuration
+          server = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = { inherit inputs; };
+            modules = [
+              # System configuration
+              ./systems/x86_64-linux/server
+              
+              # Import all NixOS modules
+              ./modules/nixos/base
+              ./modules/nixos/disk
+              ./modules/nixos/hardening
+              ./modules/nixos/hardware
+              ./modules/nixos/ssh
+              
+              # Required modules
+              inputs.home-manager.nixosModules.home-manager
+              inputs.disko.nixosModules.disko
+              inputs.nix-index-database.nixosModules.nix-index
+              
+              # Home Manager settings
+              {
+                home-manager.useUserPackages = true;
+                home-manager.useGlobalPkgs = true;
+                nixpkgs.config.allowUnfree = true;
+              }
+              
+              # Import hardware configuration if available (with fallback)
+              ({ lib, ... }: {
+                imports = if builtins.pathExists /etc/nixos/hardware-configuration.nix 
+                  then [ /etc/nixos/hardware-configuration.nix ]
+                  else if builtins.pathExists /mnt/etc/nixos/hardware-configuration.nix 
+                  then [ /mnt/etc/nixos/hardware-configuration.nix ]
+                  else [];
+              })
+            ];
+          };
+        };
         
-        # Tools
-        nix-index-database.nixosModules.nix-index # Command-not-found replacement
-      ];
-
-      # Modules applied to all home-manager configurations
-      homes.modules = with inputs; [
-        nix-index-database.hmModules.nix-index # Command-not-found replacement for home-manager
-      ];
+        # Home Manager configurations
+        homeConfigurations = {
+          # Agustín's home configuration
+          "agucova@hackstation" = inputs.home-manager.lib.homeManagerConfiguration {
+            pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            extraSpecialArgs = { inherit inputs; };
+            modules = [
+              # Required modules
+              inputs.nix-index-database.hmModules.nix-index
+              
+              # Import all home modules first (provides options)
+              ./modules/home/1password
+              ./modules/home/core-shell
+              ./modules/home/desktop-settings
+              ./modules/home/dev-shell
+              ./modules/home/dotfiles
+              ./modules/home/macos-remap
+              
+              # User configuration last (to override defaults)
+              ./homes/x86_64-linux/agucova
+            ];
+          };
+        };
+        
+        # Create helper run-vm command
+        apps.x86_64-linux.run-vm = {
+          type = "app";
+          program = let
+            vm = inputs.self.nixosConfigurations.vm.config.system.build.vm;
+          in "${vm}/bin/run-nixos-vm";
+        };
+        
+        # Create ISO targets
+        packages.x86_64-linux = {
+          # Hackstation ISO
+          iso-hackstation = (inputs.nixos-generators.nixosGenerate {
+            system = "x86_64-linux";
+            format = "iso";
+            modules = [
+              ({ ... }: {
+                imports = [
+                  ./systems/x86_64-linux/hackstation
+                  ./modules/nixos/base
+                  ./modules/nixos/desktop
+                  ./modules/nixos/disk
+                  ./modules/nixos/gui-apps
+                  ./modules/nixos/hardening
+                  ./modules/nixos/hardware
+                  ./modules/nixos/macos-remap
+                  ./modules/nixos/ssh
+                  ./modules/nixos/vm
+                ];
+                # Override impure paths
+                networking.hostName = "hackstation";
+              })
+            ];
+          });
+          
+          # VM ISO
+          iso-vm = (inputs.nixos-generators.nixosGenerate {
+            system = "x86_64-linux";
+            format = "iso";
+            modules = [
+              ({ ... }: {
+                imports = [
+                  ./systems/x86_64-linux/vm
+                  ./modules/nixos/base
+                  ./modules/nixos/desktop
+                  ./modules/nixos/disk
+                  ./modules/nixos/gui-apps
+                  ./modules/nixos/hardening
+                  ./modules/nixos/hardware
+                  ./modules/nixos/macos-remap
+                  ./modules/nixos/ssh
+                  ./modules/nixos/vm
+                ];
+                # Override impure paths
+                networking.hostName = "vm";
+              })
+            ];
+          });
+        };
+      };
     };
 }

@@ -1,14 +1,15 @@
 { lib, pkgs, config, inputs, ... }:
 
 let
+  cfg = config.myMacosRemap;
   baseCfg = import ./xremap-config.nix;
 in
 {
   # Declare our feature options
-  options = {
-    macos-remap.enable = lib.mkEnableOption "Run xremap with mac-style bindings";
+  options.myMacosRemap = {
+    enable = lib.mkEnableOption "Run xremap with mac-style bindings";
 
-    macos-remap.extraXremapConfig = lib.mkOption {
+    extraXremapConfig = lib.mkOption {
       type = lib.types.attrs;
       default = { };
       description = "Extra bindings merged into the default xremap config.";
@@ -16,43 +17,59 @@ in
   };
 
   # Configure based on the enable option
-  config = {
-    # Base services configuration regardless of whether enabled or not
+  config = lib.mkIf cfg.enable {
+    # Base services configuration
     services = {
-      # Always provide minimum xremap config to avoid errors
-      xremap = if config.macos-remap.enable then {
-        # When enabled - full config
+      # Configure xremap
+      xremap = {
+        enable = true;
         serviceMode = "user";
         userName = config.users.defaultUserName or "agucova";
         withGnome = true;
         # debug = true;
-        config = lib.recursiveUpdate baseCfg config.macos-remap.extraXremapConfig;
-        yamlConfig = ""; # Empty string as fallback to fix the "no config" error
-      } else {
-        # When disabled - minimal config to avoid errors
-        enable = false;
-        yamlConfig = "";
+        # Use yamlConfig to be explicit with raw YAML content
+        yamlConfig = ''
+          # macOS-style key remapping
+          keymap:
+            - name: Global macOS keybindings
+              application:
+                not: [terminals]
+              remap:
+                Ctrl-c: Alt-c  # Copy
+                Ctrl-v: Alt-v  # Paste
+                Ctrl-x: Alt-x  # Cut
+                Ctrl-z: Alt-z  # Undo
+                Ctrl-a: Alt-a  # Select All
+                Ctrl-f: Alt-f  # Find
+                Ctrl-s: Alt-s  # Save
+                Ctrl-q: Alt-F4 # Quit
+                Ctrl-w: Alt-w  # Close Tab/Window
+                Ctrl-n: Alt-n  # New Window
+                Ctrl-t: Alt-t  # New Tab
+                Ctrl-o: Alt-o  # Open
+                Ctrl-p: Alt-p  # Print
+        '';
       };
 
-      # GNOME settings only when enabled
-      xserver.desktopManager.gnome.extraGSettingsOverrides = lib.mkIf config.macos-remap.enable ''
+      # GNOME settings
+      xserver.desktopManager.gnome.extraGSettingsOverrides = ''
         [org.gnome.shell]
         enabled-extensions=['xremap@k0kubun.com']
       '';
 
-      # udev rules only when enabled
-      udev.extraRules = lib.mkIf config.macos-remap.enable ''
+      # udev rules
+      udev.extraRules = ''
         KERNEL=="uinput", GROUP="input", TAG+="uaccess"
       '';
     };
 
-    # Other configs only when enabled
-    environment.systemPackages = lib.mkIf config.macos-remap.enable (with pkgs; [ 
+    # Other configs
+    environment.systemPackages = with pkgs; [ 
       gnomeExtensions.xremap 
-    ]);
+    ];
 
-    users.groups.input.members = lib.mkIf config.macos-remap.enable
-      (lib.optionals (config.users ? defaultUserName)
-        [ config.users.defaultUserName ]);
+    users.groups.input.members = 
+      lib.optionals (config.users ? defaultUserName)
+        [ config.users.defaultUserName ];
   };
 }

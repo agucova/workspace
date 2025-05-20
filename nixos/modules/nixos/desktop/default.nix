@@ -62,13 +62,22 @@ in {
     };
 
     # Enable RTKIT for PipeWire
-    # security.rtkit.enable = true;
+    security.rtkit.enable = true;
 
     # Enable XWayland for X11 application compatibility
-    # programs = {
-      # xwayland.enable = true;
-      # dconf.enable = true;
-    # };
+    programs = {
+      xwayland.enable = true;
+      dconf.enable = true;
+    };
+
+    # Add this to your main configuration
+    environment.variables = {
+      # Prevent screen tearing in X11 sessions with NVIDIA
+      __GL_SYNC_TO_VBLANK = "1";
+    };
+
+    # Make sure GDM has correct permissions
+    users.users.gdm.extraGroups = [ "video" "audio" "input" ];
 
     # Fonts configuration with improved Flatpak compatibility
     # fonts = {
