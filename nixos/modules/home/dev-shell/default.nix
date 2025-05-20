@@ -1,5 +1,5 @@
 # Development packages and settings for the shell
-{ lib, pkgs, config, ... }:
+{ pkgs, ... }:
 
 {
   config = {

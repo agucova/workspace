@@ -112,6 +112,7 @@ with lib;
       traceroute
       netcat
       openvpn
+
     ];
 
     # Enable fish shell

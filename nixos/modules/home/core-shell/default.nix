@@ -35,18 +35,7 @@
     programs = {
       fish = {
         enable = true;
-        interactiveShellInit = ''
-          # Fastfetch motd
-          if status --is-interactive && command -v fastfetch >/dev/null
-            # Shell is running interactively
-
-            # Display system info with fastfetch (minimal setup)
-            fastfetch --gpu-hide-type integrated --gpu-detection-method auto -s Title:OS:Host:Kernel:Shell:Terminal:CPU:GPU:Memory
-          end
-
-          # Starship prompt
-          starship init fish | source
-
+        shellInit = ''
           # Editor configuration and Unicode support
           set -gx EDITOR "micro"
           set -gx LANG en_US.UTF-8
@@ -66,11 +55,6 @@
           # Disable default MOTD
           set fish_greeting ""
 
-          # Enable colour hints in VCS prompt:
-          set __fish_git_prompt_showcolorhints yes
-          set __fish_git_prompt_color_prefix purple
-          set __fish_git_prompt_color_suffix purple
-
           # uv completions
           if command -q uv
               # Enable shell completions for uv
@@ -84,6 +68,23 @@
           set -gx PIP_REQUIRE_VIRTUALENV true
           set -gx PIP_USE_UV true
         '';
+        interactiveShellInit = ''
+          # Fastfetch motd
+          if command -v fastfetch >/dev/null
+            # Shell is running interactively
+
+            # Display system info with fastfetch (minimal setup)
+            fastfetch --gpu-hide-type integrated --gpu-detection-method auto -s Title:OS:Host:Kernel:Shell:Terminal:CPU:GPU:Memory
+          end
+
+          # Starship prompt
+          starship init fish | source
+
+          # Enable colour hints in VCS prompt:
+          set __fish_git_prompt_showcolorhints yes
+          set __fish_git_prompt_color_prefix purple
+          set __fish_git_prompt_color_suffix purple
+        '';
         shellAliases = {
           ls = "lsd";
           ll = "lsd -l";
@@ -96,9 +97,9 @@
         };
       };
 
-      bash = { 
-        enable = true; 
-        initExtra = ''eval "$(starship init bash)"''; 
+      bash = {
+        enable = true;
+        initExtra = ''eval "$(starship init bash)"'';
       };
 
       starship = {

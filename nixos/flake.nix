@@ -104,6 +104,7 @@
               inputs.home-manager.nixosModules.home-manager
               inputs.disko.nixosModules.disko
               inputs.nix-index-database.nixosModules.nix-index
+              { programs.nix-index-database.comma.enable = true; }
               inputs.xremap-flake.nixosModules.default
 
               # Home Manager settings
