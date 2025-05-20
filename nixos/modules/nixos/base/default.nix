@@ -136,11 +136,12 @@ with lib;
     # Support dynamic libraries
     programs.nix-ld.enable = true;
 
-    # Automatically optimize the Nix store
-    nix.gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 30d";
+    # Use the nh CLI tool
+    programs.nh = {
+      enable = true;
+      clean.enable = true;
+      clean.extraArgs = "--keep-since 15d --keep 3";
+      flake = "/home/agucova/repos/workspace";
     };
 
     # Swap configuration
