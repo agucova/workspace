@@ -7,7 +7,7 @@
   # Import submodules - all are automatically enabled when imported
   imports = [
     ./1password.nix
-    ./claude-desktop-icons.nix
+    # ./claude-desktop-icons.nix
   ];
 
   # Apply configuration directly

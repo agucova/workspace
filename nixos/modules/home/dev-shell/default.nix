@@ -12,15 +12,11 @@
 
       # Languages
       rustup
-      go_1_22
       bun
       (julia.withPackages [
         "Plots"
-        "DifferentialEquations"
         "Revise"
         "OhMyREPL"
-        "Literate"
-        "Pluto"
         "BenchmarkTools"
       ])
       (python3.withPackages (ps: with ps; [

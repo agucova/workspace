@@ -97,7 +97,6 @@
               ./modules/nixos/disk
               ./modules/nixos/gui-apps
               ./modules/nixos/hardware
-              ./modules/nixos/hardening
               ./modules/nixos/macos-remap
               ./modules/nixos/ssh
 
