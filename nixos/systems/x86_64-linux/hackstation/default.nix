@@ -84,6 +84,9 @@
   # Temporarily disable macOS-like keyboard remapping (for troubleshooting)
   myMacosRemap.enable = lib.mkForce false;
   
+  # Add an empty xremap yamlConfig to avoid errors when macosRemap is disabled
+  services.xremap.yamlConfig = "";
+  
   # Home Manager configuration
   home-manager.users.agucova = { pkgs, lib, ... }: {
     imports = [
