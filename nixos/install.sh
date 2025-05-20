@@ -47,10 +47,12 @@ fi
 
 # 1. Verify internet connection
 echo "=== Checking internet connection ==="
-if ! ping -c 1 nixos.org > /dev/null 2>&1; then
-  echo "No internet connection. Please connect to the internet first."
+if ! ping -c 1 github.com > /dev/null 2>&1; then
+  echo "WARNING: Cannot verify internet connection."
+  echo "The installation requires internet access to download packages."
   echo "For WiFi: nmcli device wifi connect \"SSID\" password \"password\""
-  exit 1
+  echo "Press Enter to continue anyway or Ctrl+C to abort..."
+  read
 fi
 
 # 2. Verify the disk exists
