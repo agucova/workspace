@@ -4,6 +4,37 @@
 
 set -euo pipefail # Exit on error, undefined vars, and pipeline failures
 
+# Enable Nix features
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
+# Check if we're running as root
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit 1
+fi
+
+# 1. Verify internet connection
+echo "=== Checking internet connection ==="
+if ! ping -c 1 github.com > /dev/null 2>&1; then
+  echo "WARNING: Cannot verify internet connection."
+  echo "The installation requires internet access to download packages."
+  echo "For WiFi: nmcli device wifi connect \"SSID\" password \"password\""
+  echo "Press Enter to continue anyway or Ctrl+C to abort..."
+  read
+fi
+
+# Pre-validation step to check if the NixOS configuration builds correctly
+echo "=== Pre-validation: Testing NixOS configuration build ==="
+echo "This will check if the configuration builds correctly before any disk changes."
+echo "This can take a few minutes but will save time if there are configuration errors."
+
+if ! nix build --no-link --impure '.#nixosConfigurations.hackstation.config.system.build.toplevel'; then
+  echo "ERROR: NixOS configuration failed to build."
+  echo "Please fix the configuration errors before running the installation script."
+  exit 1
+fi
+echo "Pre-validation successful! The NixOS configuration builds correctly."
+
 # Show available disks and select one
 echo "=== Available disks ==="
 lsblk -d -o NAME,SIZE,MODEL | grep -v loop
@@ -33,27 +64,9 @@ fi
 echo "=== NixOS Hackstation Installation ==="
 echo "This script will install NixOS on $DISK"
 echo "WARNING: This will erase all data on $DISK"
+echo "The configuration has been pre-validated and should install correctly."
 echo "Press Enter to continue or Ctrl+C to abort..."
 read
-
-# Enable Nix features
-export NIX_CONFIG="experimental-features = nix-command flakes"
-
-# Check if we're running as root
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root"
-  exit 1
-fi
-
-# 1. Verify internet connection
-echo "=== Checking internet connection ==="
-if ! ping -c 1 github.com > /dev/null 2>&1; then
-  echo "WARNING: Cannot verify internet connection."
-  echo "The installation requires internet access to download packages."
-  echo "For WiFi: nmcli device wifi connect \"SSID\" password \"password\""
-  echo "Press Enter to continue anyway or Ctrl+C to abort..."
-  read
-fi
 
 # 2. Verify the disk exists
 echo "=== Verifying disk $DISK ==="
