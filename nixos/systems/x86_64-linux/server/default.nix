@@ -60,7 +60,8 @@
   };
 
   # Base module is directly imported in flake.nix
-  # Note: macOS remapping is not needed on server
+  # Disable macOS remapping on server
+  myMacosRemap.enable = false;
 
   # Enable minimal hardware configuration
   # This enables just firmware and generic hardware support,
@@ -94,6 +95,25 @@
 
   # Disable sound system completely
   services.pulseaudio.enable = false;
+
+  # Home Manager configuration
+  home-manager.users.agucova = { pkgs, lib, ... }: {
+    imports = [
+      # Import only server-relevant modules
+      ../../../modules/home/core-shell
+      ../../../modules/home/dev-shell
+      ../../../modules/home/dotfiles
+      
+      # Import user configuration last
+      ../../../homes/x86_64-linux/agucova
+    ];
+    
+    # Override to disable desktop-related settings
+    onePassword = {
+      enableSSH = lib.mkForce false;
+      enableGit = lib.mkForce false;
+    };
+  };
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing
