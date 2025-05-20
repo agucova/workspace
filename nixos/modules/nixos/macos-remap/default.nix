@@ -17,18 +17,13 @@ in
   };
 
   # Configure based on the enable option
-  config = lib.mkIf cfg.enable {
+  config = {
     # Base services configuration
     services = {
-      # Configure xremap
+      # Configure xremap with conditional elements
       xremap = {
-        enable = true;
-        serviceMode = "user";
-        userName = config.users.defaultUserName or "agucova";
-        withGnome = true;
-        # debug = true;
-        # Use yamlConfig to be explicit with raw YAML content
-        yamlConfig = ''
+        # Always provide placeholder yamlConfig to avoid errors when disabled
+        yamlConfig = if cfg.enable then ''
           # macOS-style key remapping
           keymap:
             - name: Global macOS keybindings
@@ -48,28 +43,34 @@ in
                 Ctrl-t: Alt-t  # New Tab
                 Ctrl-o: Alt-o  # Open
                 Ctrl-p: Alt-p  # Print
-        '';
+        '' else "";
+        
+        # Only apply these settings when enabled
+        enable = lib.mkIf cfg.enable true;
+        serviceMode = lib.mkIf cfg.enable "user";
+        userName = lib.mkIf cfg.enable (config.users.defaultUserName or "agucova");
+        withGnome = lib.mkIf cfg.enable true;
       };
 
-      # GNOME settings
-      xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+      # GNOME settings only when enabled
+      xserver.desktopManager.gnome.extraGSettingsOverrides = lib.mkIf cfg.enable ''
         [org.gnome.shell]
         enabled-extensions=['xremap@k0kubun.com']
       '';
 
-      # udev rules
-      udev.extraRules = ''
+      # udev rules only when enabled
+      udev.extraRules = lib.mkIf cfg.enable ''
         KERNEL=="uinput", GROUP="input", TAG+="uaccess"
       '';
     };
 
-    # Other configs
-    environment.systemPackages = with pkgs; [ 
+    # Other configs that only apply when enabled
+    environment.systemPackages = lib.mkIf cfg.enable (with pkgs; [ 
       gnomeExtensions.xremap 
-    ];
+    ]);
 
-    users.groups.input.members = 
-      lib.optionals (config.users ? defaultUserName)
-        [ config.users.defaultUserName ];
+    users.groups.input.members = lib.mkIf cfg.enable
+      (lib.optionals (config.users ? defaultUserName)
+        [ config.users.defaultUserName ]);
   };
 }
