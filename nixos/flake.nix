@@ -48,8 +48,8 @@
 
     # Security
     nix-mineral = {
-      url = "github:cynicsketch/nix-mineral";
-      flake = false; # Plain Nix files, not a flake
+      url = "github:cynicsketch/nix-mineral/e5aa5126d433fe57fe151146e9b688f079709233";
+      flake = false;
     };
   };
 
@@ -68,9 +68,6 @@
         packages = {
           # Terminal emulator with GPU acceleration
           ghostty = inputs'.ghostty.packages.default;
-
-          # Claude desktop wrapped inside an FHS env
-          claude-desktop-with-fhs = inputs'.claude-desktop.packages.claude-desktop-with-fhs;
         };
 
         # Development shell
@@ -100,6 +97,7 @@
               ./modules/nixos/disk
               ./modules/nixos/gui-apps
               ./modules/nixos/hardware
+              ./modules/nixos/hardening
               ./modules/nixos/macos-remap
               ./modules/nixos/ssh
 

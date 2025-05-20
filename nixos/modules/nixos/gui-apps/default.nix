@@ -1,14 +1,13 @@
 # GUI Applications module for NixOS
 # This module includes GUI applications that can be included in hosts that need them
 # NOTE: This module is automatically enabled when imported (no enable option required)
-{ config, pkgs, lib, ... }:
+{ pkgs, ... }:
 
 {
   # Import submodules - all are automatically enabled when imported
   imports = [
     ./1password.nix
-    # Uncomment to enable Claude Desktop icons
-    # ./claude-desktop-icons.nix
+    ./claude-desktop-icons.nix
   ];
 
   # Apply configuration directly
@@ -22,10 +21,8 @@
       libreoffice-qt
       vscode
       ghostty # From flake overlay
-      zed-editor.fhs # Modern code editor with FHS env for better compatibility
-      # Only include Claude Desktop if we're not in a live ISO environment
-      # claude-desktop-with-fhs
-      gitkraken # Migrated from Flatpak
+      zed-editor.fhs
+      gitkraken
 
       # Media and Entertainment
       vlc

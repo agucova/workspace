@@ -2,13 +2,13 @@
 { lib, pkgs, config, ... }:
 
 {
-  # No need for an enable option since this module is explicitly imported
   config = {
     home.packages = with pkgs; [
       # Nix tooling
       nil
       nixd
       statix
+      claude-code
 
       # Languages
       rustup
