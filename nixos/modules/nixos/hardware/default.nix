@@ -46,7 +46,7 @@ in {
     {
       # Enable firmware
       hardware.enableRedistributableFirmware = true;
-      
+
       # System-level performance optimizations
       boot.kernel.sysctl = {
         # Reduce swap tendency
@@ -55,7 +55,7 @@ in {
         "fs.file-max" = 2097152;
         "fs.inotify.max_user_watches" = 524288;
       };
-      
+
       # Nix build optimizations
       nix.settings = {
         # Allow greater parallelism for builds
@@ -123,6 +123,7 @@ in {
       # Environment variables for better NVIDIA & Wayland compatibility
       environment.variables = {
         LIBVA_DRIVER_NAME = "nvidia";
+        XDG_SESSION_TYPE = "wayland";
         WLR_NO_HARDWARE_CURSORS = "1";
         GBM_BACKEND = "nvidia-drm";
         __GLX_VENDOR_LIBRARY_NAME = "nvidia";
@@ -138,10 +139,10 @@ in {
         rocm-opencl-runtime
         amdvlk
       ];
-      
+
       # Enable AMD driver for X server
       services.xserver.videoDrivers = [ "amdgpu" ];
-      
+
       # AMD GPU monitoring tools
       environment.systemPackages = with pkgs; [
         glxinfo
@@ -158,10 +159,10 @@ in {
         intel-compute-runtime
         intel-ocl
       ];
-      
+
       # Enable Intel driver for X server
       services.xserver.videoDrivers = [ "intel" ];
-      
+
       # Intel GPU tools
       environment.systemPackages = with pkgs; [
         glxinfo

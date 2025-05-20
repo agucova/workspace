@@ -136,11 +136,11 @@
         # sysprof # For system performance profiling
       ];
 
-      # Set environment variables based on display server
-      sessionVariables = lib.mkIf config.services.xserver.displayManager.gdm.wayland {
-        # Only enable Ozone Wayland support when using Wayland
-        NIXOS_OZONE_WL = "1";
-      };
+      # # Set environment variables based on display server
+      # sessionVariables = lib.mkIf config.services.xserver.displayManager.gdm.wayland {
+      #   # Only enable Ozone Wayland support when using Wayland
+      #   NIXOS_OZONE_WL = "1";
+      # };
     };
 
     # GNOME specific tweaks for better performance/experience
