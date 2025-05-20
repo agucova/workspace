@@ -15,7 +15,7 @@
         enable = true;
         xkb = {
           layout = lib.mkDefault "us";
-          variant = lib.mkDefault "alt-intl";
+          variant = lib.mkDefault "altgr-intl";
         };
 
         displayManager.gdm.enable = true;
