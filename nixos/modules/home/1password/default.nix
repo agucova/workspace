@@ -1,20 +1,13 @@
 # 1Password Home Manager module
-# This module configures 1Password SSH and Git integration
 { config, pkgs, lib, ... }:
 
 let
-  cfg = config.my1Password;
-  
-  # Path to the SSH sign binary for Git commits
   sshSignPath = "${pkgs._1password-gui}/share/1password/op-ssh-sign";
-  
-  # Path to the SSH agent socket for Linux
   agentSocketPath = "~/.1password/agent.sock";
+  cfg = config.onePassword;
 in
 {
-  options.my1Password = {
-    enable = lib.mkEnableOption "1Password SSH and Git integration";
-    
+  options.onePassword = {
     enableSSH = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -28,7 +21,7 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = {
     # SSH configuration for 1Password identity agent
     programs.ssh = lib.mkIf cfg.enableSSH {
       enable = true;  # Enable SSH config management

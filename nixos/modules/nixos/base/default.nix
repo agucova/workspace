@@ -3,14 +3,8 @@
 
 with lib;
 
-let
-  cfg = config.myBase;
-in {
-  options.myBase = {
-    enable = mkEnableOption "Base system configuration";
-  };
-
-  config = mkIf cfg.enable {
+{
+  config = {
     # Boot configuration (generic)
     boot = {
       # Use latest kernel for better hardware support

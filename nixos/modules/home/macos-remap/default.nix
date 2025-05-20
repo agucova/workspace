@@ -1,14 +1,9 @@
+# macOS keyboard remapping for GNOME & VS Code
 { lib, config, ... }:
 
-let
-  cfg = config.myMacosRemap;
-in
 {
-  options.myMacosRemap = {
-    enable = lib.mkEnableOption "macOS keyboard remapping for GNOME & VS Code";
-  };
-
-  config = lib.mkIf cfg.enable {
+  # No need for an enable option since this module is explicitly imported
+  config = {
     dconf.settings =
       import ./dconf.nix;
 

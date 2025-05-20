@@ -1,8 +1,8 @@
 # Desktop Settings Module for Home Manager
+# Provides wallpapers and desktop configuration
 { config, lib, pkgs, ... }:
 
 let
-  cfg = config.myDesktopSettings;
   wallpaper_light = pkgs.fetchurl {
     url = "https://images.unsplash.com/photo-1540028317582-ab90fe7c343f?q=80&w=1740&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
     sha256 = "3f132fe7fd5119109a2ca2e706d52f6678f0ba6f5556e3b90a75322d28c4cf3a";
@@ -14,11 +14,8 @@ let
     name = "wallpaper_dark.jpg";
   };
 in {
-  options.myDesktopSettings = {
-    enable = lib.mkEnableOption "Desktop settings with wallpaper";
-  };
-
-  config = lib.mkIf config.myDesktopSettings.enable {
+  # No need for an enable option since this module is explicitly imported
+  config = {
     # Apply GNOME settings via dconf
     dconf.settings = {
       "org/gnome/desktop/background" = {

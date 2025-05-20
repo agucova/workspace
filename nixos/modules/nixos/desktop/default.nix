@@ -1,14 +1,8 @@
-# Desktop Environment Configuration (merged GNOME + Desktop modules)
+# Desktop Environment Configuration with GNOME
 { config, lib, pkgs, ... }:
 
-let
-  cfg = config.myDesktop;
-in {
-  options.myDesktop = {
-    enable = lib.mkEnableOption "desktop environment with GNOME";
-  };
-
-  config = lib.mkIf cfg.enable {
+{
+  config = {
     # Desktop-specific networking
     networking = {
       networkmanager.enable = lib.mkDefault true;

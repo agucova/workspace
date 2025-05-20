@@ -2,21 +2,14 @@
 { lib, pkgs, config, inputs, ... }:
 
 {
-  # Enable modules with the 'my' prefix
-  myBase.enable = true;
-  myDesktop.enable = true; # Desktop now includes GNOME
-
-  # Hardware module is not enabled for VM testing
-  # This avoids hardware-specific optimizations that don't make sense in a VM
-
-  # Enable VM-specific configurations
-  myVm.enable = true;
-
-  # Enable GUI applications
-  myGuiApps.enable = true;
+  # Modules are now directly imported in flake.nix:
+  # - Base module provides core system configuration
+  # - Desktop module enables GNOME desktop environment
+  # - VM module provides virtualization optimizations
+  # - GUI applications are directly imported
   
-  # Enable 1Password with SSH/CLI integration
-  my1Password.enable = true;
+  # Hardware module is not imported for VM testing
+  # This avoids hardware-specific optimizations that don't make sense in a VM
 
   # Enable macOS-like keyboard remapping with xremap
   myMacosRemap.enable = true;
@@ -37,8 +30,10 @@
     ];
     
     # Override specific settings for the VM
-    myMacosRemap.enable = lib.mkForce true;
-    my1Password.enable = lib.mkForce true;
+    onePassword = {
+      enableSSH = lib.mkForce true;
+      enableGit = lib.mkForce true;
+    };
   };
 
   # User configurations

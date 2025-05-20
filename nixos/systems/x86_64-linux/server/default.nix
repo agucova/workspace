@@ -59,9 +59,7 @@
     efi.canTouchEfiVariables = true;
   };
 
-  # Enable base module (required)
-  myBase.enable = true;
-  
+  # Base module is directly imported in flake.nix
   # Note: macOS remapping is not needed on server
 
   # Enable minimal hardware configuration

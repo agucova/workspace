@@ -1,12 +1,10 @@
 # modules/home/core-shell/default.nix
+# Core shell with Fish, Starship, and common CLI tools
 { lib, config, pkgs, ... }:
 
 {
-  options.myCoreShell = {
-    enable = lib.mkEnableOption "core shell with Fish + Starship + aliases";
-  };
-
-  config = lib.mkIf config.myCoreShell.enable {
+  # No need for an enable option since this module is explicitly imported
+  config = {
     home.packages = with pkgs; [
       # Dev / CLI basics
       gh

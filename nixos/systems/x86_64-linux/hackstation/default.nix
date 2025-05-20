@@ -25,11 +25,7 @@
   # Create the user's group
   users.groups.agucova = {};
 
-  # Enable base module (required)
-  myBase.enable = true;
-
-  # Enable desktop features (for workstation with GNOME)
-  myDesktop.enable = true;
+  # Base and desktop modules are directly imported in flake.nix
 
   # Enable hardware configuration and optimizations
   myHardware = {
@@ -76,11 +72,7 @@
   # Load nvidia driver for Xorg
   services.xserver.videoDrivers = ["nvidia"];
 
-  # Enable GUI applications module
-  myGuiApps.enable = false;
-
-  # Enable 1Password with SSH/CLI integration
-  my1Password.enable = false;
+  # GUI applications and 1Password modules are imported but use xremap-specific options
 
   # Enable BTRFS with LUKS disk configuration
   myDisko = {
@@ -108,8 +100,10 @@
     ];
     
     # Override specific settings for this system
-    myMacosRemap.enable = lib.mkForce false;
-    my1Password.enable = lib.mkForce false;
+    onePassword = {
+      enableSSH = lib.mkForce false;
+      enableGit = lib.mkForce false;
+    };
   };
 
   # Enable Docker and NvCT
