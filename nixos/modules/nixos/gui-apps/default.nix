@@ -12,13 +12,8 @@ in
     ./1password.nix
   ];
 
-  # Define options to enable/disable this module
-  options.myGuiApps = {
-    enable = lib.mkEnableOption "graphical applications";
-  };
-
   # Apply configuration only when enabled
-  config = lib.mkIf cfg.enable {
+  config = {
     # Enable GUI applications
     environment.systemPackages = with pkgs; [
       # Basics

@@ -98,8 +98,10 @@
               ./modules/nixos/base
               ./modules/nixos/desktop
               ./modules/nixos/disk
+              ./modules/nixos/gui-apps
               ./modules/nixos/hardware
               ./modules/nixos/macos-remap
+              ./modules/nixos/ssh
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager

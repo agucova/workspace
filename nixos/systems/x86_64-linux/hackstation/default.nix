@@ -21,7 +21,7 @@
     shell = pkgs.fish; # Set Fish as default shell
     initialPassword = "nixos";
   };
-  
+
   # Create the user's group
   users.groups.agucova = {};
 
@@ -30,45 +30,11 @@
   # Enable hardware configuration and optimizations
   myHardware = {
     enable = true; # Enable hardware module
+    cpu.amd.enable = true;
+    gpu.nvidia.enable = true;
+    performance.enable = true;
   };
 
-  # Enable OpenGL and NVIDIA configuration through the hardware module
-  hardware = {
-    graphics = {
-      enable = true;
-    };
-    
-    # Load nvidia driver for Xorg and Wayland
-    nvidia = {
-      # Modesetting is required.
-      modesetting.enable = true;
-
-      # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
-      # Enable this if you have graphical corruption issues or application crashes after waking
-      # up from sleep. This fixes it by saving the entire VRAM memory to /tmp/ instead
-      # of just the bare essentials.
-      powerManagement.enable = false;
-
-      # Fine-grained power management. Turns off GPU when not in use.
-      # Experimental and only works on modern Nvidia GPUs (Turing or newer).
-      powerManagement.finegrained = false;
-
-      # Use the NVidia open source kernel module (not to be confused with the
-      # independent third-party "nouveau" open source driver).
-      # Support is limited to the Turing and later architectures. Full list of
-      # supported GPUs is at:
-      # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus
-      # Only available from driver 515.43.04+
-      open = false;
-
-      # Enable the Nvidia settings menu, accessible via `nvidia-settings`.
-      nvidiaSettings = true;
-
-      # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
-    };
-  };
-  
   # Load nvidia driver for Xorg
   services.xserver.videoDrivers = ["nvidia"];
 
@@ -81,17 +47,15 @@
     swapSize = "64G"; # Adjust based on your needs (should be at least equal to RAM for hibernation)
   };
 
-  # Temporarily disable macOS-like keyboard remapping (for troubleshooting)
-  myMacosRemap.enable = lib.mkForce false;
-  
-  # Explicitly set both config options for xremap to avoid errors when macosRemap is disabled
+  myMacosRemap.enable = false;
+
   services.xremap = {
     # Disable the service but provide required config values to avoid errors
     enable = false;
     yamlConfig = "";
     config = {};  # Empty config object
   };
-  
+
   # Home Manager configuration
   home-manager.users.agucova = { pkgs, lib, ... }: {
     imports = [
@@ -102,32 +66,29 @@
       ../../../modules/home/dotfiles
       ../../../modules/home/macos-remap
       ../../../modules/home/1password
-      
+
       # Import user configuration last
       ../../../homes/x86_64-linux/agucova
     ];
-    
+
     # Override specific settings for this system
-    onePassword = {
-      enableSSH = lib.mkForce false;
-      enableGit = lib.mkForce false;
-    };
+    options.my1Password.enable = true;
   };
 
   # Enable Docker and NvCT
-  # virtualisation = {
-  #   docker = {
-  #     enable = true;
-  #   };
-  # };
-  # hardware.nvidia-container-toolkit.enable = true;
+  virtualisation = {
+    docker = {
+      enable = true;
+    };
+  };
+  hardware.nvidia-container-toolkit.enable = true;
 
   # # Additional host-specific packages
-  # environment.systemPackages = with pkgs; [
-  #   # Container tools
-  #   docker
-  #   docker-compose
-  # ];
+  environment.systemPackages = with pkgs; [
+    # Container tools
+    docker
+    docker-compose
+  ];
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing

@@ -120,7 +120,7 @@ in {
       # NVIDIA configuration
       hardware.nvidia = {
         modesetting.enable = true;
-        # powerManagement.enable = true;
+        # powerManagement.enable = true;s
         open = cfg.gpu.nvidia.open;
         # Use latest stable drivers
         package = config.boot.kernelPackages.nvidiaPackages.stable;
