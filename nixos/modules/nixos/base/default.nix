@@ -22,14 +22,14 @@ with lib;
     hardware.enableRedistributableFirmware = true;
 
     # Networking configuration
-    # networking = {
-    #   # Enable firewall with default settings (allow SSH)
-    #   firewall = {
-    #     enable = mkDefault true;
-    #     allowedTCPPorts = mkDefault [ 22 ];
-    #     allowedUDPPorts = mkDefault [ ];
-    #   };
-    # };
+    networking = {
+      # Enable firewall with default settings (allow SSH)
+      firewall = {
+        enable = mkDefault true;
+        allowedTCPPorts = mkDefault [ 22 ];
+        allowedUDPPorts = mkDefault [ ];
+      };
+    };
 
     # Set your time zone
     time.timeZone = mkDefault "America/Santiago";
@@ -168,6 +168,8 @@ with lib;
       '';
 
       protectKernelImage = mkDefault true;
+
+      sudo-rs.enable = true;
     };
 
     # Network security
