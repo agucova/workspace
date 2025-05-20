@@ -110,7 +110,9 @@
         enable = true;
         userName = "Agustin Covarrubias";
         userEmail = "gh@agucova.dev";
-        extraConfig = { init.defaultBranch = "main"; credential.helper = "store"; };
+        signing.signByDefault = true;
+        signing.key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhdO9i6GAtDT+iyfkqUFoOzPaKmuP1aCQ1zXtaKYqA5";
+        extraConfig = { init.defaultBranch = "main"; };
       };
     };
   };
