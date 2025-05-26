@@ -62,6 +62,17 @@ in {
         max-jobs = "auto";
         cores = 0;
       };
+
+      # Webcam power line frequency fix for Chilean 50Hz power grid
+      services.udev.extraRules = ''
+        # Set power line frequency to 50Hz for all UVC webcams in Chile
+        ACTION=="add", SUBSYSTEM=="video4linux", DRIVERS=="uvcvideo", RUN+="${pkgs.v4l-utils}/bin/v4l2-ctl -d $devnode --set-ctrl=power_line_frequency=1"
+      '';
+
+      # Ensure v4l-utils is available system-wide
+      environment.systemPackages = with pkgs; [
+        v4l-utils
+      ];
     }
 
     # AMD CPU configuration
@@ -104,9 +115,13 @@ in {
       hardware.nvidia = {
         modesetting.enable = true;
         open = cfg.gpu.nvidia.open;
-        package = config.boot.kernelPackages.nvidiaPackages.stable;
-        nvidiaSettings = true; # Enable nvidia-settings utility
+        package = config.boot.kernelPackages.nvidiaPackages.production;
+        nvidiaSettings = true;
+        powerManagement.enable = true; # experimental, but seems to fix suspend issues
       };
+
+      # Try to fix suspend issues
+      systemd.services.systemd-suspend.environment.SYSTEMD_SLEEP_FREEZE_USER_SESSIONS = "false";
 
       # Enable NVIDIA driver for X server
       services.xserver.videoDrivers = [ "nvidia" ];
