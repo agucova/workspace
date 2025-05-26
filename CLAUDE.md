@@ -6,7 +6,7 @@ This repository contains multiple approaches to configure Linux and macOS enviro
 
 - `ansible/` - Ansible playbook for Ubuntu-based distributions
 - `pyinfra/` - PyInfra v3 scripts for Debian-based distributions and macOS
-- `nixos/` - NixOS flake-based configuration using Snowfall Lib for both VM testing and bare-metal GNOME setup
+- `nixos/` - NixOS flake-based configuration using flake-parts for both VM testing and bare-metal GNOME setup
 
 ## PyInfra Configuration
 
@@ -41,12 +41,12 @@ The `pyinfra/` directory contains PyInfra v3 scripts for setting up development 
 
 ## NixOS Configuration
 
-The `nixos/` directory contains a Nix Flake-based configuration using Snowfall Lib for NixOS with GNOME Desktop:
+The `nixos/` directory contains a Nix Flake-based configuration using flake-parts for NixOS with GNOME Desktop:
 
 > **IMPORTANT**: When updating NixOS configuration files, do NOT add comments indicating option renames or deprecation warnings (like "# Renamed from X" or "# This option is now deprecated"). Keep the code clean and commit messages should instead document these changes.
 
-### Directory Structure (Snowfall-based)
-- `flake.nix` - Main entry point defining inputs and outputs, uses Snowfall Lib to structure the configuration
+### Directory Structure (flake-parts-based)
+- `flake.nix` - Main entry point defining inputs and outputs, uses flake-parts to structure the configuration
 - `modules/` - Reusable configuration modules separated by platform:
   - `nixos/` - System-level modules:
     - `base/` - Core system configuration with AMD 7800X3D optimizations
@@ -64,19 +64,20 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
     - `macos-remap/` - User-specific keyboard remapping
 - `systems/` - Host-specific configurations:
   - `x86_64-linux/` - Platform-specific system configurations
-    - `photon/` - Main physical machine configuration
+    - `hackstation/` - Main physical machine configuration
     - `vm/` - VM testing configuration
+    - `server/` - Server configuration
 - `homes/` - Home manager configurations:
   - `x86_64-linux/` - Platform-specific home configurations
     - `agucova/` - User-specific home configuration
 - `packages/` - Custom package definitions
 
-### Snowfall Lib Features
-- **Automatic Output Generation**: All modules, systems, homes, and packages defined in the directory structure are automatically made available as outputs without manual wiring
+### flake-parts Features
+- **Modular Flake Structure**: Uses flake-parts to organize flake outputs cleanly
+- **Explicit Configuration**: All modules and configurations are explicitly imported in the flake.nix
 - **Modular Architecture**: Modules use the `enable = lib.mkEnableOption` pattern to create toggleable features
-- **Standardized Structure**: Enforces consistent organization of NixOS configurations
-- **Simplified Configuration**: Systems and home configurations can enable features via options rather than explicit imports
 - **Cross-Platform Support**: Architecture-specific configurations are organized by directory structure
+- **Home Manager Integration**: Home configurations are imported and wired explicitly in system configurations
 
 ### Module Naming Conventions
 - Modules should use the `my*` prefix for options (e.g., `myGnome.enable = true`)
@@ -95,10 +96,10 @@ The `nixos/` directory contains a Nix Flake-based configuration using Snowfall L
     };
   }
   ```
-- System directory names are used by Snowfall as hostnames unless overridden with `networking.hostName = lib.mkForce "customname";`
+- System directory names correspond to nixosConfigurations names in the flake, with hostnames set explicitly in each system configuration
 
 ### Key Features
-- Flake-based configuration with modular design using Snowfall Lib
+- Flake-based configuration with modular design using flake-parts
 - Optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware
 - GNOME desktop with minimal customization and dark theme
 - VM testing configuration for verifying changes
@@ -113,7 +114,7 @@ sudo nixos-rebuild switch --flake /path/to/workspace/nixos#hackstation --experim
 # Build without applying (useful for testing)
 sudo nixos-rebuild build --flake /path/to/workspace/nixos#hackstation --experimental-features 'nix-command flakes' --impure
 
-# List all available system configurations from Snowfall structure
+# List all available system configurations from flake structure
 nix flake show /path/to/workspace/nixos
 ```
 
@@ -121,9 +122,12 @@ The `--impure` flag is required because the configuration imports the system har
 
 ### Home Manager Commands
 ```bash
-# Apply home-manager configuration changes
-home-manager switch --flake /path/to/workspace/nixos#agucova@hackstation --experimental-features 'nix-command flakes'
-# Note: The format is username@hostname for home configurations in Snowfall
+# Home manager is integrated into the system configuration
+# Apply system changes which include home-manager configuration
+sudo nixos-rebuild switch --flake /path/to/workspace/nixos#hackstation --experimental-features 'nix-command flakes' --impure
+
+# Or use nh for a better experience
+nh os switch
 ```
 
 ### Nix Development Commands
@@ -158,7 +162,7 @@ nix flake check
 
 # Build a specific output
 cd /path/to/workspace/nixos
-nix build .#photon.config.system.build.toplevel --impure
+nix build .#nixosConfigurations.hackstation.config.system.build.toplevel --impure
 ```
 
 #### Code Linting
@@ -259,9 +263,9 @@ The `ansible/` directory contains the original Ansible playbook for Ubuntu-based
 Always test your NixOS configuration changes before committing:
 
 ```bash
-# Quick test - just validate the flake structure and module names
+# Quick test - just validate the flake structure
 cd /path/to/workspace/nixos
-nix eval --no-update-lock-file --impure --json ".#lib" > /dev/null
+nix flake check --no-build --impure
 
 # IMPORTANT: Always build all three system configurations before committing
 # For testing the main system configuration
