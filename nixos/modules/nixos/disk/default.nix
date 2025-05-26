@@ -24,6 +24,15 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Enable LUKS autologin - automatically unlock encrypted root after initial boot
+    boot.initrd.luks.devices."cryptroot" = {
+      allowDiscards = true;
+      bypassWorkqueues = true;
+      # Enable FIDO2 hardware security key support
+      fido2.credential = "auto";
+      fido2.passwordLess = true;
+    };
+
     # Enable disko
     disko.devices = {
       disk = {

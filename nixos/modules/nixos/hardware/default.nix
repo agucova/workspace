@@ -56,13 +56,6 @@ in {
         "fs.inotify.max_user_watches" = 524288;
       };
 
-      # Nix build optimizations
-      nix.settings = {
-        # Allow greater parallelism for builds
-        max-jobs = "auto";
-        cores = 0;
-      };
-
       # Webcam power line frequency fix for Chilean 50Hz power grid
       services.udev.extraRules = ''
         # Set power line frequency to 50Hz for all UVC webcams in Chile

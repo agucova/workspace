@@ -47,7 +47,7 @@
 
   # Disable macOS-style keyboard remapping
   myMacosRemap.enable = false;
-  
+
   # When myMacosRemap is disabled, we still need to provide empty values
   # for xremap to prevent type errors during the build
   services.xremap = {
@@ -70,8 +70,6 @@
       # Import user configuration last
       ../../../homes/x86_64-linux/agucova
     ];
-
-    # No need to override 1Password settings as it's enabled by default now
   };
 
   # Enable Docker and NvCT

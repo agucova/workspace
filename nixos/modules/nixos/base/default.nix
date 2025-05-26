@@ -181,5 +181,13 @@ with lib;
       "net.ipv4.conf.default.rp_filter" = 1;
       "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
     };
+
+
+    # Nix build optimizations
+    nix.settings = {
+      # Allow greater parallelism for builds
+      max-jobs = "auto";
+      cores = 0;
+    };
   };
 }

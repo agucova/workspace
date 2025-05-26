@@ -8,6 +8,12 @@
       networkmanager.enable = lib.mkDefault true;
     };
 
+    # Display manager autologin
+    services.displayManager.autoLogin = {
+      enable = true;
+      user = "agucova";
+    };
+
     # Audio configuration
     services = {
       # X11 keyboard settings
@@ -18,7 +24,10 @@
           variant = lib.mkDefault "altgr-intl";
         };
 
-        displayManager.gdm.enable = true;
+        displayManager.gdm = {
+          enable = true;
+          autoSuspend = false;
+        };
         desktopManager.gnome.enable = true;
       };
 
@@ -35,9 +44,9 @@
         extraConfig.pipewire."92-low-latency" = lib.mkDefault {
           "context.properties" = {
             "default.clock.rate" = 48000;
-            "default.clock.quantum" = 32;
-            "default.clock.min-quantum" = 32;
-            "default.clock.max-quantum" = 512;
+            "default.clock.quantum" = 64;
+            "default.clock.min-quantum" = 48;
+            "default.clock.max-quantum" = 1024;
           };
         };
       };
@@ -73,36 +82,6 @@
     # Make sure GDM has correct permissions
     users.users.gdm.extraGroups = [ "video" "audio" "input" ];
 
-    # Fonts configuration with improved Flatpak compatibility
-    # fonts = {
-    #   fontDir.enable = true; # Enable font directory for improved Flatpak support
-    #   packages = with pkgs; [
-    #     noto-fonts
-    #     noto-fonts-emoji
-    #     liberation_ttf
-    #     fira-code
-    #     fira-code-symbols
-    #     inter
-    #     roboto
-    #     dejavu_fonts
-    #     ubuntu_font_family
-    #     source-code-pro
-    #     jetbrains-mono
-    #     hack-font
-    #     font-awesome
-    #   ];
-
-    #   # Font configuration settings
-    #   fontconfig = {
-    #     defaultFonts = {
-    #       serif = [ "DejaVu Serif" "Noto Serif" ];
-    #       sansSerif = [ "Inter" "Roboto" "DejaVu Sans" ];
-    #       monospace = [ "JetBrains Mono" "Fira Code" "Hack" ];
-    #       emoji = [ "Noto Color Emoji" ];
-    #     };
-    #   };
-    # };
-
     # Configure environment
     environment = {
       # Add GNOME-related packages
@@ -131,16 +110,7 @@
         # Graphics tools
         inkscape
         imagemagick
-
-        # System profiling
-        # sysprof # For system performance profiling
       ];
-
-      # # Set environment variables based on display server
-      # sessionVariables = lib.mkIf config.services.xserver.displayManager.gdm.wayland {
-      #   # Only enable Ozone Wayland support when using Wayland
-      #   NIXOS_OZONE_WL = "1";
-      # };
     };
 
     # GNOME specific tweaks for better performance/experience
@@ -152,14 +122,6 @@
       favorite-apps=['org.gnome.Nautilus.desktop', 'firefox.desktop', 'code.desktop', 'ghostty.desktop']
     '';
 
-    # Basic NVIDIA settings for better compatibility
-    # hardware.nvidia = {
-    #   # Enable basic modesetting for NVIDIA
-    #   modesetting.enable = lib.mkDefault true;
-    # };
-
-    # Ensure GDM user has proper permissions
-    # users.users.gdm.extraGroups = [ "video" "audio" "input" ];
 
     # Boot parameters for better desktop responsiveness
     boot.kernelParams = lib.mkDefault [
