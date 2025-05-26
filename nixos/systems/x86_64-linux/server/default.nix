@@ -71,6 +71,15 @@
   #   # cpu.intel.enable = true;  # For Intel-based server
   # };
 
+  # Home Manager user configuration
+  home-manager.users.agucova = {
+    home.stateVersion = "24.11";
+    my1Password = {
+      enableSSH = false;
+      enableGit = false;
+    };
+  };
+
   # Additional server-specific packages
   environment.systemPackages = with pkgs; [
     # Server tools
@@ -86,24 +95,6 @@
   # Disable sound system completely
   services.pulseaudio.enable = false;
 
-  # Home Manager configuration
-  home-manager.users.agucova = { pkgs, lib, ... }: {
-    imports = [
-      # Import only server-relevant modules
-      ../../../modules/home/core-shell
-      ../../../modules/home/dev-shell
-      ../../../modules/home/dotfiles
-      
-      # Import user configuration last
-      ../../../homes/x86_64-linux/agucova
-    ];
-    
-    # Override to disable desktop-related settings
-    my1Password = {
-      enableSSH = false;
-      enableGit = false;
-    };
-  };
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing

@@ -7,7 +7,9 @@
 }:
 
 {
-  imports = [];
+  imports = [
+    ./hardware-configuration.nix
+  ];
 
   # Set hostname with higher priority
   networking.hostName = "hackstation";
@@ -56,21 +58,15 @@
     config = {};      # Empty config object
   };
 
-  # Home Manager configuration
-  home-manager.users.agucova = { pkgs, lib, ... }: {
-    imports = [
-      # Import all home modules first to provide options
-      ../../../modules/home/core-shell
-      ../../../modules/home/dev-shell
-      ../../../modules/home/desktop-settings
-      ../../../modules/home/dotfiles
-      ../../../modules/home/macos-remap
-      ../../../modules/home/1password
-
-      # Import user configuration last
-      ../../../homes/x86_64-linux/agucova
-    ];
+  # Home Manager user configuration
+  home-manager.users.agucova = {
+    home.stateVersion = "24.11";
+    my1Password = {
+      enableSSH = true;
+      enableGit = true;
+    };
   };
+
 
   # Enable Docker and NvCT
   virtualisation = {

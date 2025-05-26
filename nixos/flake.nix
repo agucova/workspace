@@ -16,11 +16,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Tools and generators
-    nixos-generators = {
-      url = "github:nix-community/nixos-generators";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -112,16 +107,20 @@
                 home-manager.useUserPackages = true;
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
-              }
 
-              # Import hardware configuration if available (with fallback)
-              ({ lib, ... }: {
-                imports = if builtins.pathExists /etc/nixos/hardware-configuration.nix
-                  then [ /etc/nixos/hardware-configuration.nix ]
-                  else if builtins.pathExists /mnt/etc/nixos/hardware-configuration.nix
-                  then [ /mnt/etc/nixos/hardware-configuration.nix ]
-                  else [];
-              })
+                # Home Manager configuration for hackstation
+                home-manager.users.agucova = { pkgs, lib, ... }: {
+                  imports = [
+                    # Import all home modules for full desktop setup
+                    ./modules/home/core-shell
+                    ./modules/home/dev-shell
+                    ./modules/home/desktop-settings
+                    ./modules/home/dotfiles
+                    ./modules/home/macos-remap
+                    ./modules/home/1password
+                  ];
+                };
+              }
             ];
           };
 
@@ -155,6 +154,20 @@
                 home-manager.useUserPackages = true;
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
+
+                # Home Manager configuration for VM
+                home-manager.users.agucova = { pkgs, lib, ... }: {
+                  imports = [
+                    # Import all home modules for full desktop testing
+                    ./modules/home/core-shell
+                    ./modules/home/dev-shell
+                    ./modules/home/desktop-settings
+                    ./modules/home/dotfiles
+                    ./modules/home/macos-remap
+                    ./modules/home/1password
+                  ];
+
+                };
               }
             ];
           };
@@ -180,13 +193,6 @@
               inputs.disko.nixosModules.disko
               inputs.nix-index-database.nixosModules.nix-index
 
-              # Home Manager settings
-              {
-                home-manager.useUserPackages = true;
-                home-manager.useGlobalPkgs = true;
-                nixpkgs.config.allowUnfree = true;
-              }
-
               # Import hardware configuration if available (with fallback)
               ({ lib, ... }: {
                 imports = if builtins.pathExists /etc/nixos/hardware-configuration.nix
@@ -195,6 +201,24 @@
                   then [ /mnt/etc/nixos/hardware-configuration.nix ]
                   else [];
               })
+
+              # Home Manager settings
+              {
+                home-manager.useUserPackages = true;
+                home-manager.useGlobalPkgs = true;
+                nixpkgs.config.allowUnfree = true;
+
+                # Home Manager configuration for server
+                home-manager.users.agucova = { pkgs, lib, ... }: {
+                  imports = [
+                    # Import only server-relevant modules (no desktop/GUI)
+                    ./modules/home/core-shell
+                    ./modules/home/dev-shell
+                    ./modules/home/dotfiles
+                  ];
+
+                };
+              }
             ];
           };
         };
@@ -209,56 +233,6 @@
           in "${vm}/bin/run-nixos-vm";
         };
 
-        # Create ISO targets
-        packages.x86_64-linux = {
-          # Hackstation ISO
-          iso-hackstation = (inputs.nixos-generators.nixosGenerate {
-            system = "x86_64-linux";
-            format = "iso";
-            modules = [
-              ({ ... }: {
-                imports = [
-                  ./systems/x86_64-linux/hackstation
-                  ./modules/nixos/base
-                  ./modules/nixos/desktop
-                  ./modules/nixos/disk
-                  ./modules/nixos/gui-apps
-                  ./modules/nixos/hardening
-                  ./modules/nixos/hardware
-                  ./modules/nixos/macos-remap
-                  ./modules/nixos/ssh
-                  ./modules/nixos/vm
-                ];
-                # Override impure paths
-                networking.hostName = "hackstation";
-              })
-            ];
-          });
-
-          # VM ISO
-          iso-vm = (inputs.nixos-generators.nixosGenerate {
-            system = "x86_64-linux";
-            format = "iso";
-            modules = [
-              ({ ... }: {
-                imports = [
-                  ./systems/x86_64-linux/vm
-                  ./modules/nixos/base
-                  ./modules/nixos/desktop
-                  ./modules/nixos/disk
-                  ./modules/nixos/gui-apps
-                  ./modules/nixos/hardening
-                  ./modules/nixos/hardware
-                  ./modules/nixos/macos-remap
-                  ./modules/nixos/ssh
-                  ./modules/nixos/vm
-                ];
-                # Override impure paths
-                networking.hostName = "vm";
-              })
-            ];
-          });
-        };
       };
     };
 }
