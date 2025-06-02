@@ -249,6 +249,8 @@ with lib;
       dnsovertls = "true";
     };
 
+    services.tailscale.enable = true;
+
 
     # Nix build optimizations
     nix.settings = {

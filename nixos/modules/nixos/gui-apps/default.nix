@@ -43,12 +43,13 @@
       gnome-disk-utility
       gnome-system-monitor
 
-      # Gaming tools
+      # Entertainment
       lutris
+      stremio
+      cavalier
 
       # Cryptography
       cryptomator
-      stremio
     ];
 
     # Enable Firefox
