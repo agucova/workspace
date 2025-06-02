@@ -7,14 +7,67 @@ with lib;
   config = {
     # Boot configuration (generic)
     boot = {
-      # Use latest kernel for better hardware support
       kernelPackages = mkDefault pkgs.linuxPackages_latest;
+
+      # Taken from CachyOS settings
+      # See https://github.com/CachyOS/CachyOS-Settings/blob/master/usr/lib/sysctl.d/99-cachyos-settings.conf
+      kernel.sysctl = {
+        # The sysctl swappiness parameter determines the kernel's preference for pushing anonymous pages or page cache to disk in memory-starved situations.
+        # A low value causes the kernel to prefer freeing up open files (page cache), a high value causes the kernel to try to use swap space,
+        # and a value of 100 means IO cost is assumed to be equal.
+        "vm.swappiness" = 100;
+
+        # The value controls the tendency of the kernel to reclaim the memory which is used for caching of directory and inode objects (VFS cache).
+        # Lowering it from the default value of 100 makes the kernel less inclined to reclaim VFS cache (do not set it to 0, this may produce out-of-memory conditions)
+        "vm.vfs_cache_pressure" = 50;
+
+        # Contains, as bytes, the number of pages at which a process which is
+        # generating disk writes will itself start writing out dirty data.
+        "vm.dirty_bytes" = 268435456;
+
+        # Contains, as bytes, the number of pages at which the background kernel
+        # flusher threads will start writing out dirty data.
+        "vm.dirty_background_bytes" = 67108864;
+
+        # The kernel flusher threads will periodically wake up and write old data out to disk.  This
+        # tunable expresses the interval between those wakeups, in 100'ths of a second (Default is 500).
+        "vm.dirty_writeback_centisecs" = 1500;
+
+        # This action will speed up your boot and shutdown, because one less module is loaded. Additionally disabling watchdog timers increases performance and lowers power consumption
+        # Disable NMI watchdog
+        "kernel.nmi_watchdog" = 0;
+
+        # Enable the sysctl setting kernel.unprivileged_userns_clone to allow normal users to run unprivileged containers.
+        "kernel.unprivileged_userns_clone" = 1;
+
+        # To hide any kernel messages from the console
+        "kernel.printk" = "3 3 3 3";
+
+        # Restricting access to kernel pointers in the proc filesystem
+        "kernel.kptr_restrict" = 2;
+
+        # Disable Kexec, which allows replacing the current running kernel.
+        "kernel.kexec_load_disabled" = 1;
+
+        # Increase netdev receive queue
+        # May help prevent losing packets
+        "net.core.netdev_max_backlog" = 4096;
+
+        # Improve network security
+        "net.ipv4.conf.all.rp_filter" = 1;
+        "net.ipv4.conf.default.rp_filter" = 1;
+        "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
+
+        # Allow tracking more files using inotify
+        "fs.inotify.max_user_watches" = 524288;
+      };
 
       # Bootloader configuration
       loader = {
-        systemd-boot.enable = true;
+        limine.enable = true;
+        limine.secureBoot.enable = true;
         efi.canTouchEfiVariables = true;
-        timeout = 5; # Sensible default, overridden by desktop module
+        timeout = 5;
       };
     };
 
@@ -55,6 +108,17 @@ with lib;
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
+
+    # Auto-upgrade
+    system.autoUpgrade = {
+      enable = true;
+      flake = "/home/agucova/repos/workspace/nixos";
+      flags = [
+        "--update-input"
+        "nixpkgs"
+        "--commit-lock-file"
+      ];
+    };
 
     # Base system packages
     environment.systemPackages = with pkgs; [
@@ -174,12 +238,15 @@ with lib;
       sudo-rs.enable = true;
     };
 
-    # Network security
-    boot.kernel.sysctl = mkDefault {
-      # Improve network security
-      "net.ipv4.conf.all.rp_filter" = 1;
-      "net.ipv4.conf.default.rp_filter" = 1;
-      "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
+    # DNS
+    networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+
+    services.resolved = {
+      enable = true;
+      dnssec = "true";
+      domains = [ "~." ];
+      fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+      dnsovertls = "true";
     };
 
 

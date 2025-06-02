@@ -96,6 +96,7 @@
         gnome-tweaks
         dconf-editor
         gnome-shell-extensions
+        gnomeExtensions.appindicator # System tray icons extension
         baobab # Disk usage analyzer
         gnome-console # Terminal
         gnome-characters # Character map
@@ -130,6 +131,14 @@
       "tsc=reliable"
       "preempt=full"
     ];
+
+    # CachyOS settings
+    boot.kernelPackages = pkgs.linuxPackages_cachyos;
+    services.ananicy = {
+        enable = true;
+        package = pkgs.ananicy-cpp;
+        rulesProvider = pkgs.ananicy-rules-cachyos;
+   };
 
     # Set a faster bootloader timeout for desktop use
     boot.loader.timeout = lib.mkDefault 3;

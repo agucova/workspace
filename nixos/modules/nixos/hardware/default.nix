@@ -47,26 +47,17 @@ in {
       # Enable firmware
       hardware.enableRedistributableFirmware = true;
 
-      # System-level performance optimizations
-      boot.kernel.sysctl = {
-        # Reduce swap tendency
-        "vm.swappiness" = 10;
-        # Increase file handle limits
-        "fs.file-max" = 2097152;
-        "fs.inotify.max_user_watches" = 524288;
-      };
-
       # Webcam power line frequency fix for Chilean 50Hz power grid
       services.udev.extraRules = ''
         # Set power line frequency to 50Hz for all UVC webcams in Chile
         ACTION=="add", SUBSYSTEM=="video4linux", DRIVERS=="uvcvideo", RUN+="${pkgs.v4l-utils}/bin/v4l2-ctl -d $devnode --set-ctrl=power_line_frequency=1"
       '';
 
-      # Ensure v4l-utils is available system-wide
       environment.systemPackages = with pkgs; [
-        v4l-utils
+        v4l-utils sbctl
       ];
     }
+
 
     # AMD CPU configuration
     (mkIf cfg.cpu.amd.enable {
@@ -105,10 +96,30 @@ in {
       hardware.graphics.enable = true;
 
       # NVIDIA configuration
-      hardware.nvidia = {
+      # https://github.com/chaotic-cx/nyx/issues/1069
+      hardware.nvidia = let
+        # Preferred NVIDIA Version
+        nvidiaPackage = config.boot.kernelPackages.nvidiaPackages.mkDriver{
+          version = "575.57.08";
+          sha256_64bit = "sha256-KqcB2sGAp7IKbleMzNkB3tjUTlfWBYDwj50o3R//xvI=";
+          sha256_aarch64 = "sha256-VJ5z5PdAL2YnXuZltuOirl179XKWt0O4JNcT8gUgO98=";
+          openSha256 = "sha256-DOJw73sjhQoy+5R0GHGnUddE6xaXb/z/Ihq3BKBf+lg=";
+          settingsSha256 = "sha256-AIeeDXFEo9VEKCgXnY3QvrW5iWZeIVg4LBCeRtMs5Io=";
+          persistencedSha256 = "sha256-Len7Va4HYp5r3wMpAhL4VsPu5S0JOshPFywbO7vYnGo=";
+
+          patches = [ gpl_symbols_linux_615_patch ];
+        };
+
+        gpl_symbols_linux_615_patch = pkgs.fetchpatch {
+          url = "https://github.com/CachyOS/kernel-patches/raw/914aea4298e3744beddad09f3d2773d71839b182/6.15/misc/nvidia/0003-Workaround-nv_vm_flags_-calling-GPL-only-code.patch";
+          hash = "sha256-YOTAvONchPPSVDP9eJ9236pAPtxYK5nAePNtm2dlvb4=";
+          stripLen = 1;
+          extraPrefix = "kernel/";
+        };
+      in {
+        package = nvidiaPackage;
+        open = true;
         modesetting.enable = true;
-        open = cfg.gpu.nvidia.open;
-        package = config.boot.kernelPackages.nvidiaPackages.production;
         nvidiaSettings = true;
         powerManagement.enable = true; # experimental, but seems to fix suspend issues
       };

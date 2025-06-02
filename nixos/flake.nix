@@ -46,6 +46,11 @@
       url = "github:cynicsketch/nix-mineral/e5aa5126d433fe57fe151146e9b688f079709233";
       flake = false;
     };
+
+    # For the CachyOS kernel
+    chaotic = {
+      url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+    };
   };
 
   ############################################################################
@@ -101,6 +106,7 @@
               inputs.nix-index-database.nixosModules.nix-index
               { programs.nix-index-database.comma.enable = true; }
               inputs.xremap-flake.nixosModules.default
+              inputs.chaotic.nixosModules.default
 
               # Home Manager settings
               {
@@ -148,6 +154,7 @@
               inputs.disko.nixosModules.disko
               inputs.nix-index-database.nixosModules.nix-index
               inputs.xremap-flake.nixosModules.default
+              inputs.chaotic.nixosModules.default
 
               # Home Manager settings
               {
@@ -192,6 +199,7 @@
               inputs.home-manager.nixosModules.home-manager
               inputs.disko.nixosModules.disko
               inputs.nix-index-database.nixosModules.nix-index
+              inputs.chaotic.nixosModules.default
 
               # Import hardware configuration if available (with fallback)
               ({ lib, ... }: {
