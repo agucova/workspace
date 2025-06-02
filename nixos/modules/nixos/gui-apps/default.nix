@@ -44,7 +44,6 @@
       gnome-system-monitor
 
       # Gaming tools
-      steam
       lutris
 
       # Cryptography
@@ -54,5 +53,6 @@
 
     # Enable Firefox
     programs.firefox.enable = true;
+    programs.steam.enable = true;
   };
 }

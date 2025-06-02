@@ -98,6 +98,7 @@ in
                       "/swap" = {
                         mountpoint = "/swap";
                         swap.swapfile.size = cfg.swapSize;
+                        swap.swapfile.priority = 10;
                       };
                     };
                   };

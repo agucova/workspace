@@ -40,15 +40,6 @@
         alsa.enable = lib.mkDefault true;
         alsa.support32Bit = lib.mkDefault true;
         pulse.enable = lib.mkDefault true;
-        # Low-latency settings for better audio experience
-        extraConfig.pipewire."92-low-latency" = lib.mkDefault {
-          "context.properties" = {
-            "default.clock.rate" = 48000;
-            "default.clock.quantum" = 64;
-            "default.clock.min-quantum" = 48;
-            "default.clock.max-quantum" = 1024;
-          };
-        };
       };
 
       # Enable CUPS to print documents
@@ -111,6 +102,10 @@
         # Graphics tools
         inkscape
         imagemagick
+
+        # Audio
+        easyeffects
+        lsp-plugins
       ];
     };
 

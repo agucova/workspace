@@ -220,7 +220,7 @@ with lib;
     # Enable zram swap as primary swap
     zramSwap = {
       # Use mkForce to explicitly set the value with highest priority
-      enable = mkForce (!config.myDisko.enable);
+      enable = true;
       algorithm = mkDefault "zstd"; # Best compression/performance ratio
       memoryPercent = mkDefault 100; # Increased to account for compression ratio
       priority = mkDefault 100; # Higher priority than disk-based swap
