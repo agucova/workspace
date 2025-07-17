@@ -1,6 +1,11 @@
 # modules/home/core-shell/default.nix
 # Core shell with Fish, Starship, and common CLI tools
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 
 {
   # No need for an enable option since this module is explicitly imported
@@ -112,7 +117,9 @@
         userEmail = "gh@agucova.dev";
         signing.signByDefault = true;
         signing.key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhdO9i6GAtDT+iyfkqUFoOzPaKmuP1aCQ1zXtaKYqA5";
-        extraConfig = { init.defaultBranch = "main"; };
+        extraConfig = {
+          init.defaultBranch = "main";
+        };
       };
     };
   };

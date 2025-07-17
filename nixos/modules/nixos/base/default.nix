@@ -209,6 +209,8 @@ with lib;
 
     # Support dynamic libraries
     programs.nix-ld.enable = true;
+    # Enable local binaries in PATH (used for e.g. uv)
+    environment.localBinInPath = true;
 
     # Use the nh CLI tool
     programs.nh = {

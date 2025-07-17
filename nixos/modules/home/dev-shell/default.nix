@@ -19,18 +19,21 @@
         "OhMyREPL"
         "BenchmarkTools"
       ])
-      (python3.withPackages (ps: with ps; [
-        pip
-        ipython
-        numpy
-        pandas
-        matplotlib
-        seaborn
-        scikit-learn
-        black
-        flake8
-        mypy
-      ]))
+      # Note, this is a fallback for `uv`.
+      (python3.withPackages (
+        ps: with ps; [
+          pip
+          ipython
+          numpy
+          pandas
+          matplotlib
+          seaborn
+          scikit-learn
+          black
+          flake8
+          mypy
+        ]
+      ))
       ruff
       pyright
     ];
