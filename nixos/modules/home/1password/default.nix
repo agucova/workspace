@@ -2,7 +2,6 @@
 { config, pkgs, lib, ... }:
 
 let
-  sshSignPath = "${pkgs._1password-gui}/share/1password/op-ssh-sign";
   agentSocketPath = "~/.1password/agent.sock";
 in
 {
@@ -12,7 +11,7 @@ in
       default = true;
       description = "Enable 1Password SSH agent integration";
     };
-    
+
     enableGit = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -36,11 +35,11 @@ in
       extraConfig = {
         gpg = {
           format = "ssh";
-          ssh.program = sshSignPath;
+          ssh.program = lib.getExe' pkgs._1password-gui "op-ssh-sign";
         };
       };
     };
-    
+
     # Configure Fish shell integration if Fish is enabled
     programs.fish = lib.mkIf (config.programs.fish.enable or false) {
       loginShellInit = ''
@@ -50,7 +49,7 @@ in
         end
       '';
     };
-    
+
     # Configure Bash shell integration
     programs.bash = lib.mkIf (config.programs.bash.enable or false) {
       initExtra = ''

@@ -37,8 +37,6 @@ in
 
       # Set up common SSH client configurations
       programs.ssh = {
-        # Standard client settings
-        startAgent = true;
         # Reasonable defaults for connection management
         extraConfig = ''
           ServerAliveInterval 60

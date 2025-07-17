@@ -1,5 +1,10 @@
 # Base NixOS Configuration
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -170,6 +175,7 @@ with lib;
 
       # File transfer
       aria2
+      fuse3
 
       # Network tools
       nmap
@@ -184,7 +190,10 @@ with lib;
 
     # Enable nix flakes
     nix.settings = {
-      experimental-features = [ "nix-command" "flakes" ];
+      experimental-features = [
+        "nix-command"
+        "flakes"
+      ];
       # Enable garbage collection and optimizations
       auto-optimise-store = true;
       # Add binary caches
@@ -211,11 +220,13 @@ with lib;
 
     # Swap configuration
     # When not using disko, use a simple swapfile
-    swapDevices = mkIf (!config.myDisko.enable) (mkDefault [{
-      device = "/swapfile";
-      size = 8 * 1024; # 8GB swapfile
-      priority = 10; # Lower priority than zram
-    }]);
+    swapDevices = mkIf (!config.myDisko.enable) (mkDefault [
+      {
+        device = "/swapfile";
+        size = 8 * 1024; # 8GB swapfile
+        priority = 10; # Lower priority than zram
+      }
+    ]);
 
     # Enable zram swap as primary swap
     zramSwap = {
@@ -239,13 +250,19 @@ with lib;
     };
 
     # DNS
-    networking.nameservers = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+    networking.nameservers = [
+      "1.1.1.1#one.one.one.one"
+      "1.0.0.1#one.one.one.one"
+    ];
 
     services.resolved = {
       enable = true;
       dnssec = "true";
       domains = [ "~." ];
-      fallbackDns = [ "1.1.1.1#one.one.one.one" "1.0.0.1#one.one.one.one" ];
+      fallbackDns = [
+        "1.1.1.1#one.one.one.one"
+        "1.0.0.1#one.one.one.one"
+      ];
       dnsovertls = "true";
     };
 
@@ -254,7 +271,6 @@ with lib;
     # Set IP forwarding
     boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
     boot.kernel.sysctl."net.ipv6.conf.all.forwarding" = 1;
-
 
     # Nix build optimizations
     nix.settings = {
