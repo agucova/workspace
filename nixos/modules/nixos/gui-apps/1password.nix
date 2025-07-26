@@ -10,6 +10,12 @@
       default = [ config.users.defaultUserName or "agucova" ];
       description = "List of users that should have 1Password polkit permissions";
     };
+    
+    autoStart = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Enable auto-start of 1Password on boot";
+    };
   };
 
   # Apply configuration directly when module is imported
@@ -29,5 +35,18 @@
     environment.systemPackages = with pkgs; [
       _1password-gui
     ];
+    
+    # Auto-start 1Password on boot using systemd
+    systemd.user.services."1password" = lib.mkIf config.my1Password.autoStart {
+      description = "1Password Password Manager";
+      wantedBy = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "exec";
+        ExecStart = "${pkgs._1password-gui}/bin/1password --silent";
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+    };
   };
 }
