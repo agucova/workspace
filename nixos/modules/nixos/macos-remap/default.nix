@@ -1,6 +1,12 @@
 # MacOS-style keyboard remapping for NixOS using xremap
 # NOTE: Unlike other modules, this one requires an enable option since it affects system behavior
-{ lib, pkgs, config, inputs, ... }:
+{
+  lib,
+  pkgs,
+  config,
+  inputs,
+  ...
+}:
 
 let
   cfg = config.myMacosRemap;
@@ -28,7 +34,7 @@ in
         serviceMode = "user";
         userName = config.users.defaultUserName or "agucova";
         withGnome = true;
-        
+
         # Full xremap config
         yamlConfig = ''
           # macOS-style key remapping
@@ -53,8 +59,8 @@ in
         '';
       };
 
-      # GNOME settings 
-      xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+      # GNOME settings
+      desktopManager.gnome.extraGSettingsOverrides = ''
         [org.gnome.shell]
         enabled-extensions=['xremap@k0kubun.com']
       '';
@@ -66,12 +72,12 @@ in
     };
 
     # Other configs
-    environment.systemPackages = with pkgs; [ 
-      gnomeExtensions.xremap 
+    environment.systemPackages = with pkgs; [
+      gnomeExtensions.xremap
     ];
 
-    users.groups.input.members = 
-      lib.optionals (config.users ? defaultUserName)
-        [ config.users.defaultUserName ];
+    users.groups.input.members = lib.optionals (config.users ? defaultUserName) [
+      config.users.defaultUserName
+    ];
   };
 }

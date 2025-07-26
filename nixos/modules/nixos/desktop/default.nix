@@ -1,17 +1,16 @@
 # Desktop Environment Configuration with GNOME
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   config = {
     # Desktop-specific networking
     networking = {
       networkmanager.enable = lib.mkDefault true;
-    };
-
-    # Display manager autologin
-    services.displayManager.autoLogin = {
-      enable = true;
-      user = "agucova";
     };
 
     # Audio configuration
@@ -24,12 +23,15 @@
           variant = lib.mkDefault "altgr-intl";
         };
 
-        displayManager.gdm = {
-          enable = true;
-          autoSuspend = false;
-        };
-        desktopManager.gnome.enable = true;
       };
+      displayManager = {
+        gdm.enable = true;
+        autoLogin = {
+          enable = true;
+          user = "agucova";
+        };
+      };
+      desktopManager.gnome.enable = true;
 
       # Disable PulseAudio in favor of PipeWire
       pulseaudio.enable = false;
@@ -71,7 +73,11 @@
     };
 
     # Make sure GDM has correct permissions
-    users.users.gdm.extraGroups = [ "video" "audio" "input" ];
+    users.users.gdm.extraGroups = [
+      "video"
+      "audio"
+      "input"
+    ];
 
     # Configure environment
     environment = {
@@ -110,14 +116,13 @@
     };
 
     # GNOME specific tweaks for better performance/experience
-    services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+    services.desktopManager.gnome.extraGSettingsOverrides = ''
       [org.gnome.desktop.interface]
       color-scheme='prefer-dark'
 
       [org.gnome.shell]
       favorite-apps=['org.gnome.Nautilus.desktop', 'firefox.desktop', 'code.desktop', 'ghostty.desktop']
     '';
-
 
     # Boot parameters for better desktop responsiveness
     boot.kernelParams = lib.mkDefault [
@@ -130,10 +135,10 @@
     # CachyOS settings
     boot.kernelPackages = pkgs.linuxPackages_cachyos;
     services.ananicy = {
-        enable = true;
-        package = pkgs.ananicy-cpp;
-        rulesProvider = pkgs.ananicy-rules-cachyos;
-   };
+      enable = true;
+      package = pkgs.ananicy-cpp;
+      rulesProvider = pkgs.ananicy-rules-cachyos;
+    };
 
     # Set a faster bootloader timeout for desktop use
     boot.loader.timeout = lib.mkDefault 3;
