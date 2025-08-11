@@ -10,7 +10,7 @@
   myDarwinGuiApps.apps = [
     # Browsers
     "firefox"
-    "google-chrome"
+    # "google-chrome"  # Not available in NixCasks
     
     # Development
     "visual-studio-code"
@@ -41,7 +41,7 @@
     
     # Media
     "vlc"
-    "spotify"
+    # "spotify"  # Not available in NixCasks
     "iina"
     "stremio"
   ];
