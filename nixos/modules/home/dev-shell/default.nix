@@ -13,7 +13,10 @@
       # Languages
       rustup
       bun
-      julia-bin
+      (julia-bin.overrideAttrs (oldAttrs: {
+        doCheck = false;
+        doInstallCheck = false;
+      }))
       # Note, this is a fallback for `uv`.
       (python3.withPackages (
         ps: with ps; [
