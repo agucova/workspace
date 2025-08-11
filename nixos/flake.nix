@@ -247,8 +247,6 @@
           };
         };
 
-        # Removed standalone homeConfigurations as nixos-rebuild is preferred
-
         # Darwin configurations
         darwinConfigurations = {
           hackbookv5 = inputs.nix-darwin.lib.darwinSystem {
@@ -280,7 +278,7 @@
                     ./modules/common/dev
                     ./modules/common/security
                   ];
-                  
+
                   # Required for home-manager
                   home.stateVersion = "24.05";
                 };

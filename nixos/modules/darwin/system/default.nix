@@ -89,7 +89,6 @@ in
       "com.apple.swipescrolldirection" = true; # Natural scroll
     };
 
-    # Dock
     system.defaults.CustomUserPreferences."com.apple.AdLib" = {
       allowApplePersonalizedAdvertising = false;
     };

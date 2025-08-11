@@ -82,6 +82,8 @@ in
         "bartender"
         "tailscale"
         "transmission"
+        "cryptomator"
+        "google-drive"
 
         # Media
         "vlc"
