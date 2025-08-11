@@ -22,12 +22,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # NixCasks for macOS GUI applications
-    nix-casks = {
-      url = "github:atahanyorganci/nix-casks/archive";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -103,14 +97,14 @@
               # System configuration
               ./systems/x86_64-linux/hackstation
 
-              # Import all NixOS modules
-              ./modules/nixos/base
-              ./modules/nixos/desktop
-              ./modules/nixos/disk
-              ./modules/nixos/gui-apps
-              ./modules/nixos/hardware
-              ./modules/nixos/macos-remap
-              ./modules/nixos/ssh
+              # Import Linux modules
+              ./modules/linux/system
+              ./modules/linux/desktop
+              ./modules/linux/disk
+              ./modules/linux/gui-apps
+              ./modules/linux/hardware
+              ./modules/linux/macos-remap
+              ./modules/linux/ssh
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager
@@ -129,13 +123,12 @@
                 # Home Manager configuration for hackstation
                 home-manager.users.agucova = { pkgs, lib, ... }: {
                   imports = [
-                    # Import all home modules for full desktop setup
-                    ./modules/home/core-shell
-                    ./modules/home/dev-shell
-                    ./modules/home/desktop-settings
-                    ./modules/home/dotfiles
-                    ./modules/home/macos-remap
-                    ./modules/home/1password
+                    # Import common modules
+                    ./modules/common/shell
+                    ./modules/common/dev
+                    ./modules/common/security
+                    # Linux-specific user settings
+                    ./modules/linux/desktop/user
                   ];
                 };
               }
@@ -150,16 +143,16 @@
               # System configuration
               ./systems/x86_64-linux/vm
 
-              # Import all NixOS modules
-              ./modules/nixos/base
-              ./modules/nixos/desktop
-              ./modules/nixos/disk
-              ./modules/nixos/gui-apps
-              ./modules/nixos/hardening
-              ./modules/nixos/hardware
-              ./modules/nixos/macos-remap
-              ./modules/nixos/ssh
-              ./modules/nixos/vm
+              # Import Linux modules
+              ./modules/linux/system
+              ./modules/linux/desktop
+              ./modules/linux/disk
+              ./modules/linux/gui-apps
+              ./modules/linux/hardening
+              ./modules/linux/hardware
+              ./modules/linux/macos-remap
+              ./modules/linux/ssh
+              ./modules/linux/vm
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager
@@ -177,13 +170,12 @@
                 # Home Manager configuration for VM
                 home-manager.users.agucova = { pkgs, lib, ... }: {
                   imports = [
-                    # Import all home modules for full desktop testing
-                    ./modules/home/core-shell
-                    ./modules/home/dev-shell
-                    ./modules/home/desktop-settings
-                    ./modules/home/dotfiles
-                    ./modules/home/macos-remap
-                    ./modules/home/1password
+                    # Import common modules
+                    ./modules/common/shell
+                    ./modules/common/dev
+                    ./modules/common/security
+                    # Linux-specific user settings
+                    ./modules/linux/desktop/user
                   ];
 
                 };
@@ -199,13 +191,13 @@
               # System configuration
               ./systems/x86_64-linux/server
 
-              # Import all NixOS modules
-              ./modules/nixos/base
-              ./modules/nixos/disk
-              ./modules/nixos/hardening
-              ./modules/nixos/hardware
-              ./modules/nixos/ssh
-              ./modules/nixos/macos-remap
+              # Import Linux modules
+              ./modules/linux/system
+              ./modules/linux/disk
+              ./modules/linux/hardening
+              ./modules/linux/hardware
+              ./modules/linux/ssh
+              ./modules/linux/macos-remap
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager
@@ -231,10 +223,10 @@
                 # Home Manager configuration for server
                 home-manager.users.agucova = { pkgs, lib, ... }: {
                   imports = [
-                    # Import only server-relevant modules (no desktop/GUI)
-                    ./modules/home/core-shell
-                    ./modules/home/dev-shell
-                    ./modules/home/dotfiles
+                    # Import common modules (no desktop/GUI)
+                    ./modules/common/shell
+                    ./modules/common/dev
+                    ./modules/common/security
                   ];
 
                 };
@@ -255,8 +247,8 @@
               ./systems/aarch64-darwin/hackbookv5
 
               # Import Darwin modules
-              ./modules/darwin/base
-              ./modules/darwin/gui-apps
+              ./modules/darwin/system
+              ./modules/darwin/apps
 
               # Home Manager integration
               inputs.home-manager.darwinModules.home-manager
@@ -268,10 +260,10 @@
                 # Home Manager configuration for Darwin
                 home-manager.users.agucova = { pkgs, lib, ... }: {
                   imports = [
-                    # Import only essential modules for bootstrap
-                    ./modules/home/core-shell
-                    ./modules/home/dev-shell
-                    ./modules/home/dotfiles
+                    # Import common modules
+                    ./modules/common/shell
+                    ./modules/common/dev
+                    ./modules/common/security
                   ];
                   
                   # Required for home-manager

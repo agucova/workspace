@@ -1,5 +1,5 @@
-# Desktop Settings Module for Home Manager
-# Provides wallpapers and desktop configuration
+# Linux-specific user desktop settings
+# GNOME configuration, wallpapers, and keybindings
 { config, lib, pkgs, ... }:
 
 let
@@ -14,15 +14,17 @@ let
     name = "wallpaper_dark.jpg";
   };
 in {
-  # No need for an enable option since this module is explicitly imported
   config = {
-    # Apply GNOME settings via dconf
+    # GNOME wallpaper settings
     dconf.settings = {
       "org/gnome/desktop/background" = {
         picture-options = "zoom";
         picture-uri = "file://${wallpaper_light}";
         picture-uri-dark = "file://${wallpaper_dark}";
       };
-    };
+    } // (import ../dconf.nix);  # Include macOS-style keybindings for GNOME
+
+    # VS Code keybindings for macOS-style shortcuts
+    programs.vscode.profiles.default.keybindings = import ../vscode-keybindings.nix;
   };
 }

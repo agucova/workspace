@@ -4,47 +4,8 @@
 {
   # Enable Darwin modules
   myDarwinBase.enable = true;
-  myDarwinGuiApps.enable = true;
+  myDarwinHomebrew.enable = true;
   
-  # Customize GUI apps if needed
-  myDarwinGuiApps.apps = [
-    # Browsers
-    "firefox"
-    # "google-chrome"  # Not available in NixCasks
-    
-    # Development
-    "visual-studio-code"
-    "cursor"
-    "zed"
-    "ghostty"
-    "iterm2"
-    "orbstack"  # Docker Desktop alternative
-    "figma"
-    
-    # Productivity
-    "raycast"
-    "notion-calendar"
-    "superhuman"
-    "asana"
-    "granola"
-    
-    # Communication
-    "slack"
-    "discord"
-    "whatsapp"
-    "signal"
-    "telegram"
-    
-    # Utilities
-    "1password"
-    "bartender"  # Menu bar manager
-    
-    # Media
-    "vlc"
-    # "spotify"  # Not available in NixCasks
-    "iina"
-    "stremio"
-  ];
   # Set the hostname
   networking.hostName = "hackbookv5";
   networking.computerName = "hackbookv5";
@@ -143,15 +104,6 @@
 
   # Set primary user for system defaults to apply correctly
   system.primaryUser = "agucova";
-
-  # Homebrew integration (if needed for some GUI apps)
-  homebrew = {
-    enable = false; # Disabled for now, enable if needed
-    onActivation = {
-      autoUpdate = false;
-      cleanup = "zap";
-    };
-  };
 
   # Environment variables
   environment = {

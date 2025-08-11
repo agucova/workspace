@@ -1,4 +1,5 @@
-# Development packages and settings for the shell
+# Cross-platform development tools
+# Works on both NixOS and Darwin via Home Manager
 { pkgs, ... }:
 
 {
@@ -17,7 +18,8 @@
         doCheck = false;
         doInstallCheck = false;
       }))
-      # Note, this is a fallback for `uv`.
+      
+      # Python environment (fallback for uv)
       (python3.withPackages (
         ps: with ps; [
           pip

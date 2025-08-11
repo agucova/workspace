@@ -1,5 +1,5 @@
-# modules/home/core-shell/default.nix
-# Core shell with Fish, Starship, and common CLI tools
+# Cross-platform shell configuration
+# Works on both NixOS and Darwin via Home Manager
 {
   lib,
   config,
@@ -8,10 +8,10 @@
 }:
 
 {
-  # No need for an enable option since this module is explicitly imported
   config = {
+    # Shell packages
     home.packages = with pkgs; [
-      # Dev / CLI basics
+      # Core CLI tools
       gh
       bat
       ripgrep
@@ -35,9 +35,14 @@
       unrar
       p7zip
       starship
+      
+      # Dotfile management
+      uv
+      git
     ];
 
     programs = {
+      # Fish shell configuration
       fish = {
         enable = true;
         shellInit = ''
@@ -99,18 +104,26 @@
           ".." = "cd ..";
           "..." = "cd ../..";
           "...." = "cd ../../..";
+          
+          # Dotfiles setup
+          setup-dotfiles = "mkdir -p ~/repos && cd ~/repos && \
+              git clone https://github.com/agucova/workspace && \
+              cd workspace/pyinfra && uv run dotfiles_setup.py";
         };
       };
 
+      # Bash configuration (minimal, as fallback)
       bash = {
         enable = true;
         initExtra = ''eval "$(starship init bash)"'';
       };
 
+      # Starship prompt
       starship = {
         enable = true;
       };
 
+      # Git configuration
       git = {
         enable = true;
         userName = "Agustin Covarrubias";
