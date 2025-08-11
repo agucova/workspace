@@ -143,7 +143,9 @@ in
     # Fonts
     fonts = {
       packages = with pkgs; [
-        (nerdfonts.override { fonts = [ "FiraCode" "JetBrainsMono" "Hack" ]; })
+        nerd-fonts.fira-code
+        nerd-fonts.jetbrains-mono
+        nerd-fonts.hack
         fira-code
         jetbrains-mono
         source-code-pro

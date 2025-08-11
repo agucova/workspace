@@ -1,95 +1,88 @@
 # Workspace
 
-A multi-approach repository for configuring my development environments across different operating systems and platforms.
+My system configuration repository using Nix for declarative, reproducible development environments across NixOS and macOS.
 
-## Repository Structure
+## Primary Configuration: NixOS/Darwin
 
-This repository contains three different approaches to system configuration:
-
-1. **PyInfra** (`pyinfra/`): A [PyInfra](https://pyinfra.com/) implementation for both macOS and Debian-based distributions
-2. **Ansible** (`ansible/`): The original [Ansible](https://github.com/ansible/ansible) playbook for Ubuntu-based distributions
-3. **NixOS** (`nixos/`): A [Nix Flake](https://nixos.wiki/wiki/Flakes)-based configuration for NixOS with GNOME Desktop
-
-## PyInfra Configuration
-
-The PyInfra implementation (`pyinfra/` directory) sets up my development machines with all the tools, programming languages, and applications I use, and applies my opinionated preferences for shell, GNOME, and other settings.
+The main configuration (`nixos/` directory) provides a unified Nix Flake-based setup for both Linux (NixOS) and macOS (Darwin) systems using flake-parts for modular organization.
 
 ### Features
 
-- Cross-platform support for macOS and Ubuntu/Pop_OS!
-- Fast execution with PyInfra v3
-- Modular design for easy customization
-- Docker-based testing harness for non-GUI modules
+- **Cross-platform**: Unified configuration for NixOS and macOS with shared modules
+- **Declarative**: Fully reproducible system and user configurations
+- **Modular**: Clean separation of concerns using flake-parts
+- **Hardware-optimized**: NixOS config tuned for AMD Ryzen 7800X3D + NVIDIA RTX 4090
+- **Developer-focused**: Complete development environment with modern tools
 
-### Testing
+### Supported Systems
 
-The repository includes Docker-based testing capabilities to test modules in a headless environment:
+- **NixOS** (`hackstation`): Main workstation with GNOME Desktop
+- **Darwin** (`hackbookv5`): MacBook Pro with minimal dev environment
+- **VM** (`vm`): NixOS testing configuration
+- **Server** (`server`): Headless NixOS configuration
 
+### Quick Start
+
+#### NixOS
 ```bash
-# Build the Docker image and run the entire setup (skipping GUI modules)
-cd pyinfra && uv run docker_test.py run
-
-# List available modules
-cd pyinfra && uv run docker_test.py list_modules
-
-# Run a specific function from a module
-cd pyinfra && uv run docker_test.py run env_setup.setup_fish
-
-# Force rebuilding the Docker image
-cd pyinfra && uv run docker_test.py run --build
-
-# Run with interactive shell to inspect the container after execution
-cd pyinfra && uv run docker_test.py run --interactive packages.setup_rust
-# or the short version
-cd pyinfra && uv run docker_test.py run -i packages.setup_rust
+git clone https://github.com/agucova/workspace.git ~/repos/workspace
+cd ~/repos/workspace/nixos
+sudo nixos-rebuild switch --flake .#hackstation --experimental-features 'nix-command flakes' --impure
 ```
 
-Each module that requires a graphical environment (GNOME, Firefox, Kinto, Mathematica) has been updated with `has_display()` checks that automatically skip GUI-dependent operations when running in Docker or other headless environments. This allows testing the core functionality while skipping operations that would fail without a display.
+#### macOS
+```bash
+# Install Nix, then:
+git clone git@github.com:agucova/workspace.git ~/Repos/workspace
+cd ~/Repos/workspace/nixos
+nix run nix-darwin -- switch --flake .#hackbookv5
+```
 
-## NixOS Configuration
+See `nixos/README.md` for comprehensive documentation, installation instructions, and module details.
 
-The NixOS implementation (`nixos/` directory) provides a Nix Flake-based configuration for NixOS with GNOME Desktop, following the Snowfall Lib structure. It includes:
+## Alternative Configurations
 
-- Modular configuration structured using Snowfall Lib for automatic discovery
-- System-specific configurations for both bare-metal and VM testing
-- Home Manager integration for user-specific configurations
-- Optimized for specific hardware (AMD Ryzen 7800X3D + NVIDIA RTX 4090)
-- VM testing and ISO image building capabilities
+### PyInfra (Legacy)
 
-### Directory Structure
-- `flake.nix` - Main entry point defining inputs and outputs with Snowfall configuration
-- `modules/` - Modular NixOS and Home Manager configurations (auto-discovered)
-  - `nixos/` - NixOS-specific modules for system configuration
-  - `home/` - Home Manager modules for user environment
-- `systems/` - System-specific configurations (auto-discovered)
-  - `x86_64-linux/` - Linux systems for x86_64 architecture
-    - `gnome-nixos/` - Main workstation configuration 
-    - `vm/` - VM testing configuration
-- `homes/` - Home Manager configurations (auto-discovered)
-  - `x86_64-linux/` - Linux home configurations
-    - `agucova/` - User-specific home configuration
-- `packages/` - Custom package definitions (auto-discovered)
+The PyInfra implementation (`pyinfra/` directory) provides imperative configuration management for macOS and Debian-based distributions. While functional, this approach is being phased out in favor of the declarative Nix configuration.
 
-See the `nixos/README.md` for detailed information about working with the NixOS configuration.
+**Features:**
+- Cross-platform support for macOS and Ubuntu/Pop_OS!
+- Fast execution with PyInfra v3
+- Docker-based testing for headless modules
+- Modular Python-based configuration
 
-## Ansible Configuration
+### Ansible (Deprecated)
 
-The Ansible implementation (`ansible/` directory) contains the original playbook for Ubuntu-based distributions. It predates the PyInfra implementation and offers similar functionality focused on Ubuntu/Pop_OS! environments.
+The original Ansible playbook (`ansible/` directory) for Ubuntu-based distributions. This implementation is deprecated and preserved for historical reference only.
 
-## Things Missing
+## Migration Status
 
-- [NextDNS](https://nextdns.io/)
-- [ULauncher](https://ulauncher.io/) extensions
-- GNOME extensions
+- ✅ **NixOS**: Primary configuration, actively maintained
+- ⚠️ **PyInfra**: Legacy, not actively developed
+- ❌ **Ansible**: Deprecated, reference only
 
-## Wish List
+## Development Focus
 
-- [ ] Add Aerial screensaver
-- [ ] Add [uxPlay](https://github.com/FDH2/UxPlay)
-- [ ] CI/CD setup for automated testing
+Current development efforts are focused on:
+1. Expanding Darwin (macOS) support in the Nix configuration
+2. Improving cross-platform module sharing
+3. Adding more development tools and languages
+4. Enhancing system hardening and security
 
-## To-Do
+## Repository Structure
 
-- Complete feature parity with the Ansible version
-- Do a full cleanup of my shell variables and functions
-- Further develop the NixOS configuration
+```
+workspace/
+├── nixos/          # Primary: Nix-based configuration
+│   ├── flake.nix   # Flake entry point
+│   ├── modules/    # Shared and platform-specific modules
+│   ├── systems/    # System configurations
+│   └── README.md   # Detailed documentation
+├── pyinfra/        # Legacy: PyInfra scripts
+└── ansible/        # Deprecated: Original Ansible playbook
+```
+
+## Contributing
+
+Feel free to explore the configurations and adapt them for your own use. The Nix configuration is designed to be modular and easily customizable.
