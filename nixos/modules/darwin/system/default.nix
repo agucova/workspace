@@ -1,5 +1,10 @@
 # Base Darwin configuration module
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.myDarwinBase;
@@ -20,6 +25,15 @@ in
 
     # Set primary user for system defaults
     system.primaryUser = cfg.primaryUser;
+    users.users.${cfg.primaryUser} = {
+      home = "/Users/${cfg.primaryUser}";
+      shell = pkgs.fish;
+    };
+    # Apply changes in settings immediately
+    system.activationScripts.activateSettings.text = ''
+      # Following line should allow us to avoid a logout/login cycle
+         /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+    '';
 
     # Add fish to /etc/shells
     programs.fish.enable = true;
@@ -27,15 +41,15 @@ in
     # Touch ID for sudo (super convenient!)
     security.pam.services.sudo_local = {
       enable = true;
-      touchIdAuth = true;  # or watchIdAuth if you prefer Apple Watch
+      touchIdAuth = true; # or watchIdAuth if you prefer Apple Watch
     };
 
     # Firewall
     networking.applicationFirewall = {
       enable = true;
-      enableStealthMode = true;  # Don't respond to ping/port scans
-      allowSigned = true;       # Allow signed apps
-      allowSignedApp = true;    # Allow downloaded signed apps
+      enableStealthMode = true; # Don't respond to ping/port scans
+      allowSigned = true; # Allow signed apps
+      allowSignedApp = true; # Allow downloaded signed apps
       blockAllIncoming = false; # Set true for max security
     };
 
@@ -45,23 +59,63 @@ in
     # Screensaver security
     system.defaults.screensaver = {
       askForPassword = true;
-      askForPasswordDelay = 0;  # Immediate password requirement
+      askForPasswordDelay = 0; # Immediate password requirement
     };
 
     system.defaults.finder = {
       AppleShowAllExtensions = true;
-      AppleShowAllFiles = false;  # Show hidden files
+      AppleShowAllFiles = false; # Show hidden files
       FXEnableExtensionChangeWarning = false;
-      FXPreferredViewStyle = "clmv";  # Column view
+      FXPreferredViewStyle = "clmv"; # Column view
       ShowPathbar = true;
       ShowStatusBar = true;
     };
 
+    system.defaults.CustomUserPreferences."com.apple.finder" = {
+      ShowExternalHardDrivesOnDesktop = true;
+      ShowHardDrivesOnDesktop = true;
+      ShowMountedServersOnDesktop = true;
+      ShowRemovableMediaOnDesktop = true;
+      _FXSortFoldersFirst = true;
+      # When performing a search, search the current folder by default
+      FXDefaultSearchScope = "SCcf";
+    };
+
     system.defaults.NSGlobalDomain = {
-      AppleInterfaceStyle = "Dark";  # Dark mode
+      AppleInterfaceStyle = "Dark"; # Dark mode
       NSAutomaticSpellingCorrectionEnabled = false;
       NSAutomaticCapitalizationEnabled = false;
-      NSDocumentSaveNewDocumentsToCloud = false;  # Don't default to iCloud
+      NSDocumentSaveNewDocumentsToCloud = false; # Don't default to iCloud
+      "com.apple.swipescrolldirection" = true; # Natural scroll
+    };
+
+    # Dock
+    system.defaults.CustomUserPreferences."com.apple.AdLib" = {
+      allowApplePersonalizedAdvertising = false;
+    };
+    system.defaults.CustomUserPreferences."com.apple.print.PrintingPrefs" = {
+      # Automatically quit printer app once the print jobs complete
+      "Quit When Finished" = true;
+    };
+    system.defaults.CustomUserPreferences."com.apple.SoftwareUpdate" = {
+      AutomaticCheckEnabled = true;
+      # Check for software updates daily, not just once per week
+      ScheduleFrequency = 1;
+      # Download newly available updates in background
+      AutomaticDownload = 1;
+      # Install System data files & security updates
+      CriticalUpdateInstall = 1;
+    };
+    system.defaults.CustomUserPreferences."com.apple.TimeMachine".DoNotOfferNewDisksForBackup = true;
+    # Prevent Photos from opening automatically when devices are plugged in
+    system.defaults.CustomUserPreferences."com.apple.ImageCapture".disableHotPlug = true;
+    # Turn on app auto-update
+    system.defaults.CustomUserPreferences."com.apple.commerce".AutoUpdate = true;
+
+    system.defaults.CustomUserPreferences."com.apple.desktopservices" = {
+      # Avoid creating .DS_Store files on network or USB volumes
+      DSDontWriteNetworkStores = true;
+      DSDontWriteUSBStores = true;
     };
 
     # System packages that should always be available
@@ -82,6 +136,7 @@ in
     environment.variables = {
       EDITOR = "micro";
       LANG = "en_US.UTF-8";
+      NH_FLAKE = "/Users/${cfg.primaryUser}/Repos/workspace/nixos/";
     };
 
     # Shell configuration
@@ -90,24 +145,6 @@ in
       fish
       zsh
     ];
-
-    # System-wide shell aliases
-    environment.shellAliases = {
-      # Nix aliases
-      nrs = "darwin-rebuild switch --flake ~/Repos/workspace/nixos#hackbookv5";
-      nrb = "darwin-rebuild build --flake ~/Repos/workspace/nixos#hackbookv5";
-      nfu = "nix flake update";
-      nfc = "nix flake check";
-      nfs = "nix flake show";
-
-      # Git aliases
-      gs = "git status";
-      ga = "git add";
-      gc = "git commit";
-      gp = "git push";
-      gl = "git log --oneline --graph";
-      gd = "git diff";
-    };
 
     # Path configuration
     environment.systemPath = [
@@ -124,13 +161,17 @@ in
           USER_HOME="/Users/$PRIMARY_USER"
           if [ -d "$USER_HOME" ]; then
             # Create directories
-            sudo -u "$PRIMARY_USER" mkdir -p "$USER_HOME/Development"
             sudo -u "$PRIMARY_USER" mkdir -p "$USER_HOME/Repos"
             sudo -u "$PRIMARY_USER" mkdir -p "$USER_HOME/Screenshots"
           fi
         fi
       '';
     };
+    system.activationScripts.extraActivation.text = ''
+      softwareupdate --install-rosetta --agree-to-license
+    '';
+
+    system.defaults.screencapture.location = "/Users/${cfg.primaryUser}/Screenshots";
 
     # Documentation
     documentation = {

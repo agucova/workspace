@@ -1,5 +1,11 @@
 # Darwin Homebrew module for GUI applications
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   cfg = config.myDarwinHomebrew;
@@ -35,19 +41,19 @@ in
       enable = true;
       onActivation = {
         autoUpdate = false;
-        cleanup = "zap";  # Uninstall anything not listed here
+        cleanup = "zap"; # Uninstall anything not listed here
         upgrade = true;
       };
-      
+
       # Align taps with nix-homebrew configuration
       taps = builtins.attrNames config.nix-homebrew.taps;
-      
+
       # GUI Applications via Homebrew Casks
       casks = [
         # Browsers
         "firefox"
         "google-chrome"
-        
+
         # Development
         "visual-studio-code"
         "cursor"
@@ -56,25 +62,26 @@ in
         "iterm2"
         "orbstack"
         "figma"
-        
+
         # Productivity
         "raycast"
         "notion-calendar"
         "superhuman"
         "asana"
         "granola"
-        
+
         # Communication
         "slack"
         "discord"
         "whatsapp"
         "signal"
         "telegram"
-        
+
         # Utilities
         "1password"
         "bartender"
-        
+        "tailscale"
+
         # Media
         "vlc"
         "spotify"

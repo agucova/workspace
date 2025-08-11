@@ -35,10 +35,14 @@
       unrar
       p7zip
       starship
-      
+      _1password-cli
+
       # Dotfile management
       uv
       git
+
+      # Nix
+      nh
     ];
 
     programs = {
@@ -104,7 +108,7 @@
           ".." = "cd ..";
           "..." = "cd ../..";
           "...." = "cd ../../..";
-          
+
           # Dotfiles setup
           setup-dotfiles = "mkdir -p ~/repos && cd ~/repos && \
               git clone https://github.com/agucova/workspace && \

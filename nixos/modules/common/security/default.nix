@@ -1,8 +1,17 @@
 # 1Password Home Manager module
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
-  agentSocketPath = "~/.1password/agent.sock";
+  # Platform-specific agent socket paths
+  agentSocketPath = 
+    if pkgs.stdenv.isDarwin
+    then "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    else "~/.1password/agent.sock";
 in
 {
   options.my1Password = {
@@ -22,7 +31,7 @@ in
   config = {
     # SSH configuration for 1Password identity agent
     programs.ssh = lib.mkIf config.my1Password.enableSSH {
-      enable = true;  # Enable SSH config management
+      enable = true; # Enable SSH config management
       extraConfig = ''
         # 1Password SSH agent configuration
         IdentityAgent "${agentSocketPath}"
@@ -31,11 +40,14 @@ in
 
     # Git configuration for 1Password signing
     programs.git = lib.mkIf config.my1Password.enableGit {
-      enable = true;  # Enable Git config management
+      enable = true; # Enable Git config management
       extraConfig = {
         gpg = {
           format = "ssh";
-          ssh.program = lib.getExe' pkgs._1password-gui "op-ssh-sign";
+          ssh.program = 
+            if pkgs.stdenv.isDarwin
+            then "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+            else lib.getExe' pkgs._1password-gui "op-ssh-sign";
         };
       };
     };
