@@ -18,6 +18,52 @@ in
     # Nix management disabled - using Determinate Nix
     nix.enable = false;
 
+    # Set primary user for system defaults
+    system.primaryUser = cfg.primaryUser;
+
+    # Add fish to /etc/shells
+    programs.fish.enable = true;
+
+    # Touch ID for sudo (super convenient!)
+    security.pam.services.sudo_local = {
+      enable = true;
+      touchIdAuth = true;  # or watchIdAuth if you prefer Apple Watch
+    };
+
+    # Firewall
+    networking.applicationFirewall = {
+      enable = true;
+      enableStealthMode = true;  # Don't respond to ping/port scans
+      allowSigned = true;       # Allow signed apps
+      allowSignedApp = true;    # Allow downloaded signed apps
+      blockAllIncoming = false; # Set true for max security
+    };
+
+    # Quarantine for downloads
+    system.defaults.LaunchServices.LSQuarantine = true;
+
+    # Screensaver security
+    system.defaults.screensaver = {
+      askForPassword = true;
+      askForPasswordDelay = 0;  # Immediate password requirement
+    };
+
+    system.defaults.finder = {
+      AppleShowAllExtensions = true;
+      AppleShowAllFiles = false;  # Show hidden files
+      FXEnableExtensionChangeWarning = false;
+      FXPreferredViewStyle = "clmv";  # Column view
+      ShowPathbar = true;
+      ShowStatusBar = true;
+    };
+
+    system.defaults.NSGlobalDomain = {
+      AppleInterfaceStyle = "Dark";  # Dark mode
+      NSAutomaticSpellingCorrectionEnabled = false;
+      NSAutomaticCapitalizationEnabled = false;
+      NSDocumentSaveNewDocumentsToCloud = false;  # Don't default to iCloud
+    };
+
     # System packages that should always be available
     environment.systemPackages = with pkgs; [
       coreutils
@@ -28,7 +74,15 @@ in
       gawk
       curl
       wget
+      vim
+      git
     ];
+
+    # Environment variables
+    environment.variables = {
+      EDITOR = "micro";
+      LANG = "en_US.UTF-8";
+    };
 
     # Shell configuration
     environment.shells = with pkgs; [
@@ -45,7 +99,7 @@ in
       nfu = "nix flake update";
       nfc = "nix flake check";
       nfs = "nix flake show";
-      
+
       # Git aliases
       gs = "git status";
       ga = "git add";
@@ -60,11 +114,6 @@ in
       "/opt/homebrew/bin" # For Apple Silicon Homebrew
       "/usr/local/bin"
     ];
-
-    # LaunchDaemons
-    launchd.user.agents = {
-      # Example: could add user services here
-    };
 
     # System activation scripts
     system.activationScripts.userDirs = {
