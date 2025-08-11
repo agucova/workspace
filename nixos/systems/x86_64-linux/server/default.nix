@@ -55,10 +55,8 @@
   
   # Add minimal boot configuration
   boot.loader = {
-    systemd-boot.enable = true;
+    limine.enable = true;
     efi.canTouchEfiVariables = true;
-    # Explicitly disable other bootloaders
-    grub.enable = false;
   };
 
   # Base module is directly imported in flake.nix

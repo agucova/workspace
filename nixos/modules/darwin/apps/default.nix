@@ -40,7 +40,7 @@ in
     homebrew = {
       enable = true;
       onActivation = {
-        autoUpdate = false;
+        autoUpdate = true;
         cleanup = "zap"; # Uninstall anything not listed here
         upgrade = true;
       };

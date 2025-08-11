@@ -53,6 +53,8 @@
       micro
       uv
       git
+      delta
+      difftastic
       nh
     ];
 
@@ -116,12 +118,6 @@
           ''}
         '';
         shellAliases = {
-          ls = "lsd";
-          ll = "lsd -l";
-          la = "lsd -la";
-          lt = "lsd --tree";
-          cat = "bat";
-
           # Dotfiles setup
           setup-dotfiles = "mkdir -p ~/repos && cd ~/repos && \
               git clone https://github.com/agucova/workspace && \
@@ -149,6 +145,28 @@
         signing.key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhdO9i6GAtDT+iyfkqUFoOzPaKmuP1aCQ1zXtaKYqA5";
         extraConfig = {
           init.defaultBranch = "main";
+          color.ui = "auto";
+          rebase.stat = true;
+          pull.rebase = false;
+
+          # Comfort settings (based on Julia Evan's recs)
+          # https://jvns.ca/blog/2024/02/16/popular-git-config-options
+          merge.conflictstyle = "zdiff3";
+          push.autoSetupRemote = true;
+          rerere.enabled = true;
+          help.autocorrect = "prompt";
+          diff.algorithm = "histogram";
+          transfer.fsckobjects = true;
+          fetch.fsckobjects = true;
+          receive.fsckobjects = true;
+          status.submoduleSummary = true;
+          diff.submodule = "log";
+          submodule.recurse = true;
+          rebase.missingCommitsCheck = "error";
+          branch.sort = "committerdate";
+
+          # Difftastic
+          diff.external = "difft";
         };
       };
     };

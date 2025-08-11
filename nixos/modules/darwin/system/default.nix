@@ -127,7 +127,6 @@ in
       gawk
       curl
       wget
-      vim
       git
     ];
 

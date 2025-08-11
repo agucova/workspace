@@ -55,7 +55,7 @@
 
   # Simplify boot configuration
   boot.loader = {
-    systemd-boot.enable = true;
+    limine.enable = true;
     efi.canTouchEfiVariables = true;
     timeout = lib.mkForce 0;
   };
