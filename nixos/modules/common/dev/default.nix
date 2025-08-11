@@ -4,6 +4,12 @@
 
 {
   config = {
+    # Julia environment variables
+    home.sessionVariables = {
+      JULIA_COPY_STACKS = "1";  # Enable stack copying for better diagnostics
+      JULIA_NUM_THREADS = "12"; # Use multiple threads for parallel computing
+    };
+
     home.packages = with pkgs; [
       # Nix tooling
       nil

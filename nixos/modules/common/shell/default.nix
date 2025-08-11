@@ -9,6 +9,20 @@
 
 {
   config = {
+    # Global environment variables (available across all shells)
+    home.sessionVariables = {
+      EDITOR = "micro";
+      LANG = "en_US.UTF-8";
+      CLAUDE_CONFIG_DIR = "$HOME/.config/claude-code/";
+    };
+
+    # Global PATH additions (available across all shells)
+    home.sessionPath = [
+      "$HOME/.bin"
+      "$HOME/.bun/bin"
+      "$HOME/.venv/bin"
+    ];
+
     # Shell packages
     home.packages = with pkgs; [
       # Core CLI tools
@@ -47,11 +61,6 @@
       fish = {
         enable = true;
         shellInit = ''
-          # Editor configuration and Unicode support
-          set -gx EDITOR "micro"
-          set -gx LANG en_US.UTF-8
-          set -gx CLAUDE_CONFIG_DIR ~/.config/claude-code/
-
           # fzf configuration using fd as a backend
           # Shows hidden files but excludes .git directories
           set -gx FZF_DEFAULT_COMMAND 'fd --type file --hidden --exclude .git'
@@ -70,9 +79,6 @@
           if command -q uv
               # Enable shell completions for uv
               uvx --generate-shell-completion fish | source
-
-              # Add uv-created venvs to PATH
-              fish_add_path "$HOME/.venv/bin"
           end
 
           # Configure pip to use uv as the backend
@@ -95,6 +101,19 @@
           set __fish_git_prompt_showcolorhints yes
           set __fish_git_prompt_color_prefix purple
           set __fish_git_prompt_color_suffix purple
+
+          # Darwin-specific integrations
+          ${lib.optionalString pkgs.stdenv.isDarwin ''
+            # iTerm2 shell integration
+            if test -e "$HOME/.iterm2_shell_integration.fish"
+              source "$HOME/.iterm2_shell_integration.fish"
+            end
+
+            # Orbstack shell integration
+            if test -d "$HOME/.orbstack"
+              source "$HOME/.orbstack/shell/init2.fish" 2>/dev/null || :
+            end
+          ''}
         '';
         shellAliases = {
           ls = "lsd";
@@ -102,9 +121,6 @@
           la = "lsd -la";
           lt = "lsd --tree";
           cat = "bat";
-          ".." = "cd ..";
-          "..." = "cd ../..";
-          "...." = "cd ../../..";
 
           # Dotfiles setup
           setup-dotfiles = "mkdir -p ~/repos && cd ~/repos && \

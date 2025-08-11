@@ -208,7 +208,6 @@
               ./modules/linux/system/ssh
               ./modules/linux/system/disk
               ./modules/linux/system/hardening
-              ./modules/linux/desktop/keybindings
               ./modules/linux/hardware
 
               # Required modules

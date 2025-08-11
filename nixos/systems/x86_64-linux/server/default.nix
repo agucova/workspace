@@ -57,11 +57,12 @@
   boot.loader = {
     systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
+    # Explicitly disable other bootloaders
+    grub.enable = false;
   };
 
   # Base module is directly imported in flake.nix
-  # Disable macOS remapping on server
-  myMacosRemap.enable = false;
+  # Server doesn't import desktop modules, so no need to disable them
 
   # Server hardware configuration
   # Commented out since we can't determine the actual hardware without deploying

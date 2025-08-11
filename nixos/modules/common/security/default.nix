@@ -8,7 +8,7 @@
 
 let
   # Platform-specific agent socket paths
-  agentSocketPath = 
+  agentSocketPath =
     if pkgs.stdenv.isDarwin
     then "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     else "~/.1password/agent.sock";
@@ -44,7 +44,7 @@ in
       extraConfig = {
         gpg = {
           format = "ssh";
-          ssh.program = 
+          ssh.program =
             if pkgs.stdenv.isDarwin
             then "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
             else lib.getExe' pkgs._1password-gui "op-ssh-sign";
