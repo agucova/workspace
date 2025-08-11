@@ -18,13 +18,13 @@
     trusted-users = [ "@admin" "agucova" ];
     max-jobs = "auto";
     cores = 0; # Use all available cores
-    
-    # Optimize storage
-    auto-optimise-store = true;
   };
+  
+  # Use the new optimise option instead of auto-optimise-store
+  nix.optimise.automatic = true;
 
-  # Enable nix-daemon service
-  services.nix-daemon.enable = true;
+  # nix-daemon is now managed automatically when nix.enable is true
+  nix.enable = true;
 
   # User configuration
   users.users.agucova = {
@@ -108,14 +108,11 @@
 
   # Security settings
   security = {
-    pam.enableSudoTouchIdAuth = true;
+    pam.services.sudo_local.touchIdAuth = true;
   };
 
-  # Enable the Touch ID for sudo
-  system.activationScripts.postUserActivation.text = ''
-    # Ensure Screenshots directory exists
-    mkdir -p ~/Screenshots
-  '';
+  # Set primary user for system defaults to apply correctly
+  system.primaryUser = "agucova";
 
   # Homebrew integration (if needed for some GUI apps)
   homebrew = {

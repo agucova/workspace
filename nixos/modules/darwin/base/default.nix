@@ -7,11 +7,22 @@ in
 {
   options.myDarwinBase = {
     enable = lib.mkEnableOption "base Darwin configuration";
+    primaryUser = lib.mkOption {
+      type = lib.types.str;
+      default = "agucova";
+      description = "Primary user for system defaults";
+    };
   };
 
   config = lib.mkIf cfg.enable {
     # Nix configuration
     nix = {
+      # Enable nix
+      enable = true;
+      
+      # Storage optimization
+      optimise.automatic = true;
+      
       # Garbage collection
       gc = {
         automatic = true;
@@ -107,17 +118,21 @@ in
     };
 
     # System activation scripts
-    system.activationScripts.postActivation.text = ''
-      # Create common directories
-      mkdir -p ~/Development
-      mkdir -p ~/Repos
-      
-      # Set shell to fish if not already set
-      if [ "$SHELL" != "${pkgs.fish}/bin/fish" ]; then
-        echo "Setting default shell to fish..."
-        chsh -s ${pkgs.fish}/bin/fish || true
-      fi
-    '';
+    system.activationScripts.userDirs = {
+      text = ''
+        # Create common directories for the primary user
+        PRIMARY_USER="${cfg.primaryUser}"
+        if [ -n "$PRIMARY_USER" ]; then
+          USER_HOME="/Users/$PRIMARY_USER"
+          if [ -d "$USER_HOME" ]; then
+            # Create directories
+            sudo -u "$PRIMARY_USER" mkdir -p "$USER_HOME/Development"
+            sudo -u "$PRIMARY_USER" mkdir -p "$USER_HOME/Repos"
+            sudo -u "$PRIMARY_USER" mkdir -p "$USER_HOME/Screenshots"
+          fi
+        fi
+      '';
+    };
 
     # Documentation
     documentation = {
