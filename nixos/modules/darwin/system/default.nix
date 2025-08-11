@@ -188,6 +188,8 @@ in
         fira-code
         jetbrains-mono
         source-code-pro
+        julia-mono
+        ibm-plex
       ];
     };
   };

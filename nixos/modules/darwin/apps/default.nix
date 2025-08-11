@@ -81,6 +81,7 @@ in
         "1password"
         "bartender"
         "tailscale"
+        "transmission"
 
         # Media
         "vlc"
