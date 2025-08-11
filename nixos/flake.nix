@@ -266,6 +266,9 @@
                     ./modules/home/dev-shell
                     ./modules/home/dotfiles
                   ];
+                  
+                  # Required for home-manager
+                  home.stateVersion = "24.05";
                 };
               }
             ];
