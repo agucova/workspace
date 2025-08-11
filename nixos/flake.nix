@@ -22,6 +22,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # NixCasks for macOS GUI applications
+    nix-casks = {
+      url = "github:atahanyorganci/nix-casks/archive";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -250,6 +256,7 @@
 
               # Import Darwin modules
               ./modules/darwin/base
+              ./modules/darwin/gui-apps
 
               # Home Manager integration
               inputs.home-manager.darwinModules.home-manager

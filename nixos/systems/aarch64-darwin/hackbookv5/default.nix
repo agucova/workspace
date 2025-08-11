@@ -2,8 +2,49 @@
 { config, pkgs, lib, inputs, ... }:
 
 {
-  # Enable base Darwin module
+  # Enable Darwin modules
   myDarwinBase.enable = true;
+  myDarwinGuiApps.enable = true;
+  
+  # Customize GUI apps if needed
+  myDarwinGuiApps.apps = [
+    # Browsers
+    "firefox"
+    "google-chrome"
+    
+    # Development
+    "visual-studio-code"
+    "cursor"
+    "zed"
+    "ghostty"
+    "iterm2"
+    "orbstack"  # Docker Desktop alternative
+    "figma"
+    
+    # Productivity
+    "raycast"
+    "notion-calendar"
+    "superhuman"
+    "asana"
+    "granola"
+    
+    # Communication
+    "slack"
+    "discord"
+    "whatsapp"
+    "signal"
+    "telegram"
+    
+    # Utilities
+    "1password"
+    "bartender"  # Menu bar manager
+    
+    # Media
+    "vlc"
+    "spotify"
+    "iina"
+    "stremio"
+  ];
   # Set the hostname
   networking.hostName = "hackbookv5";
   networking.computerName = "hackbookv5";
