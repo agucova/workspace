@@ -15,59 +15,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Nix configuration
-    nix = {
-      # Enable nix
-      enable = true;
-      
-      # Storage optimization
-      optimise.automatic = true;
-      
-      # Garbage collection
-      gc = {
-        automatic = true;
-        interval = {
-          Hour = 3;
-          Minute = 0;
-          Weekday = 7; # Sunday
-        };
-        options = "--delete-older-than 30d";
-      };
-
-      # Nix settings
-      settings = {
-        # Substituters
-        substituters = [
-          "https://cache.nixos.org"
-          "https://nix-community.cachix.org"
-        ];
-        
-        trusted-public-keys = [
-          "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-          "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        ];
-
-        # Build settings
-        keep-outputs = true;
-        keep-derivations = true;
-        
-        # Sandboxing
-        sandbox = true;
-        
-        # Warn about dirty git trees
-        warn-dirty = false;
-      };
-
-      # Extra config
-      extraOptions = ''
-        # Free up to 10GiB when there's less than 5GiB free
-        min-free = ${toString (5 * 1024 * 1024 * 1024)}
-        max-free = ${toString (10 * 1024 * 1024 * 1024)}
-        
-        # Fallback if flakes aren't explicitly enabled
-        experimental-features = nix-command flakes
-      '';
-    };
+    # Nix management disabled - using Determinate Nix
+    nix.enable = false;
 
     # System packages that should always be available
     environment.systemPackages = with pkgs; [

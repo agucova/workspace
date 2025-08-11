@@ -53,19 +53,8 @@
   # System version
   system.stateVersion = 5;
 
-  # Enable experimental features
-  nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
-    trusted-users = [ "@admin" "agucova" ];
-    max-jobs = "auto";
-    cores = 0; # Use all available cores
-  };
-  
-  # Use the new optimise option instead of auto-optimise-store
-  nix.optimise.automatic = true;
-
-  # nix-daemon is now managed automatically when nix.enable is true
-  nix.enable = true;
+  # Nix is managed by Determinate Nix
+  nix.enable = false;
 
   # User configuration
   users.users.agucova = {
