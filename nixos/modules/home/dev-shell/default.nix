@@ -13,12 +13,7 @@
       # Languages
       rustup
       bun
-      (julia.withPackages [
-        "Plots"
-        "Revise"
-        "OhMyREPL"
-        "BenchmarkTools"
-      ])
+      julia-bin
       # Note, this is a fallback for `uv`.
       (python3.withPackages (
         ps: with ps; [

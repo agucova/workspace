@@ -16,6 +16,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Darwin support
+    nix-darwin = {
+      url = "github:nix-darwin/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -58,15 +64,15 @@
   ############################################################################
   outputs = inputs@{ flake-parts, nixpkgs, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" ];
+      systems = [ "x86_64-linux" "aarch64-darwin" ];
 
       imports = [];
 
       # Define perSystem outputs (packages, devShells, etc.)
-      perSystem = { config, self', inputs', pkgs, system, ... }: {
+      perSystem = { config, self', inputs', pkgs, system, lib, ... }: {
         # Packages available in this flake
-        packages = {
-          # Terminal emulator with GPU acceleration
+        packages = lib.optionalAttrs (system == "x86_64-linux") {
+          # Terminal emulator with GPU acceleration (Linux only)
           ghostty = inputs'.ghostty.packages.default;
         };
 
@@ -232,6 +238,39 @@
         };
 
         # Removed standalone homeConfigurations as nixos-rebuild is preferred
+
+        # Darwin configurations
+        darwinConfigurations = {
+          hackbookv5 = inputs.nix-darwin.lib.darwinSystem {
+            system = "aarch64-darwin";
+            specialArgs = { inherit inputs; };
+            modules = [
+              # System configuration
+              ./systems/aarch64-darwin/hackbookv5
+
+              # Import Darwin modules
+              ./modules/darwin/base
+
+              # Home Manager integration
+              inputs.home-manager.darwinModules.home-manager
+              {
+                home-manager.useUserPackages = true;
+                home-manager.useGlobalPkgs = true;
+                nixpkgs.config.allowUnfree = true;
+
+                # Home Manager configuration for Darwin
+                home-manager.users.agucova = { pkgs, lib, ... }: {
+                  imports = [
+                    # Import only essential modules for bootstrap
+                    ./modules/home/core-shell
+                    ./modules/home/dev-shell
+                    ./modules/home/dotfiles
+                  ];
+                };
+              }
+            ];
+          };
+        };
 
         # Create helper run-vm command
         apps.x86_64-linux.run-vm = {

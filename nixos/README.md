@@ -1,14 +1,18 @@
-# NixOS with GNOME Desktop
+# NixOS & Darwin Configuration
 
-A Nix Flake-based NixOS configuration with GNOME Desktop environment optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware.
+A unified Nix Flake-based configuration for both NixOS (Linux) and macOS (Darwin) systems using flake-parts for modular organization.
 
-This configuration uses flake-parts to organize the NixOS modules, systems and Home Manager configurations in a maintainable structure.
+- **NixOS**: GNOME Desktop environment optimized for AMD Ryzen 7800X3D + NVIDIA RTX 4090 hardware
+- **Darwin**: Minimal development environment for MacBook Pro (Apple Silicon)
+
+This configuration uses flake-parts to organize modules, systems and Home Manager configurations in a maintainable structure across both platforms.
 
 ## Directory Structure
 
 - `flake.nix` - Main entry point defining inputs and outputs using flake-parts
-- `modules/` - Modular NixOS and Home Manager configurations
-  - `nixos/` - NixOS-specific modules for system configuration
+- `modules/` - Modular system and Home Manager configurations
+  - `nixos/` - NixOS-specific modules for Linux systems
+  - `darwin/` - Darwin-specific modules for macOS systems
     - `base/` - Core system configuration
     - `desktop/` - GNOME desktop environment
     - `hardware/` - RTX 4090 specific configuration
@@ -32,6 +36,8 @@ This configuration uses flake-parts to organize the NixOS modules, systems and H
     - `hackstation/` - Main workstation configuration
     - `vm/` - VM testing configuration
     - `server/` - Server configuration
+  - `aarch64-darwin/` - macOS systems for Apple Silicon
+    - `hackbookv5/` - MacBook Pro configuration
 - `homes/` - Home Manager configurations
   - `x86_64-linux/` - Linux home configurations
     - `agucova/` - User-specific home configuration
@@ -47,6 +53,8 @@ The configuration uses flake-parts to organize outputs and simplify the structur
 5. **Simplified Flake**: Clear separation between per-system and top-level outputs
 
 ## Quick Setup Guide
+
+### NixOS (Linux)
 
 1. **Clone the repository**:
    ```bash
@@ -64,11 +72,47 @@ The configuration uses flake-parts to organize outputs and simplify the structur
 
    > The `--impure` flag is required to import hardware configurations from outside the flake.
 
+### macOS (Darwin)
+
+1. **Install Nix**:
+   ```bash
+   curl -L https://nixos.org/nix/install | sh
+   ```
+
+2. **Enable flakes**:
+   Add to `~/.config/nix/nix.conf`:
+   ```
+   experimental-features = nix-command flakes
+   ```
+
+3. **Clone the repository**:
+   ```bash
+   git clone git@github.com:agucova/workspace.git ~/Repos/workspace
+   cd ~/Repos/workspace/nixos
+   ```
+
+4. **Bootstrap nix-darwin**:
+   ```bash
+   # First time setup (installs nix-darwin)
+   nix run nix-darwin -- switch --flake .#hackbookv5
+   
+   # After initial setup, use:
+   darwin-rebuild switch --flake .#hackbookv5
+   ```
+
+   The Darwin configuration includes:
+   - Core shell tools (Fish, starship, ripgrep, fd, fzf, bat)
+   - Development environment (Git, Claude Code, Python with uv, Rust, Nix tooling)
+   - System optimizations (dark mode, keyboard settings, Touch ID for sudo)
+   - Home Manager integration for user configuration
+
 ## Module Design
 
-This configuration is built with modularity in mind, with each module focused on a specific aspect of the system:
+This configuration is built with modularity in mind, with each module focused on a specific aspect of the system.
 
-### Core System (`modules/nixos/base`)
+### NixOS Modules
+
+#### Core System (`modules/nixos/base`)
 - Optimized kernel and CPU settings for AMD Ryzen 7800X3D
 - Enhanced memory and swap configuration with zram and backup swapfile
 - PipeWire audio with low-latency settings
@@ -76,7 +120,7 @@ This configuration is built with modularity in mind, with each module focused on
 - Core CLI tools and shell setup
 - Optimized system-wide build settings to leverage 7800X3D performance
 
-### Desktop Environment (`modules/nixos/desktop`)
+#### Desktop Environment (`modules/nixos/desktop`)
 - Clean, minimal GNOME desktop environment
 - Performance tuning for GNOME on Wayland
 - Optimized compositor settings for gaming
@@ -85,7 +129,7 @@ This configuration is built with modularity in mind, with each module focused on
 - Ghostty terminal with GPU acceleration
 - Carefully tuned desktop experience with minimal customization
 
-### Hardware Configuration (`modules/nixos/hardware`)
+#### Hardware Configuration (`modules/nixos/hardware`)
 - NVIDIA RTX 4090 drivers with Wayland support
 - Open-source NVIDIA drivers with proper Wayland configuration
 - Hardware acceleration for video decoding/encoding
@@ -93,7 +137,7 @@ This configuration is built with modularity in mind, with each module focused on
 - TPM and secure boot integration
 - Multi-monitor support optimized for ultrawide displays
 
-### VM Configuration (`modules/nixos/vm`)
+#### VM Configuration (`modules/nixos/vm`)
 - VM-specific configuration for testing
 - QEMU optimization with 12 CPU cores and 8GB RAM
 - CPU host passthrough for better VM performance
@@ -101,13 +145,35 @@ This configuration is built with modularity in mind, with each module focused on
 - Simplified boot configuration for VM environments
 - Debugging tools for diagnosing configuration issues
 
-### macOS-like Keyboard Remapping (`modules/nixos/macos-remap`)
+#### macOS-like Keyboard Remapping (`modules/nixos/macos-remap`)
 - Swaps Ctrl and Command keys for familiar macOS feel
 - Implements macOS keyboard shortcuts (⌘C, ⌘V, etc.)
 - Terminal and application-specific remappings
 - Works with both Wayland and X11
 - Based on xremap with GNOME integration
 - Designed to make transition between macOS and Linux seamless
+
+### Darwin Modules
+
+#### Base Configuration (`modules/darwin/base`)
+- Nix configuration with garbage collection
+- Core system packages and shell configuration
+- Font installation for development
+- System-wide shell aliases
+- Homebrew integration (optional)
+
+### Cross-Platform Home Modules
+
+#### Core Shell (`modules/home/core-shell`)
+- Fish shell with starship prompt
+- Modern CLI tools (bat, ripgrep, fd, fzf, lsd)
+- Git configuration
+- Shell aliases and environment setup
+
+#### Development Shell (`modules/home/dev-shell`)
+- Nix tooling (nil, nixd, statix, claude-code)
+- Programming languages (Python with uv, Rust, Julia)
+- Development utilities
 
 ## VM Testing Workflow
 
@@ -292,6 +358,8 @@ home-manager switch --flake .#agucova@hackstation
 
 ## Updating Your System
 
+### NixOS
+
 ```bash
 # Update flake inputs
 nix flake update
@@ -301,6 +369,19 @@ sudo nixos-rebuild switch --flake .#hackstation --impure
 
 # Or only update a specific input
 nix flake lock --update-input nixpkgs
+```
+
+### macOS
+
+```bash
+# Update flake inputs
+nix flake update
+
+# Apply the updated configuration
+darwin-rebuild switch --flake .#hackbookv5
+
+# Or use the alias from the base module
+nrs  # Short for: darwin-rebuild switch --flake ~/Repos/workspace/nixos#hackbookv5
 ```
 
 ## Development Environment
@@ -324,6 +405,6 @@ This configuration uses flake-parts to organize the flake structure:
 
 1. **perSystem attributes**: All per-system outputs (packages, devShells) are defined in the perSystem section
 2. **flake attributes**: System-wide outputs (nixosConfigurations, homeConfigurations) are defined in the flake section
-3. **systems**: Defines the list of supported systems (currently only x86_64-linux)
+3. **systems**: Defines the list of supported systems (x86_64-linux and aarch64-darwin)
 
 Learn more about flake-parts at [flake.parts](https://flake.parts/)
