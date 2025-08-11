@@ -22,6 +22,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Homebrew management through Nix
+    nix-homebrew.url = "github:zhaofengli/nix-homebrew";
+
+    # Declarative tap management
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -98,13 +110,13 @@
               ./systems/x86_64-linux/hackstation
 
               # Import Linux modules
-              ./modules/linux/system
-              ./modules/linux/desktop
-              ./modules/linux/disk
-              ./modules/linux/gui-apps
+              ./modules/linux/system/base
+              ./modules/linux/system/ssh
+              ./modules/linux/system/disk
+              ./modules/linux/desktop/gnome
+              ./modules/linux/desktop/apps
+              ./modules/linux/desktop/keybindings
               ./modules/linux/hardware
-              ./modules/linux/macos-remap
-              ./modules/linux/ssh
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager
@@ -144,14 +156,14 @@
               ./systems/x86_64-linux/vm
 
               # Import Linux modules
-              ./modules/linux/system
-              ./modules/linux/desktop
-              ./modules/linux/disk
-              ./modules/linux/gui-apps
-              ./modules/linux/hardening
+              ./modules/linux/system/base
+              ./modules/linux/system/ssh
+              ./modules/linux/system/disk
+              ./modules/linux/system/hardening
+              ./modules/linux/desktop/gnome
+              ./modules/linux/desktop/apps
+              ./modules/linux/desktop/keybindings
               ./modules/linux/hardware
-              ./modules/linux/macos-remap
-              ./modules/linux/ssh
               ./modules/linux/vm
 
               # Required modules
@@ -192,12 +204,12 @@
               ./systems/x86_64-linux/server
 
               # Import Linux modules
-              ./modules/linux/system
-              ./modules/linux/disk
-              ./modules/linux/hardening
+              ./modules/linux/system/base
+              ./modules/linux/system/ssh
+              ./modules/linux/system/disk
+              ./modules/linux/system/hardening
+              ./modules/linux/desktop/keybindings
               ./modules/linux/hardware
-              ./modules/linux/ssh
-              ./modules/linux/macos-remap
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager
@@ -249,6 +261,9 @@
               # Import Darwin modules
               ./modules/darwin/system
               ./modules/darwin/apps
+
+              # nix-homebrew integration
+              inputs.nix-homebrew.darwinModules.nix-homebrew
 
               # Home Manager integration
               inputs.home-manager.darwinModules.home-manager
