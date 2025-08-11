@@ -36,12 +36,9 @@
       p7zip
       starship
       _1password-cli
-
-      # Dotfile management
+      micro
       uv
       git
-
-      # Nix
       nh
     ];
 
