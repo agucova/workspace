@@ -1,16 +1,12 @@
 # Darwin system configuration for hackbookv5
 {
-  config,
-  pkgs,
-  lib,
-  inputs,
   ...
 }:
 
 {
   # Darwin modules are now automatically applied when imported
   # No need for explicit enables
-  
+
   # Set the hostname
   networking.hostName = "hackbookv5";
   networking.computerName = "hackbookv5";

@@ -22,6 +22,14 @@ in
     # Nix management disabled - using Determinate Nix
     nix.enable = false;
 
+    environment.etc."nix/nix.custom.conf".text = pkgs.lib.mkForce ''
+      trusted-users = agucova
+      extra-substituters = https://devenv.cachix.org
+      extra-trusted-public-keys = devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw=
+      extra-experimental-features = external-builders
+      external-builders = [{"systems":["aarch64-linux","x86_64-linux"],"program":"/usr/local/bin/determinate-nixd","args":["builder"]}]
+    '';
+
     # Set primary user for system defaults
     system.primaryUser = cfg.primaryUser;
     users.users.${cfg.primaryUser} = {

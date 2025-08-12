@@ -1,15 +1,9 @@
 # Darwin Homebrew module for GUI applications
 {
   config,
-  lib,
-  pkgs,
   inputs,
   ...
 }:
-
-let
-  cfg = config.myDarwinHomebrew;
-in
 {
   config = {
     # Configure nix-homebrew for declarative Homebrew management
@@ -45,6 +39,7 @@ in
       taps = builtins.attrNames config.nix-homebrew.taps;
 
       # GUI Applications via Homebrew Casks
+      # Note: Tailscale requires a manual install
       casks = [
         # Browsers
         "firefox"
@@ -65,6 +60,7 @@ in
         "superhuman"
         "asana"
         "granola"
+        "claude"
 
         # Communication
         "slack"
@@ -76,7 +72,6 @@ in
         # Utilities
         "1password"
         "bartender"
-        "tailscale"
         "transmission"
         "cryptomator"
         "google-drive"

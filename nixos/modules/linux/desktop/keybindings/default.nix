@@ -4,13 +4,12 @@
   lib,
   pkgs,
   config,
-  inputs,
   ...
 }:
 
 let
   cfg = config.myMacosRemap;
-  baseCfg = import ./xremap-config.nix;
+  # baseCfg = import ./xremap-config.nix;
 in
 {
   # Declare our feature options

@@ -1,5 +1,5 @@
 # VM testing configuration for NixOS
-{ lib, pkgs, config, inputs, ... }:
+{ lib, pkgs, ... }:
 
 {
   # Modules are now directly imported in flake.nix:
@@ -13,7 +13,6 @@
     cpu.intel.enable = true;
     # No specific GPU is enabled as we're using QEMU's virtio
   };
-
 
   # Home Manager user configuration
   home-manager.users.agucova = {
@@ -32,14 +31,17 @@
         description = "Agustín Covarrubias";
         isNormalUser = true; # Regular user account
         group = "agucova"; # Primary group with same name
-        extraGroups = [ "wheel" "networkmanager" ]; # Add common groups
+        extraGroups = [
+          "wheel"
+          "networkmanager"
+        ]; # Add common groups
         shell = pkgs.fish;
         initialPassword = "nixos";
       };
     };
 
     # Create the user's group
-    groups.agucova = {};
+    groups.agucova = { };
   };
 
   # Enable automatic login for testing
@@ -92,7 +94,9 @@
     qemu.options = [
       "-vga virtio"
       "-display gtk,grab-on-hover=on"
-      "-cpu host"
+      # Use -cpu max for better cross-architecture compatibility
+      # The run-vm-cross script will override this with TCG-specific options
+      "-cpu max"
       "-device virtio-keyboard-pci"
       "-usb"
       "-device usb-tablet"
