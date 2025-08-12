@@ -11,11 +11,7 @@ let
   cfg = config.myDarwinHomebrew;
 in
 {
-  options.myDarwinHomebrew = {
-    enable = lib.mkEnableOption "Homebrew integration for GUI apps";
-  };
-
-  config = lib.mkIf cfg.enable {
+  config = {
     # Configure nix-homebrew for declarative Homebrew management
     nix-homebrew = {
       # Install Homebrew under the default prefix

@@ -122,7 +122,6 @@
               inputs.home-manager.nixosModules.home-manager
               inputs.disko.nixosModules.disko
               inputs.nix-index-database.nixosModules.nix-index
-              { programs.nix-index-database.comma.enable = true; }
               inputs.xremap-flake.nixosModules.default
               inputs.chaotic.nixosModules.default
 
@@ -162,7 +161,6 @@
               ./modules/linux/system/hardening
               ./modules/linux/desktop/gnome
               ./modules/linux/desktop/apps
-              ./modules/linux/desktop/keybindings
               ./modules/linux/hardware
               ./modules/linux/vm
 
@@ -170,7 +168,6 @@
               inputs.home-manager.nixosModules.home-manager
               inputs.disko.nixosModules.disko
               inputs.nix-index-database.nixosModules.nix-index
-              inputs.xremap-flake.nixosModules.default
               inputs.chaotic.nixosModules.default
 
               # Home Manager settings
@@ -259,8 +256,8 @@
               ./modules/darwin/system
               ./modules/darwin/apps
 
-              # nix-homebrew integration
               inputs.nix-homebrew.darwinModules.nix-homebrew
+              inputs.nix-index-database.darwinModules.nix-index
 
               # Home Manager integration
               inputs.home-manager.darwinModules.home-manager

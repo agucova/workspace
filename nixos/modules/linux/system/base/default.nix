@@ -212,6 +212,10 @@ with lib;
     # Enable local binaries in PATH (used for e.g. uv)
     environment.localBinInPath = true;
 
+    # Nix-index (for command-not-found) and comma helper
+    programs.nix-index.enable = true;
+    programs.nix-index-database.comma.enable = true;
+
     # Use the nh CLI tool
     programs.nh = {
       enable = true;

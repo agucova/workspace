@@ -11,7 +11,6 @@ let
 in
 {
   options.myDarwinBase = {
-    enable = lib.mkEnableOption "base Darwin configuration";
     primaryUser = lib.mkOption {
       type = lib.types.str;
       default = "agucova";
@@ -19,7 +18,7 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = {
     # Nix management disabled - using Determinate Nix
     nix.enable = false;
 
@@ -117,7 +116,7 @@ in
       DSDontWriteUSBStores = true;
     };
 
-    # System packages that should always be available
+    # Core system utilities
     environment.systemPackages = with pkgs; [
       coreutils
       findutils
@@ -128,7 +127,12 @@ in
       curl
       wget
       git
+      comma
     ];
+
+    # Nix-index (for command-not-found) and comma helper
+    programs.nix-index.enable = true;
+    programs.nix-index-database.comma.enable = true;
 
     # Environment variables
     environment.variables = {

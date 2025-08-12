@@ -6,13 +6,8 @@ with lib;
 let
   cfg = config.myVm;
 in {
-  # Define options to enable/disable this module
-  options.myVm = {
-    enable = mkEnableOption "virtualized environment configuration";
-  };
-
-  # Apply configuration only when enabled
-  config = mkIf cfg.enable {
+  # Apply VM-specific configuration unconditionally when module is imported
+  config = {
     # Enable graphics in VM
     hardware.graphics = {
       enable = true;

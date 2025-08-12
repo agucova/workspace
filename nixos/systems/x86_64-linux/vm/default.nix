@@ -7,16 +7,13 @@
   # - Desktop module enables GNOME desktop environment
   # - VM module provides virtualization optimizations
   # - GUI applications are directly imported
-  
+
   # Enable hardware configuration for VM with basic Intel CPU settings
   myHardware = {
     cpu.intel.enable = true;
     # No specific GPU is enabled as we're using QEMU's virtio
   };
 
-  # Enable macOS-like keyboard remapping with xremap
-  myMacosRemap.enable = true;
-  
 
   # Home Manager user configuration
   home-manager.users.agucova = {
@@ -40,7 +37,7 @@
         initialPassword = "nixos";
       };
     };
-    
+
     # Create the user's group
     groups.agucova = {};
   };

@@ -8,10 +8,9 @@
 }:
 
 {
-  # Enable Darwin modules
-  myDarwinBase.enable = true;
-  myDarwinHomebrew.enable = true;
-
+  # Darwin modules are now automatically applied when imported
+  # No need for explicit enables
+  
   # Set the hostname
   networking.hostName = "hackbookv5";
   networking.computerName = "hackbookv5";
