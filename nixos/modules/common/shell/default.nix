@@ -56,6 +56,7 @@
       delta
       difftastic
       nh
+      prettyping
     ];
 
     programs = {
