@@ -64,7 +64,7 @@ in
       insync
       obsidian # Already native
       zotero # Already native
-      calibre
+      calibre # E-book manager - depends on insecure qtwebengine (permitted in base config)
 
       # GNOME-specific utilities
       gnome-disk-utility
@@ -72,7 +72,7 @@ in
 
       # Entertainment
       lutris
-      stremio
+      stremio # Depends on insecure qtwebengine - permitted in base config
       cavalier
       openrgb-with-all-plugins
 

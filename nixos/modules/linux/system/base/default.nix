@@ -113,6 +113,14 @@ with lib;
 
     # Allow unfree packages
     nixpkgs.config.allowUnfree = true;
+    
+    # Allow specific insecure packages
+    nixpkgs.config.permittedInsecurePackages = [
+      # qtwebengine is required by stremio and calibre
+      # It's unmaintained since April 2025 with multiple CVEs
+      # Accept the risk for media streaming functionality
+      "qtwebengine-5.15.19"
+    ];
 
     # Auto-upgrade
     system.autoUpgrade = {
