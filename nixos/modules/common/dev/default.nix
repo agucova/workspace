@@ -16,10 +16,12 @@
       nixd
       statix
       claude-code
+      google-cloud-sdk
 
       # Languages
       rustup
       bun
+      nodejs_24
       (julia-bin.overrideAttrs (oldAttrs: {
         doCheck = false;
         doInstallCheck = false;

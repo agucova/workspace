@@ -74,6 +74,7 @@ in
       lutris
       stremio
       cavalier
+      openrgb-with-all-plugins
 
       # Cryptography
       cryptomator
@@ -82,5 +83,8 @@ in
     # Enable Firefox
     programs.firefox.enable = true;
     programs.steam.enable = true;
+
+    # Enable OpenRGB
+    services.hardware.openrgb.enable = true;
   };
 }

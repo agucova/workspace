@@ -70,6 +70,12 @@
     environment.variables = {
       # Prevent screen tearing in X11 sessions with NVIDIA
       __GL_SYNC_TO_VBLANK = "1";
+      
+      # Workaround for GNOME apps freezing with NVIDIA + Wayland on NixOS unstable
+      # Fixes nautilus/gnome-control-center freezes and "g_closure_unref" errors
+      # Related: https://github.com/NixOS/nixpkgs/issues/353990
+      # Can be removed once GTK4 Vulkan renderer works properly with NVIDIA drivers
+      GSK_RENDERER = "ngl";
     };
 
     # Make sure GDM has correct permissions
