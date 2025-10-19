@@ -61,6 +61,7 @@
         "asana"
         "granola"
         "claude"
+        "anki"
 
         # Communication
         "slack"
@@ -68,6 +69,8 @@
         "whatsapp"
         "signal"
         "telegram"
+        "zoom"
+        "microsoft-teams"
 
         # Utilities
         "1password"
@@ -75,6 +78,7 @@
         "transmission"
         "cryptomator"
         "google-drive"
+        "cleanshot"
 
         # Media
         "vlc"

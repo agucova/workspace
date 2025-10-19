@@ -45,7 +45,7 @@ in
       google-chrome
 
       # Office and Productivity
-      libreoffice-qt
+      libreoffice-qt6
       vscode
       ghostty # From flake overlay
       zed-with-fixed-ssh
@@ -64,7 +64,8 @@ in
       insync
       obsidian # Already native
       zotero # Already native
-      calibre # E-book manager - depends on insecure qtwebengine (permitted in base config)
+      calibre
+      anki-bin
 
       # GNOME-specific utilities
       gnome-disk-utility
