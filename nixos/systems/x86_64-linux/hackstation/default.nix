@@ -48,6 +48,7 @@ in
   myHardware = {
     cpu.amd.enable = true;
     gpu.nvidia.enable = true;
+    printing.enable = true;
   };
 
   # Load nvidia driver for Xorg
@@ -119,6 +120,20 @@ in
     };
     wantedBy = [ "multi-user.target" ];
   };
+
+  # Add netdata
+  services.netdata = {
+    enable = true;
+    config = {
+      global = {
+        "memory mode" = "ram";
+        "debug log" = "none";
+        "access log" = "none";
+        "error log" = "syslog";
+      };
+    };
+  };
+
 
   # This value determines the NixOS release to base packages on
   # Don't change this unless you know what you're doing

@@ -12,7 +12,9 @@ with lib;
   config = {
     # Boot configuration (generic)
     boot = {
-      kernelPackages = mkDefault pkgs.linuxPackages_latest;
+      # Using vanilla 6.16 kernel instead of CachyOS due to I/O stall issues
+      # kernelPackages = mkDefault pkgs.linuxPackages_latest;
+      kernelPackages = mkDefault pkgs.linuxPackages_6_16;
 
       # Taken from CachyOS settings
       # See https://github.com/CachyOS/CachyOS-Settings/blob/master/usr/lib/sysctl.d/99-cachyos-settings.conf
