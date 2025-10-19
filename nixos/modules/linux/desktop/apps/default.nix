@@ -45,7 +45,7 @@ in
       google-chrome
 
       # Office and Productivity
-      libreoffice-qt
+      libreoffice-qt6
       vscode
       ghostty # From flake overlay
       zed-with-fixed-ssh
@@ -65,6 +65,7 @@ in
       obsidian # Already native
       zotero # Already native
       calibre
+      anki-bin
 
       # GNOME-specific utilities
       gnome-disk-utility

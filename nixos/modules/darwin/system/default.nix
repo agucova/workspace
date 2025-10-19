@@ -136,6 +136,7 @@ in
       wget
       git
       comma
+      podman
     ];
 
     # Nix-index (for command-not-found) and comma helper

@@ -42,6 +42,8 @@
       ))
       ruff
       pyright
+
+      postgresql
     ];
   };
 }
