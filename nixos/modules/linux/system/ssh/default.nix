@@ -36,15 +36,16 @@ in
       ];
 
       # Set up common SSH client configurations
-      programs.ssh = {
-        # Reasonable defaults for connection management
-        extraConfig = ''
-          ServerAliveInterval 60
-          ServerAliveCountMax 3
-          AddKeysToAgent yes
-          HashKnownHosts yes
-        '';
-      };
+      # Commented out to avoid deprecation warning about default values
+      # TODO: Re-enable with proper matchBlocks configuration when needed
+      # programs.ssh = {
+      #   extraConfig = ''
+      #     ServerAliveInterval 60
+      #     ServerAliveCountMax 3
+      #     AddKeysToAgent yes
+      #     HashKnownHosts yes
+      #   '';
+      # };
     })
 
     # SSH Server Configuration

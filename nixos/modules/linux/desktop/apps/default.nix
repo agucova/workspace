@@ -73,8 +73,9 @@ in
 
       # Entertainment
       lutris
-      stremio
+      stremio # Depends on insecure qtwebengine - permitted in base config
       cavalier
+      openrgb-with-all-plugins
 
       # Cryptography
       cryptomator
@@ -83,5 +84,8 @@ in
     # Enable Firefox
     programs.firefox.enable = true;
     programs.steam.enable = true;
+
+    # Enable OpenRGB
+    services.hardware.openrgb.enable = true;
   };
 }

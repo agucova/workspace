@@ -94,7 +94,7 @@
             # Shell is running interactively
 
             # Display system info with fastfetch (minimal setup)
-            fastfetch --gpu-hide-type integrated --gpu-detection-method auto -s Title:OS:Host:CPU:GPU:Memory:Disk:Kernel:DE:Shell:Terminal
+            fastfetch -s Title:OS:Host:CPU:GPU:Memory:Disk:Kernel:DE:Shell:Terminal
           end
 
           # Starship prompt
