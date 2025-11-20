@@ -57,6 +57,14 @@
       difftastic
       nh
       prettyping
+
+      # Media and content tools
+      yt-dlp
+      zbar
+      tldr
+
+      # Network tools
+      nmap
     ];
 
     programs = {
@@ -140,11 +148,11 @@
       # Git configuration
       git = {
         enable = true;
-        userName = "Agustin Covarrubias";
-        userEmail = "gh@agucova.dev";
         signing.signByDefault = true;
         signing.key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhdO9i6GAtDT+iyfkqUFoOzPaKmuP1aCQ1zXtaKYqA5";
-        extraConfig = {
+        settings = {
+          user.name = "Agustin Covarrubias";
+          user.email = "gh@agucova.dev";
           init.defaultBranch = "main";
           color.ui = "auto";
           rebase.stat = true;

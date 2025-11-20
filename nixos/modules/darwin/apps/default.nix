@@ -53,6 +53,7 @@
         "iterm2"
         "orbstack"
         "figma"
+        "proxyman"
 
         # Productivity
         "raycast"
@@ -85,6 +86,14 @@
         "spotify"
         "iina"
         "stremio"
+        "handbrake-app"
+
+        # Basty
+        "arduino-ide"
+
+        # Other
+        "altserver"
+        "antigravity"
       ];
     };
   };

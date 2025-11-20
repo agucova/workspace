@@ -32,16 +32,18 @@ in
     # SSH configuration for 1Password identity agent
     programs.ssh = lib.mkIf config.my1Password.enableSSH {
       enable = true; # Enable SSH config management
-      extraConfig = ''
-        # 1Password SSH agent configuration
-        IdentityAgent "${agentSocketPath}"
-      '';
+      enableDefaultConfig = false; # Opt out of deprecated default config
+      matchBlocks."*" = {
+        extraOptions = {
+          IdentityAgent = agentSocketPath;
+        };
+      };
     };
 
     # Git configuration for 1Password signing
     programs.git = lib.mkIf config.my1Password.enableGit {
       enable = true; # Enable Git config management
-      extraConfig = {
+      settings = {
         gpg = {
           format = "ssh";
           ssh.program =

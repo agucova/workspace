@@ -44,8 +44,23 @@
       ))
       ruff
       pyright
+      poppler-utils
+
+      # Document conversion and processing
+      pandoc
+      imagemagick
+
+      # AI/LLM tools
+      code2prompt
+
+      # Additional dev tools
+      lean4
+      mkcert
 
       postgresql
+
+      devenv
+      direnv
     ];
   };
 }
