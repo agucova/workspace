@@ -54,6 +54,7 @@
       code2prompt
 
       # Additional dev tools
+      jq
       lean4
       mkcert
 

@@ -118,7 +118,7 @@ in
 
       # NVIDIA-related packages
       environment.systemPackages = with pkgs; [
-        glxinfo
+        mesa-demos
         vulkan-tools
         nvtopPackages.full
         libva
@@ -150,7 +150,7 @@ in
 
       # AMD GPU monitoring tools
       environment.systemPackages = with pkgs; [
-        glxinfo
+        mesa-demos
         vulkan-tools
         radeontop
       ];
@@ -170,7 +170,7 @@ in
 
       # Intel GPU tools
       environment.systemPackages = with pkgs; [
-        glxinfo
+        mesa-demos
         vulkan-tools
         intel-gpu-tools
       ];

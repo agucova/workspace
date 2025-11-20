@@ -35,7 +35,7 @@ in
       enableDefaultConfig = false; # Opt out of deprecated default config
       matchBlocks."*" = {
         extraOptions = {
-          IdentityAgent = agentSocketPath;
+          IdentityAgent = "\"${agentSocketPath}\"";
         };
       };
     };
