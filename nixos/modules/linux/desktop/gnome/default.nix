@@ -138,12 +138,14 @@
       "preempt=full"
     ];
 
-    # CachyOS settings
-    boot.kernelPackages = pkgs.linuxPackages_cachyos;
+    # Performance optimization without CachyOS
+    # Removed CachyOS kernel due to severe I/O stall issues
+    # boot.kernelPackages = pkgs.linuxPackages_cachyos;
     services.ananicy = {
       enable = true;
       package = pkgs.ananicy-cpp;
-      rulesProvider = pkgs.ananicy-rules-cachyos;
+      # Using default rules instead of CachyOS-specific ones
+      # rulesProvider = pkgs.ananicy-rules-cachyos;
     };
 
     # Set a faster bootloader timeout for desktop use

@@ -18,6 +18,9 @@
       claude-code
       google-cloud-sdk
 
+      # Slack CLI for building Slack apps
+      (callPackage ../../../packages/slack-cli { })
+
       # Languages
       rustup
       bun

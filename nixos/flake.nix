@@ -98,6 +98,11 @@
           packages = lib.optionalAttrs (system == "x86_64-linux") {
             # Terminal emulator with GPU acceleration (Linux only)
             ghostty = inputs'.ghostty.packages.default;
+            # Slack CLI for building Slack apps
+            slack-cli = pkgs.callPackage ./packages/slack-cli { };
+          } // lib.optionalAttrs (system == "aarch64-darwin") {
+            # Slack CLI for building Slack apps (macOS)
+            slack-cli = pkgs.callPackage ./packages/slack-cli { };
           };
 
           # Development shell
@@ -129,6 +134,7 @@
               ./modules/linux/desktop/apps
               ./modules/linux/desktop/keybindings
               ./modules/linux/hardware
+              ./modules/linux/hardware/printing
 
               # Required modules
               inputs.home-manager.nixosModules.home-manager
