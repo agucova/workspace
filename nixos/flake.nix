@@ -34,6 +34,10 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+    homebrew-productdevbook = {
+      url = "github:productdevbook/homebrew-tap";
+      flake = false;
+    };
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -116,6 +120,15 @@
 
       # System-wide flake outputs
       flake = {
+        # Fix flaky nix-functional-tests on macOS (aarch64-darwin)
+        # See: https://github.com/NixOS/nix/issues/13106
+        # Root cause: /bin/sh and /usr/bin/env shebangs fail in sandboxed tests
+        overlays.nix-macos-test-fix = final: prev: {
+          nix = prev.nix.appendPatches [
+            # Replace /bin/sh and /usr/bin/env shebangs with Nix store paths
+            ./patches/fix-shell-nix-shebangs.patch
+          ];
+        };
         # NixOS configurations
         nixosConfigurations = {
           # Hackstation configuration
@@ -294,6 +307,9 @@
                 home-manager.useUserPackages = true;
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
+
+                # Fix flaky nix-functional-tests on macOS
+                nixpkgs.overlays = [ inputs.self.overlays.nix-macos-test-fix ];
 
                 # Home Manager configuration for Darwin
                 home-manager.users.agucova =

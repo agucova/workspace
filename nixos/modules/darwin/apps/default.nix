@@ -21,6 +21,7 @@
       taps = {
         "homebrew/homebrew-core" = inputs.homebrew-core;
         "homebrew/homebrew-cask" = inputs.homebrew-cask;
+        "productdevbook/homebrew-tap" = inputs.homebrew-productdevbook;
       };
 
       # Disable imperative tap management - taps can no longer be added with `brew tap`
@@ -54,6 +55,8 @@
         "orbstack"
         "figma"
         "proxyman"
+        "dbeaver-community"
+        "productdevbook/tap/portkiller"
 
         # Productivity
         "raycast"
@@ -72,6 +75,7 @@
         "telegram"
         "zoom"
         "microsoft-teams"
+        "gather"
 
         # Utilities
         "1password"

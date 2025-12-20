@@ -58,6 +58,7 @@
 
       # Additional dev tools
       jq
+      jujutsu
       lean4
       mkcert
 

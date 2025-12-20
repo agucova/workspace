@@ -60,6 +60,14 @@ in
       blockAllIncoming = false; # Set true for max security
     };
 
+    # Increase max file limits
+    launchd.daemons.limit-maxfiles = {
+      serviceConfig = {
+        ProgramArguments = [ "/bin/launchctl" "limit" "maxfiles" "524288" "524288" ];
+        RunAtLoad = true;
+      };
+    };
+
     # Quarantine for downloads
     system.defaults.LaunchServices.LSQuarantine = true;
 
@@ -137,6 +145,7 @@ in
       git
       comma
       podman
+      gemini-cli
     ];
 
     # Nix-index (for command-not-found) and comma helper

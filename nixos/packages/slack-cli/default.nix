@@ -19,7 +19,7 @@ let
     };
     aarch64-darwin = {
       url = "https://downloads.slack-edge.com/slack-cli/slack_cli_${version}_macOS_arm64.tar.gz";
-      sha256 = "sha256-/LxkWLShluSp9saUfB45mKq725IDjayozjTbAsmM6Bg=";
+      sha256 = "sha256-VWAELXt90E1JiOrLOreyEgu5U+y1DzUVsBZKoqoCf2Q=";
     };
   };
 
