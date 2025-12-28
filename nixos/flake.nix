@@ -73,6 +73,13 @@
     chaotic = {
       url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
     };
+
+    # Unified Git/JJ Starship prompt module
+    jj-starship = {
+      url = "github:agucova/jj-starship";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   ############################################################################
@@ -104,9 +111,13 @@
             ghostty = inputs'.ghostty.packages.default;
             # Slack CLI for building Slack apps
             slack-cli = pkgs.callPackage ./packages/slack-cli { };
+            # Unified Git/JJ Starship prompt module (from fork, pending upstream)
+            jj-starship = inputs'.jj-starship.packages.default;
           } // lib.optionalAttrs (system == "aarch64-darwin") {
             # Slack CLI for building Slack apps (macOS)
             slack-cli = pkgs.callPackage ./packages/slack-cli { };
+            # Unified Git/JJ Starship prompt module (from fork, pending upstream)
+            jj-starship = inputs'.jj-starship.packages.default;
           };
 
           # Development shell
@@ -129,6 +140,11 @@
             ./patches/fix-shell-nix-shebangs.patch
           ];
         };
+
+        # jj-starship: Unified Git/JJ Starship prompt module
+        # See: https://github.com/dmmulroy/jj-starship
+        # Uses the flake from github:agucova/jj-starship (pending upstream merge)
+        overlays.jj-starship = inputs.jj-starship.overlays.default;
         # NixOS configurations
         nixosConfigurations = {
           # Hackstation configuration
@@ -161,6 +177,7 @@
                 home-manager.useUserPackages = true;
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
+                nixpkgs.overlays = [ inputs.self.overlays.jj-starship ];
 
                 # Home Manager configuration for hackstation
                 home-manager.users.agucova =
@@ -208,6 +225,7 @@
                 home-manager.useUserPackages = true;
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
+                nixpkgs.overlays = [ inputs.self.overlays.jj-starship ];
 
                 # Home Manager configuration for VM
                 home-manager.users.agucova =
@@ -267,6 +285,7 @@
                 home-manager.useUserPackages = true;
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
+                nixpkgs.overlays = [ inputs.self.overlays.jj-starship ];
 
                 # Home Manager configuration for server
                 home-manager.users.agucova =
@@ -308,8 +327,11 @@
                 home-manager.useGlobalPkgs = true;
                 nixpkgs.config.allowUnfree = true;
 
-                # Fix flaky nix-functional-tests on macOS
-                nixpkgs.overlays = [ inputs.self.overlays.nix-macos-test-fix ];
+                # Fix flaky nix-functional-tests on macOS + jj-starship
+                nixpkgs.overlays = [
+                  inputs.self.overlays.nix-macos-test-fix
+                  inputs.self.overlays.jj-starship
+                ];
 
                 # Home Manager configuration for Darwin
                 home-manager.users.agucova =

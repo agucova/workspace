@@ -65,7 +65,6 @@
       postgresql
 
       devenv
-      direnv
     ];
   };
 }

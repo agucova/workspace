@@ -49,6 +49,7 @@
       unrar
       p7zip
       starship
+      jj-starship
       _1password-cli
       micro
       uv
@@ -143,6 +144,124 @@
       # Starship prompt
       starship = {
         enable = true;
+        settings = {
+          # General prompt setup
+          # Note: $custom includes jj-starship which handles both git and jj repos
+          format = "$username$hostname$directory$custom$direnv$nix_shell$cmd_duration$line_break$python$character";
+
+          # Command execution time
+          cmd_duration = {
+            min_time = 1000;
+            format = "took [$duration]($style)";
+            style = "yellow";
+          };
+
+          # Prompt character
+          character = {
+            success_symbol = "[➜](bold green)";
+            error_symbol = "[✗](bold red)";
+            vimcmd_symbol = "[V](bold green)";
+          };
+
+          # Directory
+          directory = {
+            truncation_length = 3;
+            truncate_to_repo = true;
+            style = "blue bold";
+          };
+
+          # Git modules disabled - jj-starship handles both git and jj repos
+          git_branch.disabled = true;
+          git_status.disabled = true;
+          git_state.disabled = true;
+
+          # Development environments
+          python = {
+            symbol = "🐍 ";
+            python_binary = "python3";
+            style = "green bold";
+          };
+
+          bun = {
+            format = "via [$symbol]($style)";
+            symbol = "🥟 ";
+            style = "bold red";
+          };
+
+          golang = {
+            format = "via [$symbol]($style)";
+            symbol = "🦫 ";
+            style = "bold blue";
+          };
+
+          julia = {
+            format = "via [$symbol]($style)";
+            symbol = "ஃ ";
+            style = "bold purple";
+          };
+
+          # Battery
+          battery = {
+            full_symbol = "🔋";
+            charging_symbol = "⚡";
+            discharging_symbol = "💀";
+            display = [{ threshold = 25; style = "bold red"; }];
+          };
+
+          # Disabled modules
+          aws.disabled = true;
+          docker_context.disabled = true;
+          package.disabled = true;
+
+          # Direnv status indicator
+          direnv = {
+            disabled = false;
+            format = "[$symbol$loaded]($style) ";
+            symbol = "";
+            style = "bold yellow";
+            loaded_msg = "✓";
+            unloaded_msg = "";
+            allowed_msg = "";
+            not_allowed_msg = "!";
+            denied_msg = "✗";
+          };
+
+          # Nix shell indicator
+          nix_shell = {
+            disabled = false;
+            format = "via [$symbol$state]($style) ";
+            symbol = "❄️ ";
+            style = "bold blue";
+            impure_msg = "";
+            pure_msg = "pure";
+            unknown_msg = "";
+            heuristic = true;
+          };
+
+          # Custom jujutsu (jj) module using jj-starship
+          # Uses sh to avoid loading fish rc files (~5x faster)
+          # See: https://github.com/dmmulroy/jj-starship
+          custom.jj = {
+            command = "jj-starship";
+            format = "$output ";
+            detect_folders = [ ".jj" ".git" ];
+            shell = [ "sh" ];
+          };
+        };
+      };
+
+      # Direnv with devenv integration
+      direnv = {
+        enable = true;
+        nix-direnv.enable = true;
+        stdlib = ''
+          # devenv integration (v1.4+)
+          # This provides the use_devenv function for .envrc files
+          eval "$(devenv direnvrc)"
+        '';
+        config = {
+          global.hide_env_diff = true;
+        };
       };
 
       # Git configuration
